@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+/* =====================================================================
+   IDENTIDADE PROVISÓRIA DA DIVESTIR
+   Todas as cores e o papel de cada fonte do site ficam aqui.
+   Os arquivos de fonte são carregados em src/app/fontes/index.ts.
+   As cores de fundo seguem as cores das próprias peças.
+   ===================================================================== */
+@theme {
+  --color-preto: #121212;
+  --color-creme: #f3ede0;
+  --color-branco: #ffffff;
+  --color-vermelho: #e63b2e;
+}
+
+@theme inline {
+  --font-titulo: var(--font-anton), "Arial Narrow", sans-serif;
+  --font-destaque: var(--font-instrument-serif), Georgia, serif;
+  --font-texto: var(--font-inter), system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-preto);
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-preto);
+    color: var(--color-creme);
+    font-family: var(--font-texto);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: var(--color-vermelho);
+    color: var(--color-branco);
+  }
+
+  :focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+  }
+}
+
+@layer components {
+  /* Botão principal com formato de ingresso de show (furos nas laterais). */
+  .ingresso {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.5rem;
+    padding: 0 2.5rem;
+    color: var(--color-branco);
+    font-family: var(--font-texto);
+    font-size: 1.1875rem;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+    text-decoration: none;
+    transition: transform 150ms ease;
+  }
+
+  .ingresso::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: 0.375rem;
+    background-color: var(--color-vermelho);
+    --furo: 0.625rem;
+    -webkit-mask:
+      radial-gradient(circle at left center, transparent var(--furo), #000 calc(var(--furo) + 0.5px)) left / 51% 100% no-repeat,
+      radial-gradient(circle at right center, transparent var(--furo), #000 calc(var(--furo) + 0.5px)) right / 51% 100% no-repeat;
+    mask:
+      radial-gradient(circle at left center, transparent var(--furo), #000 calc(var(--furo) + 0.5px)) left / 51% 100% no-repeat,
+      radial-gradient(circle at right center, transparent var(--furo), #000 calc(var(--furo) + 0.5px)) right / 51% 100% no-repeat;
+    transition: background-color 150ms ease;
+  }
+
+  .ingresso:hover::before {
+    background-color: color-mix(in srgb, var(--color-vermelho) 88%, black);
+  }
+
+  .ingresso:active {
+    transform: translateY(1px);
+  }
+
+  .ingresso:focus-visible {
+    outline-color: var(--color-creme);
+    outline-offset: 5px;
+  }
+
+  /* Nome que se troca sozinho na estampa de exemplo. */
+  .nome-rotativo {
+    display: grid;
+  }
+
+  .nome-rotativo > span {
+    grid-area: 1 / 1;
+    opacity: 0;
+    animation: troca-nome 10s infinite;
+  }
+
+  .nome-rotativo > span:nth-child(2) {
+    animation-delay: 2.5s;
+  }
+
+  .nome-rotativo > span:nth-child(3) {
+    animation-delay: 5s;
+  }
+
+  .nome-rotativo > span:nth-child(4) {
+    animation-delay: 7.5s;
+  }
+}
+
+@keyframes troca-nome {
+  0% {
+    opacity: 0;
+    transform: translateY(0.06em);
+  }
+  3%,
+  22% {
+    opacity: 1;
+    transform: none;
+  }
+  25%,
+  100% {
+    opacity: 0;
+    transform: translateY(-0.06em);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nome-rotativo > span {
+    animation: none;
+  }
+
+  .nome-rotativo > span:first-child {
+    opacity: 1;
+  }
+
+  .ingresso {
+    transition: none;
+  }
+}
