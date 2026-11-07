@@ -35,7 +35,7 @@ O briefing completo está em `docs/divestir-briefing.md`. Ele é a fonte da verd
 ## Onde fica cada coisa
 
 - Identidade visual: cores e papel de cada fonte em `src/app/globals.css`; arquivos de fonte em `src/app/fontes/`. Mudanças de identidade acontecem só nesses dois lugares.
-  - Cores da marca, na proporção 60/30/10: creme `#F3EDE0` (fundo dominante), azul profundo `#102A63` (textos e blocos), laranja `#FF6B1A` (só destaques, como botões). Nunca texto laranja sobre creme (contraste baixo); nos botões laranja o texto é azul.
+  - Cores oficiais da marca, na proporção 60/30/10: creme `#FAF5EB` (fundo dominante), azul `#2954D1` (textos, botões e blocos), amarelo `#F5DB83` (destaque). Amarelo só aparece sobre o azul: sobre o creme ele some (contraste 1.3:1). Botões sobre o creme são azuis com texto creme.
   - Fontes ainda provisórias (Anton, Instrument Serif e Inter).
 - Conexão com o Supabase: `src/lib/supabase/client.ts` (navegador) e `src/lib/supabase/server.ts` (servidor).
 - Banco: migrations em `supabase/migrations/`. Toda mudança no banco vira uma migration nova, nunca edição de uma antiga.

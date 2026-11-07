@@ -62,15 +62,15 @@ export default function Home() {
               </p>
               <div className="relative z-10 -mt-[clamp(1.9rem,9.5vw,4.4rem)] grid aspect-square w-[clamp(9.5rem,42vw,16.5rem)] place-items-center rounded-full bg-creme shadow-[0_0_0_0.55rem_var(--color-azul)]">
                 <div className="absolute inset-[7%] rounded-full border-2 border-dashed border-azul/35" />
-                <span className="font-destaque text-[clamp(1.15rem,4.4vw,1.6rem)] text-azul/60 italic">
+                <span className="font-destaque text-[clamp(1.15rem,4.4vw,1.6rem)] text-azul/70 italic">
                   sua foto aqui
                 </span>
               </div>
-              <p className="relative z-20 mt-[0.06em] font-destaque text-[clamp(2.9rem,12vw,5.75rem)] leading-none text-laranja italic">
+              <p className="relative z-20 mt-[0.06em] font-destaque text-[clamp(2.9rem,12vw,5.75rem)] leading-none text-amarelo italic">
                 Fã-Clube
               </p>
             </div>
-            <figcaption className="mt-10 max-w-[34ch] text-[0.9375rem] leading-relaxed text-creme/75">
+            <figcaption className="mt-10 max-w-[34ch] text-[0.9375rem] leading-relaxed text-creme/90">
               Esse é o design Fã-Clube. Na sua peça entram a foto e o nome de quem você ama.
             </figcaption>
           </figure>
@@ -88,7 +88,7 @@ export default function Home() {
                 </span>
                 <div>
                   <h3 className="text-lg font-semibold">{passo.titulo}</h3>
-                  <p className="mt-1.5 leading-relaxed text-azul/75">{passo.texto}</p>
+                  <p className="mt-1.5 leading-relaxed text-azul/90">{passo.texto}</p>
                 </div>
               </li>
             ))}
@@ -99,7 +99,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="bg-azul px-4 py-8 text-center text-sm text-creme/70">© 2026 Divestir</footer>
+      <footer className="bg-azul px-4 py-8 text-center text-sm text-creme/90">© 2026 Divestir</footer>
     </>
   );
 }
