@@ -2,6 +2,8 @@
 
 Merch oficial de quem você ama. Site da Divestir: o cliente envia a foto de quem ama, escolhe a peça, o design, a cor e o tamanho, e recebe a peça em casa.
 
+Site no ar: https://divestir.vercel.app
+
 O briefing completo do produto está em [`docs/divestir-briefing.md`](docs/divestir-briefing.md).
 
 ## Rodar no computador
