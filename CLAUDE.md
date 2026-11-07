@@ -40,6 +40,7 @@ O briefing completo está em `docs/divestir-briefing.md`. Ele é a fonte da verd
 - Teste das regras de acesso do banco: `npm run testar:banco` (roda as migrations num Postgres local e confere quem lê e altera o quê). Rode sempre que mexer no banco.
 - Variáveis de ambiente: lista em `.env.example`.
 - Projeto no Supabase: `divestir` (ref `hpubkogmfhgabtzrpgxv`), região São Paulo, plano gratuito. Antes do lançamento, passar para o plano pago: no gratuito o banco pausa depois de uma semana sem uso.
+- Site no ar: https://divestir.vercel.app (projeto `divestir` no time LUCCO da Vercel). Cada envio para a branch `main` do GitHub publica o site sozinho. Antes de começar a vender, o time precisa estar no plano Pro: o Hobby da Vercel só permite uso pessoal, não comercial.
 
 ## Pendências técnicas
 
