@@ -29,7 +29,8 @@ O briefing completo do produto está em [`docs/divestir-briefing.md`](docs/dives
 | `src/app/fontes` | Fontes da identidade |
 | `src/lib/supabase` | Conexão com o Supabase |
 | `supabase/migrations` | Estrutura do banco (tabelas e regras de acesso) |
-| `scripts` | Testes e utilitários |
+| `scripts` | Testes e utilitários (inclui `preparar-vitrine.py`, que ajusta as fotos de exemplo da home) |
+| `public/exemplos` | Fotos de exemplo da vitrine da home |
 | `docs` | Briefing do produto |
 | `PRODUCT.md` | Quem é o cliente, o que a Divestir promete e o que ainda está em aberto |
 | `DESIGN.md` | Sistema visual: cores, fontes, formas, componentes e regras |

@@ -46,7 +46,7 @@ A foto de quem você ama vira ídolo, numa peça com cara de merch oficial (fã-
 ## Brand Commitments
 
 - Nome: Divestir (divertir + vestir). Marca própria e independente, sem ligação visível com outras marcas do Lucas (decisão do Lucas, 07/11/2026).
-- Cores oficiais, na proporção 60/30/10: creme `#FAF5EB`, azul `#2954D1` e amarelo `#F5DB83`.
+- Cores oficiais (decisão do Lucas, 07/11/2026): verde garrafa `#0D2B17` como cor principal (o verde exato do fundo da foto de referência do Fã-Clube), creme `#FAF5EB` e um acento de tendência que dê vida ao verde, hoje o rosa elétrico `#FF4FA8`. Substituem o azul e o amarelo da primeira versão.
 - Frase de topo atual, "Merch oficial de quem você ama.", é provisória. A definitiva vem depois.
 - Logo e fontes definitivas ainda estão em produção pelo Lucas.
 - Voz: português do Brasil, próxima, leve e calorosa.
@@ -56,6 +56,7 @@ A foto de quem você ama vira ídolo, numa peça com cara de merch oficial (fã-
 - Briefing completo do produto: `docs/divestir-briefing.md`.
 - 30 fotos de base das peças, geradas no Higgsfield (manequim invisível; 5 peças × 3 cores × frente e costas). Ainda não importadas para o projeto.
 - Mockups de conceito dos designs, gerados no Higgsfield com pets de exemplo. São ilustrações, não fotos de clientes.
+- Foto de referência do design Fã-Clube (Thor, camiseta oversized preta, fundo verde), enviada pelo Lucas: `public/exemplos/exemplo-thor.jpg`. Outros exemplos no mesmo estilo (Vó Cida, Mel, Duda) foram gerados no Higgsfield e entram na vitrine quando o Lucas aprovar. Na home, aparecem sempre como exemplos ilustrativos.
 - Ainda não existem e não devem ser inventados: depoimentos, clientes, números de vendas, fotos reais de produto e preços.
 
 ## Product Principles

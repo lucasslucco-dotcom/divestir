@@ -1,8 +1,13 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Montador | Divestir',
+};
+
+// O montador é uma tela de trabalho: papel creme no topo.
+export const viewport: Viewport = {
+  themeColor: '#faf5eb',
 };
 
 export default function Montar() {

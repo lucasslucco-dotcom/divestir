@@ -1,6 +1,5 @@
 import Link from 'next/link';
-
-const NOMES_DE_EXEMPLO = ['Thor', 'Vó Cida', 'Duda', 'Mel'];
+import { Vitrine } from './vitrine';
 
 const PASSOS = [
   {
@@ -21,13 +20,9 @@ const PASSOS = [
   },
 ];
 
-// Picote da área da foto: 72 furos distribuídos por igual na volta do círculo.
-const RAIO_DO_PICOTE = 48;
-const DISTANCIA_ENTRE_FUROS = ((2 * Math.PI * RAIO_DO_PICOTE) / 72).toFixed(4);
-
-function BotaoCriar() {
+function BotaoCriar({ sobreVerde = false }: { sobreVerde?: boolean }) {
   return (
-    <Link href="/montar" className="ingresso">
+    <Link href="/montar" className={sobreVerde ? 'ingresso ingresso-rosa' : 'ingresso'}>
       Criar minha Divestir
     </Link>
   );
@@ -36,56 +31,29 @@ function BotaoCriar() {
 export default function Home() {
   return (
     <>
-      <header className="flex justify-center px-4 pt-5">
-        <Link href="/" className="px-2 py-2 font-titulo text-xl uppercase tracking-[0.06em]">
-          Divestir
-        </Link>
-      </header>
+      <div className="bg-verde text-creme">
+        <header className="flex justify-center px-4 pt-5">
+          <Link href="/" className="px-2 py-2 font-titulo text-xl uppercase tracking-[0.06em]">
+            Divestir
+          </Link>
+        </header>
+      </div>
 
       <main>
-        <section className="mx-auto flex max-w-5xl flex-col items-center px-4 pt-14 pb-20 text-center sm:pt-24 sm:pb-28">
-          <h1 className="font-titulo text-[clamp(3.4rem,12vw,6rem)] leading-[1.12] text-balance uppercase">
-            Merch oficial de quem você ama.
-          </h1>
-          <p className="mt-6 max-w-[22ch] font-destaque text-[clamp(1.5rem,5.6vw,2.4rem)] leading-tight text-balance italic">
-            Manda a foto. A gente transforma em ídolo.
-          </p>
-          <div className="mt-10">
-            <BotaoCriar />
-          </div>
-        </section>
-
-        <section className="bg-azul text-creme">
-          <figure className="mx-auto flex max-w-5xl flex-col items-center px-4 pt-16 pb-14 text-center sm:pt-24 sm:pb-20">
-            <div aria-hidden="true" className="flex flex-col items-center">
-              <p className="font-destaque text-[clamp(1.25rem,4.6vw,1.9rem)] italic">Membro Oficial</p>
-              <p className="nome-rotativo mt-[0.14em] font-titulo text-[clamp(5rem,25vw,11.5rem)] leading-none uppercase">
-                {NOMES_DE_EXEMPLO.map((nome) => (
-                  <span key={nome}>{nome}</span>
-                ))}
-              </p>
-              <div className="relative z-10 -mt-[clamp(1.9rem,9.5vw,4.4rem)] grid aspect-square w-[clamp(9.5rem,42vw,16.5rem)] place-items-center rounded-full bg-creme text-azul outline-[0.55rem] outline-azul outline-solid">
-                <svg viewBox="0 0 100 100" fill="none" className="absolute top-[6%] left-[6%] size-[88%]">
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r={RAIO_DO_PICOTE}
-                    stroke="currentColor"
-                    strokeWidth="1.3"
-                    strokeLinecap="round"
-                    strokeDasharray={`0 ${DISTANCIA_ENTRE_FUROS}`}
-                  />
-                </svg>
-                <span className="font-destaque text-[clamp(1.15rem,4.4vw,1.6rem)] italic">sua foto aqui</span>
-              </div>
-              <p className="relative z-20 mt-[0.06em] font-destaque text-[clamp(2.9rem,12vw,5.75rem)] leading-none text-amarelo italic">
-                Fã-Clube
-              </p>
+        <section className="bg-verde pb-16 text-creme sm:pb-24">
+          <div className="mx-auto flex max-w-5xl flex-col items-center px-4 pt-14 text-center sm:pt-24">
+            <h1 className="font-titulo text-[clamp(3.4rem,12vw,6rem)] leading-[1.12] text-balance uppercase">
+              Merch oficial de quem você ama.
+            </h1>
+            <p className="mt-6 max-w-[22ch] font-destaque text-[clamp(1.5rem,5.6vw,2.4rem)] leading-tight text-balance italic">
+              Manda a foto. A gente transforma em ídolo.
+            </p>
+            <div className="mt-10">
+              <BotaoCriar sobreVerde />
             </div>
-            <figcaption className="mt-10 max-w-[34ch] text-[0.9375rem] leading-relaxed text-pretty">
-              Esse é o design Fã-Clube. Na sua peça entram a foto e o nome de quem você ama.
-            </figcaption>
-          </figure>
+          </div>
+
+          <Vitrine />
         </section>
 
         <section className="mx-auto max-w-5xl px-4 py-20 sm:py-28">
@@ -111,7 +79,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="bg-azul px-4 py-8 text-center text-sm text-creme">© 2026 Divestir</footer>
+      <footer className="bg-verde px-4 py-8 text-center text-sm text-creme">© 2026 Divestir</footer>
     </>
   );
 }

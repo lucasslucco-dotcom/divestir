@@ -22,8 +22,9 @@ export const metadata: Metadata = {
   },
 };
 
+// Cor da barra do navegador no celular: o verde do topo da home.
 export const viewport: Viewport = {
-  themeColor: '#faf5eb',
+  themeColor: '#0d2b17',
 };
 
 export default function RootLayout({

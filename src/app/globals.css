@@ -6,22 +6,25 @@
    Os arquivos de fonte são carregados em src/app/fontes/index.ts.
    O registro completo do sistema visual está em DESIGN.md.
 
-   Cores da marca, na proporção 60 / 30 / 10:
-     creme   #FAF5EB (60%)  fundo dominante, o "papel"
-     azul    #2954D1 (30%)  a "tinta": textos, botões e blocos
-     amarelo #F5DB83 (10%)  destaque, sempre sobre o azul
-   Contraste: azul e creme 5.9:1; azul e amarelo 4.7:1.
-   Amarelo e creme quase não se diferenciam (1.3:1): nunca amarelo sobre creme.
+   Cores da marca (decisão do Lucas, 07/11/2026):
+     verde #0D2B17  cor principal, o verde exato do fundo das fotos do Fã-Clube.
+                    Palco da vitrine (topo, exemplos, rodapé) e tinta sobre o creme.
+     creme #FAF5EB  o papel: fundo das partes de ler e de montar.
+     rosa  #FF4FA8  o acento que dá vida ao verde (Electric Fuchsia, cor-chave
+                    WGSN 2026). Só sobre o verde.
+   Contraste: verde e creme 14:1; verde e rosa 5:1.
+   Rosa e creme quase não se diferenciam (2.8:1): nunca rosa sobre creme.
 
-   Tinta única: texto sobre o creme é sempre azul cheio, sem transparência.
-   A hierarquia vem do tamanho, do peso e da fonte, nunca de azul apagado.
+   Tinta única: sobre o creme, todo texto é verde cheio; sobre o verde, creme
+   cheio. A hierarquia vem do tamanho, do peso e da fonte, nunca de transparência.
    ===================================================================== */
 @theme {
-  --color-azul: #2954d1;
+  --color-verde: #0d2b17;
   --color-creme: #faf5eb;
-  --color-amarelo: #f5db83;
-  /* Derivado do azul (86% azul, 14% preto). Só para o botão em hover e no toque. */
-  --color-azul-escuro: #2348b4;
+  --color-rosa: #ff4fa8;
+  /* Estados do ingresso (hover e toque). Não são cores de marca. */
+  --color-verde-claro: #1f4d30;
+  --color-rosa-claro: #ff7dbe;
 
   /* Movimento: saída exponencial, rápida no começo e macia no fim. */
   --ease-saida: cubic-bezier(0.16, 1, 0.3, 1);
@@ -35,18 +38,19 @@
 
 @layer base {
   html {
-    background-color: var(--color-creme);
+    /* O verde aparece quando a tela "estica" no topo ou no fim do celular. */
+    background-color: var(--color-verde);
     color-scheme: light;
     font-synthesis: none;
-    caret-color: var(--color-azul);
-    accent-color: var(--color-azul);
-    scrollbar-color: color-mix(in srgb, var(--color-azul) 45%, var(--color-creme)) transparent;
-    -webkit-tap-highlight-color: color-mix(in srgb, var(--color-azul) 14%, transparent);
+    caret-color: var(--color-verde);
+    accent-color: var(--color-verde);
+    scrollbar-color: color-mix(in srgb, var(--color-verde) 40%, var(--color-creme)) transparent;
+    -webkit-tap-highlight-color: color-mix(in srgb, var(--color-verde) 14%, transparent);
   }
 
   body {
     background-color: var(--color-creme);
-    color: var(--color-azul);
+    color: var(--color-verde);
     font-family: var(--font-texto);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -57,8 +61,8 @@
   }
 
   ::selection {
-    background-color: var(--color-amarelo);
-    color: var(--color-azul);
+    background-color: var(--color-rosa);
+    color: var(--color-verde);
   }
 
   :focus-visible {
@@ -68,8 +72,11 @@
 }
 
 @layer components {
-  /* Botão principal com formato de ingresso de show (furos nas laterais). */
+  /* Botão principal com formato de ingresso de show (furos nas laterais).
+     Sobre o creme: verde com texto creme. Sobre o verde: use .ingresso-rosa. */
   .ingresso {
+    --ingresso-fundo: var(--color-verde);
+    --ingresso-fundo-ativo: var(--color-verde-claro);
     position: relative;
     isolation: isolate;
     display: inline-flex;
@@ -88,13 +95,19 @@
     transition: transform 200ms var(--ease-saida);
   }
 
+  .ingresso-rosa {
+    --ingresso-fundo: var(--color-rosa);
+    --ingresso-fundo-ativo: var(--color-rosa-claro);
+    color: var(--color-verde);
+  }
+
   .ingresso::before {
     content: "";
     position: absolute;
     inset: 0;
     z-index: -1;
     border-radius: 0.375rem;
-    background-color: var(--color-azul);
+    background-color: var(--ingresso-fundo);
     --furo: 0.625rem;
     -webkit-mask:
       radial-gradient(circle at left center, transparent var(--furo), #000 calc(var(--furo) + 0.5px)) left / 51% 100% no-repeat,
@@ -107,12 +120,12 @@
 
   @media (hover: hover) {
     .ingresso:hover::before {
-      background-color: var(--color-azul-escuro);
+      background-color: var(--ingresso-fundo-ativo);
     }
   }
 
   .ingresso:active::before {
-    background-color: var(--color-azul-escuro);
+    background-color: var(--ingresso-fundo-ativo);
   }
 
   .ingresso:active {
@@ -120,73 +133,42 @@
   }
 
   .ingresso:focus-visible {
-    outline-color: var(--color-azul);
+    outline-color: var(--ingresso-fundo);
     outline-offset: 5px;
   }
 
   /* Número vazado, como a numeração de uma camisa de time. */
   .numero-vazado {
     color: transparent;
-    -webkit-text-stroke: 1.5px var(--color-azul);
+    -webkit-text-stroke: 1.5px var(--color-verde);
   }
 
-  /* Nome que se troca sozinho na estampa de exemplo. */
-  .nome-rotativo {
-    display: grid;
+  /* Borda que se dissolve no verde: as fotos de exemplo têm o mesmo fundo
+     da faixa, então a peça parece solta no palco, sem moldura. Só em cima e
+     embaixo, onde a luz da foto varia; nas laterais o fundo já é igual e as
+     mangas chegam perto da borda. */
+  .borda-suave {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
   }
 
-  .nome-rotativo > span {
-    grid-area: 1 / 1;
-    opacity: 0;
-    animation: troca-nome 10s infinite;
+  /* Vitrine que desliza com o dedo no celular, sem barra de rolagem aparente. */
+  .vitrine {
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .nome-rotativo > span:nth-child(2) {
-    animation-delay: 2.5s;
-  }
-
-  .nome-rotativo > span:nth-child(3) {
-    animation-delay: 5s;
-  }
-
-  .nome-rotativo > span:nth-child(4) {
-    animation-delay: 7.5s;
-  }
-}
-
-/* Cada nome entra subindo e ganhando foco, fica 1,7 s e sai acelerando. */
-@keyframes troca-nome {
-  0% {
-    opacity: 0;
-    transform: translateY(0.08em);
-    filter: blur(0.04em);
-    animation-timing-function: var(--ease-saida);
-  }
-  4%,
-  21% {
-    opacity: 1;
-    transform: none;
-    filter: blur(0);
-    animation-timing-function: cubic-bezier(0.7, 0, 0.84, 0);
-  }
-  25%,
-  100% {
-    opacity: 0;
-    transform: translateY(-0.05em);
-    filter: blur(0.04em);
+  .vitrine::-webkit-scrollbar {
+    display: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nome-rotativo > span {
-    animation: none;
-  }
-
-  .nome-rotativo > span:first-child {
-    opacity: 1;
-  }
-
   .ingresso {
     transition: none;
+  }
+
+  .vitrine {
+    scroll-behavior: auto;
   }
 }
