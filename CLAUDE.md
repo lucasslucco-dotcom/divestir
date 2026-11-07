@@ -44,6 +44,7 @@ O briefing completo está em `docs/divestir-briefing.md`. Ele é a fonte da verd
 ## Pendências técnicas
 
 - Etapa 8 (painel): reorganizar as regras de leitura de `pecas`, `cores`, `peca_imagens`, `designs` e `equipe` para uma regra por papel e por ação. O Supabase avisa que hoje há duas regras de leitura para usuários logados nessas tabelas (aviso só de desempenho). A mudança precisa de DROP POLICY, então pede confirmação.
+- Quando o site ganhar rotas no servidor (upload de foto, checkout), configurar a região das funções da Vercel para São Paulo (`gru1`), perto do banco.
 
 ## Etapa atual
 
