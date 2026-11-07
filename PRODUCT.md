@@ -1,0 +1,67 @@
+# Product
+
+<!-- impeccable:product-schema 1 -->
+
+## Platform
+
+web
+
+Site responsivo, pensado primeiro para o celular: a maioria dos clientes monta a peça pelo telefone. Não há app nativo na v1.
+
+## Users
+
+Dois públicos com o mesmo peso nas decisões de produto e de linguagem (decisão do Lucas, 07/11/2026):
+
+- **Quem compra de presente:** escolhe a peça para dar a alguém, com a foto de quem essa pessoa ama (o pet do amigo, os avós da mãe) ou da própria pessoa presenteada.
+- **Quem compra pra si:** quer vestir a foto de quem ama: o próprio pet, alguém da família, um amigo ou um objeto que é a cara dele.
+
+Os dois passam pelo mesmo montador. O presente ganha um caminho próprio no carrinho: embalagem especial, cartão com mensagem e envio direto para quem vai receber.
+
+## Product Purpose
+
+A Divestir vende roupas personalizadas sob demanda com a foto de quem a pessoa ama estampada em designs autorais da marca. O cliente escolhe a peça, envia a foto, escolhe o design, a cor e o tamanho, e vê a peça pronta em tempo real antes de comprar. A peça é feita sob medida e chega em casa.
+
+Sucesso: a pessoa se emociona ao ver a prévia, compra, e volta para criar outra Divestir quando sai um design novo.
+
+## Positioning
+
+A foto de quem você ama vira ídolo, numa peça com cara de merch oficial (fã-clube, turnê, time), e não um "produto com foto". O diferencial é a experiência de montar: a pessoa vê a própria peça nascer na tela, com a foto e o nome dela, antes de pagar. Os designs são templates autorais lançados em drops, com entrada e saída, para dar motivo de voltar.
+
+## Operating Context
+
+- Fluxo do montador: peça → foto → nome → design → cor → tamanho → carrinho (detalhes em `docs/divestir-briefing.md`, seção "Jornada do cliente e o montador").
+- A foto é checada (resolução e nitidez), recortada automaticamente e encaixada no template. Toda prévia é marcada como ilustrativa.
+- Produção, estamparia (DTF) e entrega já são resolvidas pela operação. O site só mostra ao cliente o prazo e o rastreio.
+- O cliente acompanha o pedido por e-mail e WhatsApp, sem precisar de conta. A equipe opera um painel interno: revisão de arte, lote de produção, status e avisos.
+
+## Capabilities and Constraints
+
+- Peças da v1: camiseta regular, camiseta oversized, moletom sem capuz, moletom com capuz e jaqueta college (mangas contrastantes). Cores de peça: preto, branco e creme. Tamanhos: PP ao GGG. A estampa vai nas costas.
+- Designs são templates configuráveis (área da foto, campo do nome, tinta por cor de peça), nunca imagens fixas. Linha inicial: Fã-Clube, Turnê, Futebol Clube, Capa de Revista, Procura-se e Maison.
+- Fora da v1: programa de indicação, conta do cliente com histórico e app nativo.
+- Fotos de terceiros: o cliente declara ter autorização para usar a imagem, e as fotos são apagadas depois do prazo definido nos termos (LGPD).
+- Designs autorais: sem logos, nomes ou símbolos de marcas, bandas, times ou revistas reais.
+- Em aberto: preços das peças, áreas de impressão em centímetros, prazo de personalização exibido no checkout e política de troca.
+
+## Brand Commitments
+
+- Nome: Divestir (divertir + vestir). Marca própria e independente, sem ligação visível com outras marcas do Lucas (decisão do Lucas, 07/11/2026).
+- Cores oficiais, na proporção 60/30/10: creme `#FAF5EB`, azul `#2954D1` e amarelo `#F5DB83`.
+- Frase de topo atual, "Merch oficial de quem você ama.", é provisória. A definitiva vem depois.
+- Logo e fontes definitivas ainda estão em produção pelo Lucas.
+- Voz: português do Brasil, próxima, leve e calorosa.
+
+## Evidence on Hand
+
+- Briefing completo do produto: `docs/divestir-briefing.md`.
+- 30 fotos de base das peças, geradas no Higgsfield (manequim invisível; 5 peças × 3 cores × frente e costas). Ainda não importadas para o projeto.
+- Mockups de conceito dos designs, gerados no Higgsfield com pets de exemplo. São ilustrações, não fotos de clientes.
+- Ainda não existem e não devem ser inventados: depoimentos, clientes, números de vendas, fotos reais de produto e preços.
+
+## Product Principles
+
+1. A prévia é o produto: o cliente vê a peça pronta, com a foto e o nome dele, antes de pagar.
+2. Pet, gente e objeto cabem em todo design: nenhum template funciona só com cachorro.
+3. Celular primeiro: montar a peça com uma mão precisa ser simples.
+4. Poucos designs, sempre fortes, lançados em drops: a novidade traz o cliente de volta.
+5. Foto ruim é barrada cedo: a qualidade da estampa protege a marca.
