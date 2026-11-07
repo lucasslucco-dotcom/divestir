@@ -55,4 +55,4 @@ O briefing completo está em `docs/divestir-briefing.md`. Ele é a fonte da verd
 
 ## Etapa atual
 
-Etapa 1: Base do projeto.
+Etapa 2: Catálogo. A Etapa 1 (base do projeto) foi concluída e aprovada em 07/11/2026; o logo definitivo ainda está com o Lucas e entra quando ficar pronto. Para começar a Etapa 2, as 30 fotos de base das peças precisam estar na pasta `divestir` do Mac Studio.

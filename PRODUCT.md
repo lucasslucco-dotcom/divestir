@@ -57,7 +57,7 @@ A foto de quem você ama vira ídolo, numa peça com cara de merch oficial (fã-
 - Briefing completo do produto: `docs/divestir-briefing.md`.
 - 30 fotos de base das peças, geradas no Higgsfield (manequim invisível; 5 peças × 3 cores × frente e costas). Ainda não importadas para o projeto.
 - Mockups de conceito dos designs, gerados no Higgsfield com pets de exemplo. São ilustrações, não fotos de clientes.
-- Foto de referência do design Fã-Clube (Thor, camiseta oversized preta, fundo verde), enviada pelo Lucas: `public/exemplos/exemplo-thor.jpg`. Outros exemplos no mesmo estilo (Vó Cida, Mel, Duda) foram gerados no Higgsfield e entram na vitrine quando o Lucas aprovar. Na home, aparecem sempre como exemplos ilustrativos.
+- Vitrine da home com 8 exemplos ilustrativos em `public/exemplos/`: um para cada design (Fã-Clube, Capa de Revista, Futebol Clube, Turnê, Maison, Procura-se), com pets, pessoas e um objeto, em peças e cores diferentes. O Thor veio da foto de referência enviada pelo Lucas; os outros foram gerados no Higgsfield no mesmo estilo, com o mesmo fundo verde. Na home, aparecem sempre como exemplos ilustrativos.
 - Ainda não existem e não devem ser inventados: depoimentos, clientes, números de vendas, fotos reais de produto e preços.
 
 ## Product Principles
