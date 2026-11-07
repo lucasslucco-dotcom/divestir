@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-07T05:56:47-03:00",
+  "title": "Design System: Divestir",
+  "extensions": {
+    "colorMeta": {
+      "creme": {
+        "role": "neutral",
+        "displayName": "Papel Creme",
+        "canonical": "oklch(97.1% 0.014 84.6)",
+        "tonalRamp": [
+          "#0c0b08",
+          "#272520",
+          "#45423b",
+          "#656158",
+          "#868279",
+          "#a8a59d",
+          "#ccc9c3",
+          "#f0eeea"
+        ]
+      },
+      "azul": {
+        "role": "primary",
+        "displayName": "Azul Tinta",
+        "canonical": "oklch(49.7% 0.199 265.1)",
+        "tonalRamp": [
+          "#01042e",
+          "#071b5f",
+          "#173794",
+          "#2954cd",
+          "#4878f5",
+          "#74a0ff",
+          "#a3c8ff",
+          "#d3eeff"
+        ]
+      },
+      "azul-escuro": {
+        "role": "primary",
+        "displayName": "Azul Tinta Funda",
+        "canonical": "oklch(44.6% 0.177 265.2)",
+        "tonalRamp": [
+          "#01062a",
+          "#0b1e58",
+          "#1c3a8b",
+          "#3057c2",
+          "#4f7be9",
+          "#7aa2fd",
+          "#a7c8ff",
+          "#d6efff"
+        ]
+      },
+      "amarelo": {
+        "role": "secondary",
+        "displayName": "Amarelo Holofote",
+        "canonical": "oklch(89.4% 0.112 93.4)",
+        "tonalRamp": [
+          "#120a00",
+          "#302300",
+          "#524000",
+          "#765f00",
+          "#988027",
+          "#b8a462",
+          "#d8c996",
+          "#f9efcb"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "O título do topo da página, em caixa-alta."
+      },
+      "headline": {
+        "displayName": "Título de faixa",
+        "purpose": "O título de cada faixa, como \"Como funciona\"."
+      },
+      "estampa": {
+        "displayName": "Estampa",
+        "purpose": "Só o nome dentro da prévia de design. É arte, não título."
+      },
+      "destaque": {
+        "displayName": "Destaque",
+        "purpose": "A frase de afeto abaixo do título, sempre em itálico."
+      },
+      "title": {
+        "displayName": "Título de item",
+        "purpose": "O título de cada passo ou item."
+      },
+      "body": {
+        "displayName": "Texto",
+        "purpose": "O texto corrido."
+      },
+      "caption": {
+        "displayName": "Legenda",
+        "purpose": "Legendas e links de apoio."
+      },
+      "button": {
+        "displayName": "Botão",
+        "purpose": "O texto do ingresso."
+      },
+      "marca": {
+        "displayName": "Marca",
+        "purpose": "O nome Divestir no topo, até o logo chegar."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "ease-saida",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Saída exponencial: o nome que entra na estampa e a cor do ingresso no hover e no toque."
+      },
+      {
+        "name": "ease-acelera",
+        "value": "cubic-bezier(0.7, 0, 0.84, 0)",
+        "purpose": "O nome que vai embora na estampa sai acelerando."
+      },
+      {
+        "name": "botao",
+        "value": "200ms",
+        "purpose": "Hover e toque do ingresso."
+      },
+      {
+        "name": "troca-nome",
+        "value": "10s em ciclo, um nome a cada 2.5s",
+        "purpose": "O único movimento da página: entra em 0.4s, fica 1.7s e sai em 0.4s. Desligado com movimento reduzido."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Ingresso",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "A ação principal: ingresso azul com furos laterais, 56 px, um por tela.",
+      "html": "<a class=\"ds-ingresso\" href=\"#\">Criar minha Divestir</a>",
+      "css": ".ds-ingresso{position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;min-height:3.5rem;padding:0 2.5rem;border-radius:.5rem;color:var(--color-creme);font-family:var(--font-inter),system-ui,sans-serif;font-size:1.1875rem;font-weight:700;letter-spacing:-.005em;text-decoration:none;-webkit-tap-highlight-color:transparent;transition:transform 200ms cubic-bezier(.16,1,.3,1)}.ds-ingresso::before{content:'';position:absolute;inset:0;z-index:-1;border-radius:.375rem;background-color:var(--color-azul);-webkit-mask:radial-gradient(circle at left center,transparent .625rem,#000 calc(.625rem + .5px)) left/51% 100% no-repeat,radial-gradient(circle at right center,transparent .625rem,#000 calc(.625rem + .5px)) right/51% 100% no-repeat;mask:radial-gradient(circle at left center,transparent .625rem,#000 calc(.625rem + .5px)) left/51% 100% no-repeat,radial-gradient(circle at right center,transparent .625rem,#000 calc(.625rem + .5px)) right/51% 100% no-repeat;transition:background-color 200ms cubic-bezier(.16,1,.3,1)}.ds-ingresso:hover::before,.ds-ingresso:active::before{background-color:var(--color-azul-escuro)}.ds-ingresso:active{transform:translateY(1px)}.ds-ingresso:focus-visible{outline:2px solid var(--color-azul);outline-offset:5px}"
+    },
+    {
+      "name": "Link de texto",
+      "kind": "custom",
+      "refersTo": "link-texto",
+      "description": "Ação secundária: sublinhado fino que engrossa no hover, área de toque de 44 px.",
+      "html": "<a class=\"ds-link\" href=\"#\">Voltar para o início</a>",
+      "css": ".ds-link{display:inline-block;padding:.75rem 0;color:var(--color-azul);font-family:var(--font-inter),system-ui,sans-serif;font-size:.9375rem;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.3em}.ds-link:hover{text-decoration-thickness:2px}.ds-link:focus-visible{outline:2px solid currentColor;outline-offset:4px}"
+    },
+    {
+      "name": "Marca no topo",
+      "kind": "nav",
+      "refersTo": "marca",
+      "description": "O nome Divestir centralizado no topo, provisório até o logo.",
+      "html": "<a class=\"ds-marca\" href=\"#\">Divestir</a>",
+      "css": ".ds-marca{display:inline-block;padding:.5rem;color:var(--color-azul);font-family:var(--font-anton),'Arial Narrow',sans-serif;font-size:1.25rem;line-height:1.75rem;letter-spacing:.06em;text-transform:uppercase;text-decoration:none}.ds-marca:focus-visible{outline:2px solid currentColor;outline-offset:4px}"
+    },
+    {
+      "name": "Prévia da estampa Fã-Clube",
+      "kind": "custom",
+      "refersTo": "disco-da-foto",
+      "description": "A carteirinha do fã-clube: nome gigante, disco com picote que morde o nome e o design em amarelo.",
+      "html": "<div class=\"ds-estampa\"><p class=\"ds-estampa-membro\">Membro Oficial</p><p class=\"ds-estampa-nome\">Thor</p><div class=\"ds-estampa-disco\"><svg class=\"ds-estampa-picote\" viewBox=\"0 0 100 100\" fill=\"none\"><circle cx=\"50\" cy=\"50\" r=\"48\" stroke=\"currentColor\" stroke-width=\"1.3\" stroke-linecap=\"round\" stroke-dasharray=\"0 4.1888\"/></svg><span>sua foto aqui</span></div><p class=\"ds-estampa-design\">Fã-Clube</p></div>",
+      "css": ".ds-estampa{display:flex;flex-direction:column;align-items:center;padding:3rem 1.5rem;background:var(--color-azul);color:var(--color-creme);text-align:center}.ds-estampa p{margin:0}.ds-estampa-membro{font-family:var(--font-instrument-serif),Georgia,serif;font-style:italic;font-size:1.25rem}.ds-estampa-nome{margin-top:.14em!important;font-family:var(--font-anton),'Arial Narrow',sans-serif;font-size:6rem;line-height:1;text-transform:uppercase}.ds-estampa-disco{position:relative;z-index:1;display:grid;place-items:center;width:9.5rem;aspect-ratio:1;margin-top:-1.9rem;border-radius:9999px;background:var(--color-creme);color:var(--color-azul);outline:.55rem solid var(--color-azul)}.ds-estampa-picote{position:absolute;top:6%;left:6%;width:88%;height:88%}.ds-estampa-disco span{font-family:var(--font-instrument-serif),Georgia,serif;font-style:italic;font-size:1.15rem}.ds-estampa-design{position:relative;z-index:2;margin-top:.06em!important;font-family:var(--font-instrument-serif),Georgia,serif;font-style:italic;font-size:2.9rem;line-height:1;color:var(--color-amarelo)}"
+    },
+    {
+      "name": "Passo numerado",
+      "kind": "custom",
+      "description": "Item de lista com número vazado de camisa, título e texto em tinta única.",
+      "html": "<div class=\"ds-passo\"><span class=\"ds-passo-numero\">1</span><div><p class=\"ds-passo-titulo\">Escolhe a peça</p><p class=\"ds-passo-texto\">Camiseta regular ou oversized, moletom com ou sem capuz, ou jaqueta college.</p></div></div>",
+      "css": ".ds-passo{display:flex;gap:1.25rem;max-width:22rem;color:var(--color-azul);font-family:var(--font-inter),system-ui,sans-serif}.ds-passo p{margin:0}.ds-passo-numero{flex-shrink:0;width:1.75rem;font-family:var(--font-anton),'Arial Narrow',sans-serif;font-size:3rem;line-height:1;color:transparent;-webkit-text-stroke:1.5px var(--color-azul)}.ds-passo-titulo{font-size:1.125rem;line-height:1.75rem;font-weight:600}.ds-passo-texto{margin-top:.375rem!important;line-height:1.625}"
+    }
+  ],
+  "narrative": {
+    "northStar": "O Fã-Clube Impresso",
+    "overview": "A Divestir se comporta como merch de fã-clube impressa: papel creme, uma tinta azul e um amarelo de holofote que só aparece sobre o azul. Quem a pessoa ama é o ídolo, e a interface é o material de divulgação desse ídolo: o ingresso, a carteirinha de membro, a camisa numerada, o adesivo picotado. Tudo é chapado, como uma estampa. Não tem sombra, gradiente nem texto apagado; a profundidade vem de sobreposição e recorte, como o disco da foto que morde o nome.\n\nO site de venda fala alto e com afeto ao mesmo tempo. Os títulos são enormes, em Anton caixa-alta. A frase que toca o coração vem em Instrument Serif itálica, e o texto corrido em Inter, que resolve sem aparecer. A composição é central e vertical, pensada para o polegar: uma ideia por faixa, alternando o papel creme e a faixa azul. O único movimento autoral é a troca de nomes na estampa de exemplo. O resto fica parado.\n\nO sistema rejeita, por decisão do Lucas: poluição visual, cara de template genérico e amarelo sobre o creme. As fontes e a marca escrita são provisórias até o logo definitivo; os papéis de cada fonte ficam.",
+    "keyCharacteristics": [
+      "Papel creme domina, azul estrutura (texto, faixas, botão), amarelo pontua só sobre o azul.",
+      "Uma tinta só: todo texto sobre o creme é azul cheio.",
+      "Anton gigante em caixa-alta para títulos e nomes, Instrument Serif itálica para o afeto, Inter para o resto.",
+      "Ingresso, picote e número de camisa como assinatura.",
+      "Chapado, sem sombra: profundidade por sobreposição e recorte.",
+      "Celular primeiro: coluna central, toque de 44 px, uma ideia por faixa."
+    ],
+    "rules": [
+      {
+        "name": "A Regra da Tinta Única",
+        "body": "Texto sobre o creme é sempre azul cheio, sem transparência. A hierarquia vem do tamanho, do peso e da fonte. Se um texto precisa de azul apagado para recuar, ele precisa de outro tamanho ou de outra fonte.",
+        "section": "colors"
+      },
+      {
+        "name": "A Regra do Holofote",
+        "body": "O amarelo só existe sobre o azul. Sobre o creme ele some (1.26:1), então lá ele nunca entra, nem como texto, nem como fundo, nem como ícone.",
+        "section": "colors"
+      },
+      {
+        "name": "A Regra do Teto de 6rem",
+        "body": "Título nenhum passa de 6rem. Só a estampa, o nome dentro da prévia do design, pode ser maior, porque ela é a peça, não a página.",
+        "section": "typography"
+      },
+      {
+        "name": "A Regra da Caixa-Alta da Anton",
+        "body": "Caixa-alta é só da Anton: títulos, nomes e marca. Inter e Instrument Serif ficam em caixa normal, e o navegador nunca inventa negrito ou itálico que a fonte não tem.",
+        "section": "typography"
+      },
+      {
+        "name": "A Regra do Impresso",
+        "body": "Se não dá para imprimir com as tintas da marca, não entra: nada de sombra, brilho, vidro, desfoque decorativo ou gradiente.",
+        "section": "elevation"
+      },
+      {
+        "name": "A Regra do Picote",
+        "body": "Furo e picote são a assinatura da Divestir. Eles dizem \"isso é seu\" ou \"a sua foto entra aqui\". Nunca viram textura de fundo ou enfeite solto.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do use Azul Tinta cheio em todo texto sobre o Papel Creme (5.89:1).",
+      "Do use o Amarelo Holofote só sobre o azul, em um elemento por faixa.",
+      "Do mantenha todo título em até 6rem; só o nome da estampa passa disso.",
+      "Do use o ingresso para a ação principal, um por tela.",
+      "Do teste a estampa com pet, gente e objeto, com nomes curtos, longos e acentuados.",
+      "Do garanta 44px de área de toque em tudo que é clicável."
+    ],
+    "donts": [
+      "Don't coloque amarelo sobre o creme (1.26:1).",
+      "Don't use azul transparente em texto para criar hierarquia.",
+      "Don't use sombra, gradiente, vidro ou brilho.",
+      "Don't coloque um rótulo pequeno em caixa-alta em cima de um título.",
+      "Don't encha a tela: nada de poluição visual ou cara de template genérico.",
+      "Don't crie um segundo movimento na mesma página; a troca de nomes é o momento."
+    ]
+  }
+}

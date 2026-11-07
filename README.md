@@ -31,3 +31,6 @@ O briefing completo do produto está em [`docs/divestir-briefing.md`](docs/dives
 | `supabase/migrations` | Estrutura do banco (tabelas e regras de acesso) |
 | `scripts` | Testes e utilitários |
 | `docs` | Briefing do produto |
+| `PRODUCT.md` | Quem é o cliente, o que a Divestir promete e o que ainda está em aberto |
+| `DESIGN.md` | Sistema visual: cores, fontes, formas, componentes e regras |
+| `.claude/skills/impeccable` | Skill de design usada para criar e polir as telas |

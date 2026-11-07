@@ -34,9 +34,11 @@ O briefing completo está em `docs/divestir-briefing.md`. Ele é a fonte da verd
 
 ## Onde fica cada coisa
 
-- Identidade visual: cores e papel de cada fonte em `src/app/globals.css`; arquivos de fonte em `src/app/fontes/`. Mudanças de identidade acontecem só nesses dois lugares.
+- Identidade visual: cores e papel de cada fonte em `src/app/globals.css`; arquivos de fonte em `src/app/fontes/`. Mudanças de identidade acontecem só nesses dois lugares e são registradas em `DESIGN.md`.
   - Cores oficiais da marca, na proporção 60/30/10: creme `#FAF5EB` (fundo dominante), azul `#2954D1` (textos, botões e blocos), amarelo `#F5DB83` (destaque). Amarelo só aparece sobre o azul: sobre o creme ele some (contraste 1.3:1). Botões sobre o creme são azuis com texto creme.
+  - Tinta única: texto sobre o creme é sempre azul cheio, sem transparência. A hierarquia vem do tamanho, do peso e da fonte.
   - Fontes ainda provisórias (Anton, Instrument Serif e Inter).
+- Design com o Impeccable (skill em `.claude/skills/impeccable`): a verdade do produto fica em `PRODUCT.md` e o sistema visual em `DESIGN.md`, com os componentes em `.impeccable/design.json`. Leia os dois antes de qualquer tela nova e atualize o `DESIGN.md` quando o sistema mudar. Os guias são lidos direto da pasta `reference/` da skill (o launcher, que baixa um programa, não é usado).
 - Conexão com o Supabase: `src/lib/supabase/client.ts` (navegador) e `src/lib/supabase/server.ts` (servidor).
 - Banco: migrations em `supabase/migrations/`. Toda mudança no banco vira uma migration nova, nunca edição de uma antiga.
 - Teste das regras de acesso do banco: `npm run testar:banco` (roda as migrations num Postgres local e confere quem lê e altera o quê). Rode sempre que mexer no banco.

@@ -4,19 +4,27 @@
    IDENTIDADE DA DIVESTIR
    Todas as cores e o papel de cada fonte do site ficam aqui.
    Os arquivos de fonte são carregados em src/app/fontes/index.ts.
+   O registro completo do sistema visual está em DESIGN.md.
 
    Cores da marca, na proporção 60 / 30 / 10:
-     creme   #FAF5EB (60%)  fundo dominante
-     azul    #2954D1 (30%)  textos, botões e blocos
+     creme   #FAF5EB (60%)  fundo dominante, o "papel"
+     azul    #2954D1 (30%)  a "tinta": textos, botões e blocos
      amarelo #F5DB83 (10%)  destaque, sempre sobre o azul
    Contraste: azul e creme 5.9:1; azul e amarelo 4.7:1.
    Amarelo e creme quase não se diferenciam (1.3:1): nunca amarelo sobre creme.
+
+   Tinta única: texto sobre o creme é sempre azul cheio, sem transparência.
+   A hierarquia vem do tamanho, do peso e da fonte, nunca de azul apagado.
    ===================================================================== */
 @theme {
   --color-azul: #2954d1;
   --color-creme: #faf5eb;
   --color-amarelo: #f5db83;
-  --color-branco: #ffffff;
+  /* Derivado do azul (86% azul, 14% preto). Só para o botão em hover e no toque. */
+  --color-azul-escuro: #2348b4;
+
+  /* Movimento: saída exponencial, rápida no começo e macia no fim. */
+  --ease-saida: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @theme inline {
@@ -29,6 +37,11 @@
   html {
     background-color: var(--color-creme);
     color-scheme: light;
+    font-synthesis: none;
+    caret-color: var(--color-azul);
+    accent-color: var(--color-azul);
+    scrollbar-color: color-mix(in srgb, var(--color-azul) 45%, var(--color-creme)) transparent;
+    -webkit-tap-highlight-color: color-mix(in srgb, var(--color-azul) 14%, transparent);
   }
 
   body {
@@ -37,6 +50,10 @@
     font-family: var(--font-texto);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  p {
+    text-wrap: pretty;
   }
 
   ::selection {
@@ -60,13 +77,15 @@
     justify-content: center;
     min-height: 3.5rem;
     padding: 0 2.5rem;
+    border-radius: 0.5rem;
     color: var(--color-creme);
     font-family: var(--font-texto);
     font-size: 1.1875rem;
     font-weight: 700;
     letter-spacing: -0.005em;
     text-decoration: none;
-    transition: transform 150ms ease;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 200ms var(--ease-saida);
   }
 
   .ingresso::before {
@@ -83,11 +102,17 @@
     mask:
       radial-gradient(circle at left center, transparent var(--furo), #000 calc(var(--furo) + 0.5px)) left / 51% 100% no-repeat,
       radial-gradient(circle at right center, transparent var(--furo), #000 calc(var(--furo) + 0.5px)) right / 51% 100% no-repeat;
-    transition: background-color 150ms ease;
+    transition: background-color 200ms var(--ease-saida);
   }
 
-  .ingresso:hover::before {
-    background-color: color-mix(in srgb, var(--color-azul) 86%, black);
+  @media (hover: hover) {
+    .ingresso:hover::before {
+      background-color: var(--color-azul-escuro);
+    }
+  }
+
+  .ingresso:active::before {
+    background-color: var(--color-azul-escuro);
   }
 
   .ingresso:active {
@@ -97,6 +122,12 @@
   .ingresso:focus-visible {
     outline-color: var(--color-azul);
     outline-offset: 5px;
+  }
+
+  /* Número vazado, como a numeração de uma camisa de time. */
+  .numero-vazado {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--color-azul);
   }
 
   /* Nome que se troca sozinho na estampa de exemplo. */
@@ -123,20 +154,26 @@
   }
 }
 
+/* Cada nome entra subindo e ganhando foco, fica 1,7 s e sai acelerando. */
 @keyframes troca-nome {
   0% {
     opacity: 0;
-    transform: translateY(0.06em);
+    transform: translateY(0.08em);
+    filter: blur(0.04em);
+    animation-timing-function: var(--ease-saida);
   }
-  3%,
-  22% {
+  4%,
+  21% {
     opacity: 1;
     transform: none;
+    filter: blur(0);
+    animation-timing-function: cubic-bezier(0.7, 0, 0.84, 0);
   }
   25%,
   100% {
     opacity: 0;
-    transform: translateY(-0.06em);
+    transform: translateY(-0.05em);
+    filter: blur(0.04em);
   }
 }
 

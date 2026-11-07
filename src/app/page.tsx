@@ -21,6 +21,10 @@ const PASSOS = [
   },
 ];
 
+// Picote da área da foto: 72 furos distribuídos por igual na volta do círculo.
+const RAIO_DO_PICOTE = 48;
+const DISTANCIA_ENTRE_FUROS = ((2 * Math.PI * RAIO_DO_PICOTE) / 72).toFixed(4);
+
 function BotaoCriar() {
   return (
     <Link href="/montar" className="ingresso">
@@ -32,18 +36,18 @@ function BotaoCriar() {
 export default function Home() {
   return (
     <>
-      <header className="flex justify-center px-4 pt-7">
-        <Link href="/" className="font-titulo text-xl uppercase tracking-[0.06em]">
+      <header className="flex justify-center px-4 pt-5">
+        <Link href="/" className="px-2 py-2 font-titulo text-xl uppercase tracking-[0.06em]">
           Divestir
         </Link>
       </header>
 
       <main>
         <section className="mx-auto flex max-w-5xl flex-col items-center px-4 pt-14 pb-20 text-center sm:pt-24 sm:pb-28">
-          <h1 className="font-titulo text-[clamp(3.4rem,14vw,8.75rem)] leading-[1.12] text-balance uppercase">
+          <h1 className="font-titulo text-[clamp(3.4rem,12vw,6rem)] leading-[1.12] text-balance uppercase">
             Merch oficial de quem você ama.
           </h1>
-          <p className="mt-6 max-w-[22ch] font-destaque text-[clamp(1.5rem,5.6vw,2.4rem)] leading-tight text-balance text-azul/80 italic">
+          <p className="mt-6 max-w-[22ch] font-destaque text-[clamp(1.5rem,5.6vw,2.4rem)] leading-tight text-balance italic">
             Manda a foto. A gente transforma em ídolo.
           </p>
           <div className="mt-10">
@@ -60,17 +64,25 @@ export default function Home() {
                   <span key={nome}>{nome}</span>
                 ))}
               </p>
-              <div className="relative z-10 -mt-[clamp(1.9rem,9.5vw,4.4rem)] grid aspect-square w-[clamp(9.5rem,42vw,16.5rem)] place-items-center rounded-full bg-creme shadow-[0_0_0_0.55rem_var(--color-azul)]">
-                <div className="absolute inset-[7%] rounded-full border-2 border-dashed border-azul/35" />
-                <span className="font-destaque text-[clamp(1.15rem,4.4vw,1.6rem)] text-azul/70 italic">
-                  sua foto aqui
-                </span>
+              <div className="relative z-10 -mt-[clamp(1.9rem,9.5vw,4.4rem)] grid aspect-square w-[clamp(9.5rem,42vw,16.5rem)] place-items-center rounded-full bg-creme text-azul outline-[0.55rem] outline-azul outline-solid">
+                <svg viewBox="0 0 100 100" fill="none" className="absolute top-[6%] left-[6%] size-[88%]">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r={RAIO_DO_PICOTE}
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                    strokeLinecap="round"
+                    strokeDasharray={`0 ${DISTANCIA_ENTRE_FUROS}`}
+                  />
+                </svg>
+                <span className="font-destaque text-[clamp(1.15rem,4.4vw,1.6rem)] italic">sua foto aqui</span>
               </div>
               <p className="relative z-20 mt-[0.06em] font-destaque text-[clamp(2.9rem,12vw,5.75rem)] leading-none text-amarelo italic">
                 Fã-Clube
               </p>
             </div>
-            <figcaption className="mt-10 max-w-[34ch] text-[0.9375rem] leading-relaxed text-creme/90">
+            <figcaption className="mt-10 max-w-[34ch] text-[0.9375rem] leading-relaxed text-pretty">
               Esse é o design Fã-Clube. Na sua peça entram a foto e o nome de quem você ama.
             </figcaption>
           </figure>
@@ -83,12 +95,12 @@ export default function Home() {
           <ol className="mx-auto mt-12 grid max-w-3xl gap-10 sm:mt-16 sm:grid-cols-2 sm:gap-x-16 sm:gap-y-14">
             {PASSOS.map((passo, i) => (
               <li key={passo.titulo} className="flex gap-5">
-                <span aria-hidden="true" className="w-7 shrink-0 font-titulo text-5xl leading-none text-azul/25">
+                <span aria-hidden="true" className="numero-vazado w-7 shrink-0 font-titulo text-5xl leading-none">
                   {i + 1}
                 </span>
                 <div>
                   <h3 className="text-lg font-semibold">{passo.titulo}</h3>
-                  <p className="mt-1.5 leading-relaxed text-azul/90">{passo.texto}</p>
+                  <p className="mt-1.5 leading-relaxed">{passo.texto}</p>
                 </div>
               </li>
             ))}
@@ -99,7 +111,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="bg-azul px-4 py-8 text-center text-sm text-creme/90">© 2026 Divestir</footer>
+      <footer className="bg-azul px-4 py-8 text-center text-sm text-creme">© 2026 Divestir</footer>
     </>
   );
 }
