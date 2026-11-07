@@ -12,12 +12,12 @@ export default function Montar() {
         Divestir
       </Link>
       <h1 className="mt-14 font-titulo text-[clamp(4.25rem,19vw,9.5rem)] leading-[0.9] uppercase">Em breve</h1>
-      <p className="mt-6 max-w-[24ch] font-destaque text-[clamp(1.45rem,5.2vw,2.1rem)] leading-tight text-balance text-creme/85 italic">
+      <p className="mt-6 max-w-[24ch] font-destaque text-[clamp(1.45rem,5.2vw,2.1rem)] leading-tight text-balance text-azul/80 italic">
         O montador está sendo costurado. Daqui a pouco você monta a sua Divestir aqui.
       </p>
       <Link
         href="/"
-        className="mt-10 text-[0.9375rem] underline decoration-creme/40 underline-offset-4 transition-colors hover:decoration-creme"
+        className="mt-10 text-[0.9375rem] underline decoration-azul/40 underline-offset-4 transition-colors hover:decoration-azul"
       >
         Voltar para o início
       </Link>

@@ -1,16 +1,22 @@
 @import "tailwindcss";
 
 /* =====================================================================
-   IDENTIDADE PROVISÓRIA DA DIVESTIR
+   IDENTIDADE DA DIVESTIR
    Todas as cores e o papel de cada fonte do site ficam aqui.
    Os arquivos de fonte são carregados em src/app/fontes/index.ts.
-   As cores de fundo seguem as cores das próprias peças.
+
+   Cores da marca, na proporção 60 / 30 / 10:
+     creme (60%)  fundo dominante
+     azul  (30%)  textos e blocos de destaque
+     laranja (10%) só para chamar atenção: botões e detalhes
+   Contraste: azul sobre creme 11.7:1; azul sobre laranja 4.8:1.
+   Não usar texto laranja sobre creme (contraste baixo).
    ===================================================================== */
 @theme {
-  --color-preto: #121212;
+  --color-azul: #102a63;
   --color-creme: #f3ede0;
+  --color-laranja: #ff6b1a;
   --color-branco: #ffffff;
-  --color-vermelho: #e63b2e;
 }
 
 @theme inline {
@@ -21,21 +27,21 @@
 
 @layer base {
   html {
-    background-color: var(--color-preto);
-    color-scheme: dark;
+    background-color: var(--color-creme);
+    color-scheme: light;
   }
 
   body {
-    background-color: var(--color-preto);
-    color: var(--color-creme);
+    background-color: var(--color-creme);
+    color: var(--color-azul);
     font-family: var(--font-texto);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   ::selection {
-    background-color: var(--color-vermelho);
-    color: var(--color-branco);
+    background-color: var(--color-laranja);
+    color: var(--color-azul);
   }
 
   :focus-visible {
@@ -54,7 +60,7 @@
     justify-content: center;
     min-height: 3.5rem;
     padding: 0 2.5rem;
-    color: var(--color-branco);
+    color: var(--color-azul);
     font-family: var(--font-texto);
     font-size: 1.1875rem;
     font-weight: 700;
@@ -69,7 +75,7 @@
     inset: 0;
     z-index: -1;
     border-radius: 0.375rem;
-    background-color: var(--color-vermelho);
+    background-color: var(--color-laranja);
     --furo: 0.625rem;
     -webkit-mask:
       radial-gradient(circle at left center, transparent var(--furo), #000 calc(var(--furo) + 0.5px)) left / 51% 100% no-repeat,
@@ -81,7 +87,7 @@
   }
 
   .ingresso:hover::before {
-    background-color: color-mix(in srgb, var(--color-vermelho) 88%, black);
+    background-color: color-mix(in srgb, var(--color-laranja) 88%, white);
   }
 
   .ingresso:active {
@@ -89,7 +95,7 @@
   }
 
   .ingresso:focus-visible {
-    outline-color: var(--color-creme);
+    outline-color: var(--color-azul);
     outline-offset: 5px;
   }
 

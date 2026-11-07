@@ -34,7 +34,9 @@ O briefing completo está em `docs/divestir-briefing.md`. Ele é a fonte da verd
 
 ## Onde fica cada coisa
 
-- Identidade visual (provisória): cores e papel de cada fonte em `src/app/globals.css`; arquivos de fonte em `src/app/fontes/`. A troca pela identidade definitiva acontece só nesses dois lugares.
+- Identidade visual: cores e papel de cada fonte em `src/app/globals.css`; arquivos de fonte em `src/app/fontes/`. Mudanças de identidade acontecem só nesses dois lugares.
+  - Cores da marca, na proporção 60/30/10: creme `#F3EDE0` (fundo dominante), azul profundo `#102A63` (textos e blocos), laranja `#FF6B1A` (só destaques, como botões). Nunca texto laranja sobre creme (contraste baixo); nos botões laranja o texto é azul.
+  - Fontes ainda provisórias (Anton, Instrument Serif e Inter).
 - Conexão com o Supabase: `src/lib/supabase/client.ts` (navegador) e `src/lib/supabase/server.ts` (servidor).
 - Banco: migrations em `supabase/migrations/`. Toda mudança no banco vira uma migration nova, nunca edição de uma antiga.
 - Teste das regras de acesso do banco: `npm run testar:banco` (roda as migrations num Postgres local e confere quem lê e altera o quê). Rode sempre que mexer no banco.
