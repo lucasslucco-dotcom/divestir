@@ -171,7 +171,7 @@
       "name": "Marca no topo",
       "kind": "nav",
       "refersTo": "marca",
-      "description": "O nome Divestir centralizado no topo do palco verde, provisório até o logo.",
+      "description": "O nome Divestir centralizado no topo do palco verde, até o logo definitivo chegar.",
       "html": "<div style=\"background:var(--color-verde);padding:1rem 2rem;display:inline-block\"><a class=\"ds-marca\" href=\"#\">Divestir</a></div>",
       "css": ".ds-marca{display:inline-block;padding:.5rem;color:var(--color-creme);font-family:var(--font-anton),'Arial Narrow',sans-serif;font-size:1.25rem;line-height:1.75rem;letter-spacing:.06em;text-transform:uppercase;text-decoration:none}.ds-marca:focus-visible{outline:2px solid currentColor;outline-offset:4px}"
     },
@@ -193,7 +193,7 @@
   ],
   "narrative": {
     "northStar": "O Fã-Clube Impresso",
-    "overview": "A Divestir se comporta como merch de fã-clube impressa: tinta verde garrafa, papel creme e um rosa elétrico que só acende sobre o verde. Quem a pessoa ama é o ídolo, e a interface é o material de divulgação desse ídolo: o ingresso, a camisa numerada, a vitrine da loja. Tudo é chapado, como uma estampa. Não tem sombra decorativa, gradiente de enfeite nem texto apagado.\n\nO verde garrafa é o palco. É o verde exato do fundo das fotos do Fã-Clube (decisão do Lucas, 07/11/2026), então as peças aparecem soltas na página, sem moldura, como se estivessem penduradas na loja. O creme é o papel, onde a pessoa lê e monta. O rosa é a vida: ele marca o ingresso e os nomes, e mais nada. O site fala alto e com afeto ao mesmo tempo: títulos enormes em Anton caixa-alta, a frase do coração em Instrument Serif itálica, o resto em Inter. A composição é central e vertical, pensada para o polegar.\n\nO sistema rejeita, por decisão do Lucas: poluição visual, cara de template genérico, rosa sobre o creme e qualquer cor fora da paleta. As fontes e a marca escrita são provisórias até o logo definitivo; os papéis de cada fonte ficam.",
+    "overview": "A Divestir se comporta como merch de fã-clube impressa: tinta verde garrafa, papel creme e um rosa elétrico que só acende sobre o verde. Quem a pessoa ama é o ídolo, e a interface é o material de divulgação desse ídolo: o ingresso, a camisa numerada, a vitrine da loja. Tudo é chapado, como uma estampa. Não tem sombra decorativa, gradiente de enfeite nem texto apagado.\n\nO verde garrafa é o palco. É o verde exato do fundo das fotos do Fã-Clube (decisão do Lucas, 07/11/2026), então as peças aparecem soltas na página, sem moldura, como se estivessem penduradas na loja. O creme é o papel, onde a pessoa lê e monta. O rosa é a vida: ele marca o ingresso e os nomes, e mais nada. O site fala alto e com afeto ao mesmo tempo: títulos enormes em Anton caixa-alta, a frase do coração em Instrument Serif itálica, o resto em Inter. A composição é central e vertical, pensada para o polegar.\n\nO sistema rejeita, por decisão do Lucas: poluição visual, cara de template genérico, rosa sobre o creme e qualquer cor fora da paleta. A paleta e as fontes estão fechadas (decisão do Lucas, 07/11/2026); só a marca escrita é provisória até o logo definitivo.",
     "keyCharacteristics": [
       "Palco verde garrafa para mostrar, papel creme para ler e montar.",
       "Fotos de exemplo com o fundo no verde exato da página: a peça flutua, sem moldura.",

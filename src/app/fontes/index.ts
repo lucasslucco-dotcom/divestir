@@ -1,6 +1,6 @@
 import localFont from 'next/font/local';
 
-// Fontes da identidade provisória da Divestir.
+// Fontes oficiais da Divestir (decisão do Lucas, 07/11/2026).
 // Para trocar: substitua os arquivos desta pasta e ajuste os nomes abaixo.
 // As cores e o papel de cada fonte ficam em src/app/globals.css.
 

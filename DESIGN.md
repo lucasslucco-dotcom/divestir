@@ -112,7 +112,7 @@ A Divestir se comporta como merch de fã-clube impressa: tinta verde garrafa, pa
 
 O verde garrafa é o palco. É o verde exato do fundo das fotos do Fã-Clube (decisão do Lucas, 07/11/2026), então as peças aparecem soltas na página, sem moldura, como se estivessem penduradas na loja. O creme é o papel, onde a pessoa lê e monta. O rosa é a vida: ele marca o ingresso e os nomes, e mais nada. O site fala alto e com afeto ao mesmo tempo: títulos enormes em Anton caixa-alta, a frase do coração em Instrument Serif itálica, o resto em Inter. A composição é central e vertical, pensada para o polegar.
 
-O sistema rejeita, por decisão do Lucas: poluição visual, cara de template genérico, rosa sobre o creme e qualquer cor fora da paleta. As fontes e a marca escrita são provisórias até o logo definitivo; os papéis de cada fonte ficam.
+O sistema rejeita, por decisão do Lucas: poluição visual, cara de template genérico, rosa sobre o creme e qualquer cor fora da paleta. A paleta e as fontes estão fechadas (decisão do Lucas, 07/11/2026); só a marca escrita é provisória até o logo definitivo.
 
 **Key Characteristics:**
 - Palco verde garrafa para mostrar, papel creme para ler e montar.

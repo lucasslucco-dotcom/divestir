@@ -39,7 +39,7 @@ O briefing completo está em `docs/divestir-briefing.md`. Ele é a fonte da verd
   - Regra do palco: o verde é para mostrar (topo, vitrine de peças, rodapé) e o creme é para ler e fazer (como funciona, montador, checkout).
   - Tinta única: sobre o creme, todo texto é verde cheio; sobre o verde, creme cheio. Sem transparência; a hierarquia vem do tamanho, do peso e da fonte.
   - Fotos da vitrine ficam em `public/exemplos/` e passam antes pelo `scripts/preparar-vitrine.py`, que deixa o fundo da foto no verde exato da página.
-  - Fontes ainda provisórias (Anton, Instrument Serif e Inter).
+  - Fontes oficiais (decisão do Lucas, 07/11): Anton nos títulos, Instrument Serif no destaque e Inter no texto. Paleta e fontes estão fechadas; só o logo ainda está em produção.
 - Design com o Impeccable (skill em `.claude/skills/impeccable`): a verdade do produto fica em `PRODUCT.md` e o sistema visual em `DESIGN.md`, com os componentes em `.impeccable/design.json`. Leia os dois antes de qualquer tela nova e atualize o `DESIGN.md` quando o sistema mudar. Os guias são lidos direto da pasta `reference/` da skill (o launcher, que baixa um programa, não é usado).
 - Conexão com o Supabase: `src/lib/supabase/client.ts` (navegador) e `src/lib/supabase/server.ts` (servidor).
 - Banco: migrations em `supabase/migrations/`. Toda mudança no banco vira uma migration nova, nunca edição de uma antiga.
