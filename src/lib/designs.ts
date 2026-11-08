@@ -15,12 +15,17 @@ export async function carregarDesigns(): Promise<Design[]> {
   const supabase = criarClientePublico();
   const { data, error } = await supabase
     .from('designs')
-    .select('slug, nome, config')
+    .select('slug, nome, config, drop_entrada, drop_saida')
     .eq('status', 'ativo')
     .order('ordem');
   if (error || !data) throw new Error(`Não foi possível carregar os designs: ${error?.message ?? 'resposta vazia'}`);
 
   return data
     .filter((design) => ehConfigDoMolde(design.config))
-    .map((design) => ({ slug: design.slug, nome: design.nome, config: design.config }));
+    .map((design) => ({
+      slug: design.slug,
+      nome: design.nome,
+      config: design.config,
+      drop: { entrada: design.drop_entrada, saida: design.drop_saida },
+    }));
 }

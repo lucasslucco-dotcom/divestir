@@ -1,49 +1,311 @@
 'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useState } from 'react';
-import type { Catalogo, Lado, Peca } from '@/lib/catalogo';
+import { useCallback, useEffect, useId, useMemo, useReducer, useRef, useState, type FocusEvent } from 'react';
+import type { Catalogo, Cor } from '@/lib/catalogo';
+import { checarFoto } from '@/lib/foto/checar';
+import { ENQUADRAMENTO_INICIAL, medirRecorte } from '@/lib/foto/enquadramento';
+import { abrirVaga, codigoNovo, enviarOriginal, type Vaga } from '@/lib/foto/guardar';
+import { pedirRecorte, prepararParaRecorte } from '@/lib/foto/recorte';
+import {
+  apagarRecortesFora,
+  guardarCarrinho,
+  guardarMontagem,
+  guardarRecorte,
+  lerCarrinhoGuardado,
+  lerMontagemGuardada,
+  lerRecorte,
+} from '@/lib/montagem/guardar';
+import { CARRINHO_VAZIO, MONTAGEM_VAZIA, type Carrinho, type ItemDoCarrinho } from '@/lib/montagem/tipos';
+import { textoDoCampo } from '@/lib/molde/desenhar';
+import { esquecerImagem } from '@/lib/molde/recursos';
+import type { Design, Lado } from '@/lib/molde/tipos';
+import { Doca, type DescricaoDaVista, type Vista } from './doca';
+import { ID_DOS_PASSOS, nomeDaPeca, oQueFalta, reduzir, resolver, type Falta } from './estado';
+import { PassoDesign } from './passo-design';
+import { PassoFoto, type EnvioDaFoto, type FotoReaproveitavel } from './passo-foto';
+import { PassoResumo } from './passo-resumo';
+import { Passo, PassoCor, PassoNome, PassoPeca, PassoTamanho } from './passos';
+import type { ArteDaPrevia, FotoDaPrevia, MudarEnquadramento } from './tela-da-previa';
 
-const LADOS: { valor: Lado; nome: string }[] = [
-  { valor: 'frente', nome: 'Frente' },
-  { valor: 'costas', nome: 'Costas' },
-];
+// O montador completo (briefing, "Jornada do cliente e o montador"): uma página só,
+// com a prévia fixa e os 7 passos. Tudo o que a pessoa escolhe fica guardado no
+// navegador; se ela fechar a aba, volta de onde parou, com a foto.
 
-// Uma foto de base da prévia. Todas as fotos da peça escolhida ficam
-// carregadas e empilhadas; só a ativa aparece, então trocar de cor ou de lado
-// é instantâneo, com uma passagem suave.
-function FotoDaPeca({ url, ativa, descricao }: { url: string; ativa: boolean; descricao: string }) {
-  const [carregada, setCarregada] = useState(false);
-  return (
-    <Image
-      src={url}
-      alt={ativa ? descricao : ''}
-      aria-hidden={!ativa}
-      fill
-      sizes="(min-width: 1024px) 640px, (min-width: 640px) 576px, calc(100vw - 32px)"
-      loading="eager"
-      fetchPriority={ativa ? 'high' : 'low'}
-      onLoad={() => setCarregada(true)}
-      className={`object-cover transition-opacity duration-300 ease-saida ${ativa && carregada ? 'opacity-100' : 'opacity-0'}`}
-    />
+type VagaEmAndamento = Promise<{ vaga: Vaga; envio: Promise<boolean> } | null>;
+type Processo = { id: number; arquivo: File; url: string; vaga: VagaEmAndamento };
+
+const suave = (): ScrollBehavior => (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
+
+const minusculo = (texto: string) => texto.toLocaleLowerCase('pt-BR');
+const noLado = (lado: Lado) => (lado === 'costas' ? 'nas costas' : 'na frente');
+
+export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: Design[] }) {
+  const [montagem, despachar] = useReducer(reduzir, MONTAGEM_VAZIA);
+  const [carrinho, setCarrinho] = useState<Carrinho>(CARRINHO_VAZIO);
+  const [restaurada, setRestaurada] = useState(false);
+  const [recorte, setRecorte] = useState<{ chave: string; url: string } | null>(null);
+  const [envio, setEnvio] = useState<EnvioDaFoto | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const [vista, setVista] = useState<Vista | null>(null);
+  const [compacta, setCompacta] = useState(false);
+  const [adicionada, setAdicionada] = useState<string | null>(null);
+  const processo = useRef<Processo | null>(null);
+  const recorteAtual = useRef<{ chave: string; url: string } | null>(null);
+  const raiz = useRef<HTMLDivElement>(null);
+  const doca = useRef<HTMLDivElement>(null);
+  const idDaDica = useId();
+
+  // Volta de onde a pessoa parou (depois de a página abrir, porque o servidor não
+  // conhece o que está guardado no navegador).
+  useEffect(() => {
+    const salva = lerMontagemGuardada();
+    if (salva) despachar({ tipo: 'restaurar', montagem: salva });
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- o navegador só é lido depois de a página abrir
+    setCarrinho(lerCarrinhoGuardado());
+    setRestaurada(true);
+  }, []);
+
+  useEffect(() => {
+    if (restaurada) guardarMontagem(montagem);
+  }, [montagem, restaurada]);
+
+  // O recorte em uso: um endereço temporário do navegador, liberado quando sai de cena.
+  const trocarRecorte = useCallback((novo: { chave: string; url: string } | null) => {
+    const antigo = recorteAtual.current;
+    if (antigo && antigo.url !== novo?.url) {
+      URL.revokeObjectURL(antigo.url);
+      esquecerImagem(antigo.url);
+    }
+    recorteAtual.current = novo;
+    setRecorte(novo);
+  }, []);
+
+  // Foto guardada de uma visita anterior: o recorte volta do armazenamento do navegador.
+  const chaveDaFoto = montagem.foto?.chave ?? null;
+  useEffect(() => {
+    if (!chaveDaFoto || recorteAtual.current?.chave === chaveDaFoto) return;
+    let ativo = true;
+    void lerRecorte(chaveDaFoto).then((arquivo) => {
+      if (!ativo) return;
+      if (!arquivo) {
+        despachar({ tipo: 'sem-foto' });
+        setAviso('A foto que você tinha mandado não ficou guardada neste aparelho. Manda de novo?');
+        return;
+      }
+      trocarRecorte({ chave: chaveDaFoto, url: URL.createObjectURL(arquivo) });
+    });
+    return () => {
+      ativo = false;
+    };
+  }, [chaveDaFoto, trocarRecorte]);
+
+  // Recortes que nenhuma montagem nem peça do carrinho usa mais saem do navegador.
+  const chavesEmUso = [montagem.foto?.chave, ...carrinho.itens.map((item) => item.foto.chave)]
+    .filter(Boolean)
+    .sort()
+    .join('|');
+  useEffect(() => {
+    if (!restaurada) return;
+    const espera = setTimeout(() => void apagarRecortesFora(new Set(chavesEmUso.split('|').filter(Boolean))), 3000);
+    return () => clearTimeout(espera);
+  }, [chavesEmUso, restaurada]);
+
+  // A altura da prévia fixa, para os passos pararem logo abaixo dela ao rolar.
+  useEffect(() => {
+    const elemento = doca.current;
+    const alvo = raiz.current;
+    if (!elemento || !alvo) return;
+    const medir = () => alvo.style.setProperty('--altura-da-doca', `${elemento.offsetHeight}px`);
+    medir();
+    const observador = new ResizeObserver(medir);
+    observador.observe(elemento);
+    return () => observador.disconnect();
+  }, []);
+
+  function irPara(passo: keyof typeof ID_DOS_PASSOS) {
+    requestAnimationFrame(() =>
+      document.getElementById(ID_DOS_PASSOS[passo])?.scrollIntoView({ behavior: suave(), block: 'start' }),
+    );
+  }
+
+  function limparEnvio() {
+    if (processo.current) URL.revokeObjectURL(processo.current.url);
+    processo.current = null;
+    setEnvio(null);
+  }
+
+  async function recortar(id: number) {
+    const atual = processo.current;
+    if (!atual || atual.id !== id) return;
+    const falhar = (mensagem: string) => setEnvio((e) => (e?.id === id ? { ...e, etapa: 'erro', mensagem } : e));
+    setEnvio((e) => (e?.id === id ? { ...e, etapa: 'recortando', mensagem: undefined } : e));
+    // A redução da foto e a vaga no espaço privado andam juntas.
+    const [reduzida, vaga] = await Promise.all([prepararParaRecorte(atual.url, atual.arquivo), atual.vaga]);
+    if (processo.current?.id !== id) return;
+    if (!reduzida) return falhar('Não consegui preparar essa foto. Tenta mandar em JPG?');
+    try {
+      const { url, recorte: arquivoDoRecorte, teste } = await pedirRecorte(reduzida, vaga?.vaga);
+      const geometria = await medirRecorte(url).catch(() => null);
+      if (processo.current?.id !== id || !geometria) {
+        URL.revokeObjectURL(url);
+        if (processo.current?.id === id) falhar('Não consegui mostrar o recorte. Tenta de novo?');
+        return;
+      }
+      const chave = vaga?.vaga.id ?? codigoNovo();
+      void guardarRecorte(chave, arquivoDoRecorte);
+      trocarRecorte({ chave, url });
+      despachar({
+        tipo: 'foto',
+        foto: {
+          chave,
+          id: vaga?.vaga.id ?? null,
+          sessao: vaga?.vaga.sessao ?? null,
+          geometria,
+          enquadramento: ENQUADRAMENTO_INICIAL,
+          aprovada: false,
+          teste,
+          original: vaga ? 'enviando' : 'sem-vaga',
+          criadaEm: new Date().toISOString(),
+        },
+      });
+      void vaga?.envio.then((ok) => despachar({ tipo: 'original', chave, original: ok ? 'enviada' : 'falhou' }));
+      setEnvio((e) => (e?.id === id ? { ...e, etapa: 'pronta' } : e));
+      setVista('perto');
+      // O ajuste acontece na prévia: o passo da foto para logo abaixo dela.
+      irPara('foto');
+    } catch (motivo) {
+      falhar(motivo instanceof Error ? motivo.message : 'Não consegui tirar o fundo agora.');
+    }
+  }
+
+  async function escolherArquivo(arquivo: File) {
+    const anterior = processo.current;
+    if (anterior) URL.revokeObjectURL(anterior.url);
+    const id = (anterior?.id ?? 0) + 1;
+    const url = URL.createObjectURL(arquivo);
+    processo.current = { id, arquivo, url, vaga: Promise.resolve(null) };
+    setAviso(null);
+    setEnvio({ id, url, checagem: null, etapa: 'conferindo' });
+    irPara('foto');
+
+    const checagem = await checarFoto(arquivo, url);
+    if (processo.current?.id !== id) return;
+    // Foto barrada não segue para o recorte nem é guardada.
+    if (checagem.nivel === 'bloqueio') {
+      setEnvio({ id, url, checagem, etapa: 'barrada' });
+      return;
+    }
+    setEnvio({ id, url, checagem, etapa: 'recortando' });
+    // A original vai para o espaço privado enquanto o recorte acontece.
+    const vaga: VagaEmAndamento = abrirVaga(arquivo, url, {
+      largura: checagem.largura,
+      altura: checagem.altura,
+      nitidez: checagem.nitidez,
+    }).then(
+      (aberta) => (aberta ? { vaga: aberta.vaga, envio: enviarOriginal(aberta.vaga, aberta.original) } : null),
+      () => null,
+    );
+    processo.current = { id, arquivo, url, vaga };
+    await recortar(id);
+  }
+
+  function aprovar() {
+    despachar({ tipo: 'aprovar' });
+    limparEnvio();
+    irPara('nome');
+  }
+
+  function ajustar() {
+    despachar({ tipo: 'ajustar' });
+    setVista('perto');
+    irPara('foto');
+  }
+
+  async function reaproveitar(item: FotoReaproveitavel) {
+    const arquivo = await lerRecorte(item.foto.chave);
+    if (!arquivo) {
+      setAviso('Essa foto não está mais guardada neste aparelho. Manda de novo?');
+      return;
+    }
+    setAviso(null);
+    trocarRecorte({ chave: item.foto.chave, url: URL.createObjectURL(arquivo) });
+    despachar({ tipo: 'foto', foto: { ...item.foto, aprovada: true }, campos: item.campos });
+    setVista('perto');
+  }
+
+  const enquadrar = useCallback<MudarEnquadramento>((mudanca) => despachar({ tipo: 'enquadrar', mudanca }), []);
+
+  const r = useMemo(() => resolver(catalogo, designs, montagem), [catalogo, designs, montagem]);
+  const fotoDaPrevia = useMemo<FotoDaPrevia | null>(
+    () =>
+      montagem.foto && recorte && recorte.chave === montagem.foto.chave
+        ? { url: recorte.url, geometria: montagem.foto.geometria, enquadramento: montagem.foto.enquadramento }
+        : null,
+    [montagem.foto, recorte],
   );
-}
 
-function nomeDaPeca(peca: Peca) {
-  return `${peca.nome} · ${peca.caimento}`;
-}
+  // A peça montada que já foi para o carrinho; qualquer mudança vira uma peça nova.
+  const assinatura = JSON.stringify([
+    montagem.peca,
+    montagem.cor,
+    montagem.design,
+    montagem.lado,
+    montagem.campos,
+    montagem.tamanho,
+    montagem.foto?.chave,
+    montagem.foto?.enquadramento,
+    montagem.foto?.aprovada,
+  ]);
 
-export function Montador({ catalogo }: { catalogo: Catalogo }) {
-  const corPadrao = catalogo.cores.find((cor) => cor.slug === 'preto') ?? catalogo.cores[0];
-  const [pecaEscolhida, setPecaEscolhida] = useState(catalogo.pecas[0]?.slug);
-  const [corEscolhida, setCorEscolhida] = useState(corPadrao?.slug);
-  const [lado, setLado] = useState<Lado>('frente');
+  function adicionar() {
+    if (!r || !r.design || !r.tamanho || !montagem.foto?.aprovada) return;
+    if (oQueFalta(montagem, r).length) return;
+    const item: ItemDoCarrinho = {
+      id: codigoNovo(),
+      criadoEm: new Date().toISOString(),
+      peca: r.peca.slug,
+      cor: r.cor.slug,
+      design: r.design.slug,
+      lado: r.lado,
+      campos: Object.fromEntries(r.design.config.campos.map((c) => [c.chave, (montagem.campos[c.chave] ?? '').trim()])),
+      tamanho: r.tamanho,
+      foto: montagem.foto,
+    };
+    // Lê de novo antes de somar: outra aba pode ter mexido no carrinho.
+    const novo: Carrinho = { versao: 1, itens: [...lerCarrinhoGuardado().itens, item] };
+    guardarCarrinho(novo);
+    setCarrinho(novo);
+    setAdicionada(assinatura);
+  }
 
-  const peca = catalogo.pecas.find((item) => item.slug === pecaEscolhida) ?? catalogo.pecas[0];
-  const cor = catalogo.cores.find((item) => item.slug === corEscolhida) ?? corPadrao;
+  function criarOutra() {
+    despachar({ tipo: 'nova' });
+    trocarRecorte(null);
+    limparEnvio();
+    setVista(null);
+    setAdicionada(null);
+    setAviso(null);
+    window.scrollTo({ top: 0, behavior: suave() });
+  }
 
-  if (!peca || !cor) {
+  // No celular, enquanto a pessoa digita, a prévia encolhe e o campo para logo abaixo dela.
+  function aoFocar(evento: FocusEvent<HTMLOListElement>) {
+    const campo = evento.target;
+    if (!(campo instanceof HTMLInputElement) || campo.type !== 'text') return;
+    if (!window.matchMedia('(max-width: 1023px) and (pointer: coarse)').matches) return;
+    setCompacta(true);
+    setTimeout(() => {
+      const livre = (doca.current?.getBoundingClientRect().bottom ?? 0) + 16;
+      const caixa = campo.closest('li')?.querySelector('label') ?? campo;
+      window.scrollBy({ top: caixa.getBoundingClientRect().top - livre, behavior: suave() });
+    }, 320);
+  }
+
+  function aoDesfocar(evento: FocusEvent<HTMLOListElement>) {
+    if (evento.target instanceof HTMLInputElement && evento.target.type === 'text') setCompacta(false);
+  }
+
+  if (!r) {
     return (
       <p className="mx-auto mt-16 max-w-[34ch] text-center leading-relaxed">
         As peças ainda estão chegando por aqui. Volta daqui a pouco que elas já estarão no lugar.
@@ -51,127 +313,237 @@ export function Montador({ catalogo }: { catalogo: Catalogo }) {
     );
   }
 
-  const descricaoAtiva = `${nomeDaPeca(peca)}, cor ${cor.nome.toLowerCase()}, ${lado === 'frente' ? 'de frente' : 'de costas'}`;
+  const valores = montagem.campos;
+  const nome = (valores.nome ?? '').trim();
+  const pecaNome = nomeDaPeca(r.peca, catalogo.pecas);
+  const nomeNaArte = (design: Design) => textoDoCampo(design.config, 'nome', valores);
+  const descreverDesign = (design: Design, cor: Cor, modo = '') =>
+    `Prévia ilustrativa: ${design.nome} com o nome ${nomeNaArte(design)}, ${minusculo(pecaNome)} ${minusculo(cor.nome)}, estampa ${noLado(r.lado)}${modo}`;
+
+  // As vistas da prévia: com a foto, a estampa de perto, o lado da estampa inteiro e
+  // o outro lado; antes da foto, a frente e as costas da peça.
+  const fotosDaCor = r.peca.fotos[r.cor.slug] ?? {};
+  const vistas: DescricaoDaVista[] = [];
+  if (fotoDaPrevia && r.design) {
+    const arte: ArteDaPrevia = { tipo: 'design', design: r.design, valores, foto: fotoDaPrevia };
+    const area = r.peca.areas[r.lado]?.previa ?? null;
+    const baseDaEstampa = fotosDaCor[r.lado];
+    const baseDoOutro = fotosDaCor[r.outroLado];
+    if (baseDaEstampa) {
+      vistas.push({
+        vista: 'perto',
+        legenda: 'De perto',
+        acao: 'Ver a estampa de perto',
+        base: baseDaEstampa,
+        area,
+        arte,
+        perto: true,
+        rotulo: descreverDesign(r.design, r.cor, ', de perto'),
+      });
+      vistas.push({
+        vista: 'inteira',
+        legenda: r.lado === 'costas' ? 'Costas' : 'Frente',
+        acao: r.lado === 'costas' ? 'Ver as costas da peça inteira' : 'Ver a frente da peça inteira',
+        base: baseDaEstampa,
+        area,
+        arte,
+        perto: false,
+        rotulo: descreverDesign(r.design, r.cor, ', peça inteira'),
+      });
+    }
+    if (baseDoOutro) {
+      vistas.push({
+        vista: 'outro',
+        legenda: r.outroLado === 'costas' ? 'Costas' : 'Frente',
+        acao: r.outroLado === 'costas' ? 'Ver as costas' : 'Ver a frente',
+        base: baseDoOutro,
+        area: r.marcaNoPeito ? (r.peca.areas.peito?.previa ?? null) : null,
+        arte: r.marcaNoPeito ? { tipo: 'marca', design: r.design } : null,
+        perto: false,
+        rotulo: `Prévia ilustrativa: ${minusculo(pecaNome)} ${minusculo(r.cor.nome)}, ${
+          r.outroLado === 'costas' ? 'de costas' : 'de frente'
+        }${r.marcaNoPeito ? ', com DIVESTIR no peito' : ''}`,
+      });
+    }
+  } else {
+    for (const lado of ['frente', 'costas'] as const) {
+      const base = fotosDaCor[lado];
+      if (!base) continue;
+      vistas.push({
+        vista: lado,
+        legenda: lado === 'frente' ? 'Frente' : 'Costas',
+        acao: lado === 'frente' ? 'Ver a frente' : 'Ver as costas',
+        base,
+        area: null,
+        arte: null,
+        perto: false,
+        rotulo: `${pecaNome} ${minusculo(r.cor.nome)}, ${lado === 'frente' ? 'de frente' : 'de costas'}`,
+      });
+    }
+  }
+
+  const ajustando = !!montagem.foto && !montagem.foto.aprovada && !!fotoDaPrevia;
+  const vistaGrande: Vista = ajustando
+    ? 'perto'
+    : vista && vistas.some((v) => v.vista === vista)
+      ? vista
+      : (vistas[0]?.vista ?? 'frente');
+  const principal = vistas.find((v) => v.vista === vistaGrande);
+
+  const falta: Falta[] = oQueFalta(montagem, r);
+  const campoDoNome = r.design?.config.campos.find((campo) => campo.chave === 'nome');
+  const reaproveitaveis: FotoReaproveitavel[] = [];
+  for (const item of [...carrinho.itens].reverse()) {
+    if (item.foto.chave === montagem.foto?.chave) continue;
+    if (reaproveitaveis.some((outra) => outra.foto.chave === item.foto.chave)) continue;
+    reaproveitaveis.push({ foto: item.foto, campos: item.campos });
+  }
 
   return (
-    // Celular e tablet: uma coluna só (no tablet, centralizada e com largura de
-    // leitura). Computador: prévia à esquerda e escolhas à direita; a última
-    // linha (1fr) absorve a altura da prévia, para as escolhas ficarem juntas no alto.
-    <div className="sm:mx-auto sm:max-w-xl lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-[minmax(0,1fr)_25rem] lg:grid-rows-[auto_auto_auto_auto_1fr] lg:items-start lg:gap-x-12 xl:gap-x-16">
+    <div
+      ref={raiz}
+      // Tablet: a mesma coluna do celular, centralizada, para a prévia não engolir a tela.
+      className="sm:mx-auto sm:max-w-xl lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-[minmax(0,1fr)_26rem] lg:items-start lg:gap-x-12 xl:gap-x-16"
+    >
       <div className="lg:col-start-2 lg:row-start-1">
-        <h1 className="font-titulo text-[clamp(2.6rem,9vw,4rem)] leading-none uppercase">Escolhe a peça</h1>
-        <p className="mt-3 font-destaque text-[clamp(1.25rem,4.6vw,1.6rem)] leading-tight italic">
-          Toca numa peça e numa cor para ver como ela fica.
+        <h1 className="font-titulo text-[clamp(2.25rem,9vw,4rem)] leading-none uppercase">Monta a sua Divestir</h1>
+        <p className="mt-3 hidden max-w-[28ch] font-destaque text-[1.6rem] leading-tight italic lg:block">
+          Escolhe a peça, manda a foto e vê a sua Divestir nascer na tela.
         </p>
       </div>
 
-      <section
-        aria-label="Prévia da peça"
-        className="mt-6 lg:sticky lg:top-6 lg:col-start-1 lg:row-span-5 lg:row-start-1 lg:mt-0"
+      <div
+        ref={doca}
+        // A altura da vista grande segue a tela e nunca deixa a prévia passar da
+        // largura disponível (100cqw é a largura da própria doca).
+        className={`@container sticky top-0 z-20 -mx-4 mt-4 border-b border-verde bg-creme px-4 pt-3 pb-1 lg:top-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:mt-0 lg:border-0 lg:px-0 lg:pt-0 lg:pb-0 ${
+          compacta
+            ? '[--altura-da-vista:9.5rem]'
+            : '[--altura-da-vista:min(clamp(12.5rem,35svh,19rem),calc((100cqw-8.25rem)*1.25))] sm:[--altura-da-vista:min(clamp(16rem,42svh,28rem),calc((100cqw-8.25rem)*1.25))] lg:[--altura-da-vista:min(calc(100dvh-10rem),46rem,calc((100cqw-8.25rem)*1.25))]'
+        }`}
       >
-        {/* No computador, a prévia nunca passa da altura da janela (notebooks baixos, como 1366×768). */}
-        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-estudio lg:mx-auto lg:max-w-[calc((100dvh_-_8rem)_*_0.8)]">
-          {catalogo.cores.flatMap((opcao) =>
-            LADOS.map(({ valor }) => {
-              const url = peca.fotos[opcao.slug]?.[valor];
-              if (!url) return null;
-              return (
-                <FotoDaPeca
-                  key={`${peca.slug}-${opcao.slug}-${valor}`}
-                  url={url}
-                  ativa={opcao.slug === cor.slug && valor === lado}
-                  descricao={descricaoAtiva}
-                />
-              );
-            }),
-          )}
-        </div>
-      </section>
-
-      <div className="mt-8 lg:col-start-2 lg:row-start-2 lg:mt-10">
-        <div role="radiogroup" aria-label="Peça" className="vitrine -mx-4 flex snap-x snap-mandatory scroll-pl-4 gap-3 overflow-x-auto px-4 pb-1 lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-x-3 lg:gap-y-5 lg:overflow-visible lg:px-0">
-          {catalogo.pecas.map((opcao) => {
-            const miniatura = opcao.fotos[cor.slug]?.frente ?? opcao.fotos[corPadrao?.slug ?? '']?.frente;
-            return (
-              // relative: o botão invisível fica preso no cartão. Sem isso, o das
-              // peças fora da tela escapa da faixa e alarga a página no celular.
-              <label key={opcao.slug} className="relative w-[36%] shrink-0 cursor-pointer snap-start sm:w-[24%] lg:w-auto">
-                <input
-                  type="radio"
-                  name="peca"
-                  value={opcao.slug}
-                  checked={opcao.slug === peca.slug}
-                  onChange={() => setPecaEscolhida(opcao.slug)}
-                  className="peer sr-only"
-                />
-                <span className="block overflow-hidden rounded-xl border-2 border-transparent bg-estudio transition-colors duration-200 ease-saida peer-checked:border-verde peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-verde">
-                  {miniatura ? (
-                    <Image src={miniatura} alt="" width={1440} height={1800} sizes="(min-width: 1024px) 128px, (min-width: 640px) 140px, 36vw" className="h-auto w-full" />
-                  ) : (
-                    <span className="block aspect-[4/5]" />
-                  )}
-                </span>
-                <span className="mt-2 block text-sm leading-snug font-semibold">{opcao.nome}</span>
-                <span className="block text-sm leading-snug">{opcao.caimento}</span>
-              </label>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Celular: presa no pé da tela, com a cor e o lado sempre a um toque do
-          polegar e a foto livre de botões. Computador: entra na coluna das escolhas. */}
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-verde bg-creme px-4 pt-3 pb-[max(0.875rem,env(safe-area-inset-bottom))] lg:static lg:col-start-2 lg:row-start-3 lg:mt-10 lg:border-0 lg:p-0">
-        <div className="mx-auto flex max-w-xl flex-wrap items-center justify-between gap-3 lg:max-w-none lg:justify-start lg:gap-x-10">
-          <div role="radiogroup" aria-label="Cor da peça" className="flex gap-3">
-            {catalogo.cores.map((opcao) => (
-              <label key={opcao.slug} className="relative flex min-w-11 cursor-pointer flex-col items-center gap-1.5">
-                <input
-                  type="radio"
-                  name="cor"
-                  value={opcao.slug}
-                  checked={opcao.slug === cor.slug}
-                  onChange={() => setCorEscolhida(opcao.slug)}
-                  className="peer sr-only"
-                />
-                <span
-                  className="block size-10 rounded-full border border-verde outline-offset-[3px] peer-checked:outline-2 peer-checked:outline-verde peer-focus-visible:outline-2 peer-focus-visible:outline-verde"
-                  style={{ backgroundColor: opcao.hex }}
-                />
-                <span className="text-xs leading-none">{opcao.nome}</span>
-              </label>
-            ))}
-          </div>
-          <div role="radiogroup" aria-label="Lado da peça" className="flex rounded-full border border-verde p-1">
-            {LADOS.map(({ valor, nome }) => (
-              <label key={valor} className="relative cursor-pointer">
-                <input
-                  type="radio"
-                  name="lado"
-                  value={valor}
-                  checked={lado === valor}
-                  onChange={() => setLado(valor)}
-                  className="peer sr-only"
-                />
-                <span className="block rounded-full px-3.5 py-3 text-sm leading-5 font-semibold transition-colors duration-200 ease-saida peer-checked:bg-verde peer-checked:text-creme peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-verde">
-                  {nome}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
-        {/* Quem usa leitor de tela ouve a escolha inteira sempre que ela muda. */}
+        <Doca
+          vistas={vistas}
+          grande={vistaGrande}
+          aoVer={setVista}
+          cores={catalogo.cores}
+          cor={r.cor}
+          aoEscolherCor={(slug) => despachar({ tipo: 'cor', slug })}
+          ajuste={ajustando ? enquadrar : undefined}
+          descricaoDoAjuste={ajustando ? idDaDica : undefined}
+          compacta={compacta}
+        />
+        {/* Quem usa leitor de tela ouve a prévia sempre que ela muda. */}
         <p className="sr-only" aria-live="polite">
-          {descricaoAtiva}
+          {principal?.rotulo}
         </p>
       </div>
 
-      <div className="mt-10 lg:col-start-2 lg:row-start-4">
-        {/* A peça escolhida segue junto, para a prévia do design mostrar a mesma peça. */}
-        <Link href={`/montar/foto?peca=${encodeURIComponent(peca.slug)}`} className="ingresso">
-          Continuar para a foto
-        </Link>
-      </div>
+      <ol onFocus={aoFocar} onBlur={aoDesfocar} className="mt-1 lg:col-start-2 lg:row-start-2 lg:mt-8">
+        <Passo id={ID_DOS_PASSOS.peca} numero={1} titulo="A peça" resumo={pecaNome}>
+          <PassoPeca
+            catalogo={catalogo}
+            peca={r.peca}
+            cor={r.cor}
+            aoEscolher={(slug) => despachar({ tipo: 'peca', slug })}
+          />
+        </Passo>
+
+        <Passo
+          id={ID_DOS_PASSOS.foto}
+          numero={2}
+          titulo="A foto"
+          resumo={montagem.foto?.aprovada && fotoDaPrevia ? 'Foto aprovada' : null}
+        >
+          <PassoFoto
+            envio={envio}
+            foto={montagem.foto}
+            temRecorte={!!fotoDaPrevia}
+            aviso={aviso}
+            reaproveitaveis={reaproveitaveis}
+            aoEscolherArquivo={(arquivo) => void escolherArquivo(arquivo)}
+            aoTentarDeNovo={() => processo.current && void recortar(processo.current.id)}
+            aoAprovar={aprovar}
+            aoAjustar={ajustar}
+            aoEnquadrar={enquadrar}
+            aoReaproveitar={(item) => void reaproveitar(item)}
+            idDaDica={idDaDica}
+          />
+        </Passo>
+
+        <Passo
+          id={ID_DOS_PASSOS.nome}
+          numero={3}
+          titulo="O nome"
+          resumo={nome ? nome.toLocaleUpperCase('pt-BR') : null}
+        >
+          <PassoNome
+            campo={campoDoNome}
+            valor={valores.nome ?? ''}
+            aoMudar={(valor) => despachar({ tipo: 'campo', chave: 'nome', valor })}
+          />
+        </Passo>
+
+        <Passo
+          id={ID_DOS_PASSOS.design}
+          numero={4}
+          titulo="O design"
+          resumo={fotoDaPrevia && r.design ? `${r.design.nome}, ${noLado(r.lado)}` : null}
+        >
+          <PassoDesign
+            designs={r.designs}
+            design={r.design}
+            peca={r.peca}
+            cor={r.cor}
+            lado={r.lado}
+            lados={r.lados}
+            marcaNoPeito={r.marcaNoPeito}
+            foto={fotoDaPrevia}
+            valores={valores}
+            rotuloDoDesign={(design) => descreverDesign(design, r.cor, ', de perto')}
+            aoEscolherDesign={(slug) => despachar({ tipo: 'design', slug })}
+            aoEscolherLado={(lado) => despachar({ tipo: 'lado', lado })}
+            aoMudarCampo={(chave, valor) => despachar({ tipo: 'campo', chave, valor })}
+          />
+        </Passo>
+
+        <Passo id={ID_DOS_PASSOS.cor} numero={5} titulo="A cor" resumo={r.cor.nome}>
+          <PassoCor
+            cores={catalogo.cores}
+            cor={r.cor}
+            peca={r.peca}
+            lado={r.lado}
+            arte={fotoDaPrevia && r.design ? { tipo: 'design', design: r.design, valores, foto: fotoDaPrevia } : null}
+            aoEscolher={(slug) => despachar({ tipo: 'cor', slug })}
+            rotuloDaCor={(cor) => (r.design ? descreverDesign(r.design, cor, ', de perto') : cor.nome)}
+          />
+        </Passo>
+
+        <Passo id={ID_DOS_PASSOS.tamanho} numero={6} titulo="O tamanho" resumo={r.tamanho}>
+          <PassoTamanho
+            peca={r.peca}
+            tamanho={r.tamanho}
+            aoEscolher={(tamanho) => despachar({ tipo: 'tamanho', tamanho })}
+          />
+        </Passo>
+
+        <Passo id={ID_DOS_PASSOS.carrinho} numero={7} titulo="Sua Divestir">
+          <PassoResumo
+            r={r}
+            nomeDaPeca={pecaNome}
+            nome={nome}
+            valores={valores}
+            foto={fotoDaPrevia}
+            falta={falta}
+            pecasNoCarrinho={carrinho.itens.length}
+            adicionada={adicionada === assinatura}
+            rotulo={r.design ? descreverDesign(r.design, r.cor, ', de perto') : pecaNome}
+            aoAdicionar={adicionar}
+            aoCriarOutra={criarOutra}
+            aoIrPara={irPara}
+          />
+        </Passo>
+      </ol>
     </div>
   );
 }

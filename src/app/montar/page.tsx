@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
 import { carregarCatalogo } from '@/lib/catalogo';
+import { carregarDesigns } from '@/lib/designs';
 import { Montador } from './montador';
 
 export const metadata: Metadata = {
@@ -14,26 +15,29 @@ export const viewport: Viewport = {
   themeColor: '#faf5eb',
 };
 
-// Busca o catálogo na hora da visita (e não na publicação do site), para a
-// página sempre mostrar as peças e cores que estão ativas no banco.
-async function MontadorComCatalogo() {
+// Busca o catálogo e os designs na hora da visita (e não na publicação do site),
+// para a página sempre mostrar o que está ativo no banco. Os dois ficam guardados
+// no servidor, então a resposta sai rápida.
+async function MontadorComDados() {
   await connection();
-  const catalogo = await carregarCatalogo();
-  return <Montador catalogo={catalogo} />;
+  const [catalogo, designs] = await Promise.all([carregarCatalogo(), carregarDesigns()]);
+  return <Montador catalogo={catalogo} designs={designs} />;
 }
 
-// Enquanto o catálogo chega: o formato da prévia e das peças, já no lugar.
+// Enquanto os dados chegam: o título e o lugar da prévia, já no lugar.
 function MontadorCarregando() {
   return (
     <div
       aria-busy="true"
-      aria-label="Carregando as peças"
-      className="sm:mx-auto sm:max-w-xl lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-[minmax(0,1fr)_25rem] lg:gap-x-12 xl:gap-x-16"
+      aria-label="Carregando o montador"
+      className="sm:mx-auto sm:max-w-xl lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-[minmax(0,1fr)_26rem] lg:items-start lg:gap-x-12 xl:gap-x-16"
     >
-      <div className="lg:col-start-2">
-        <p className="font-titulo text-[clamp(2.6rem,9vw,4rem)] leading-none uppercase">Escolhe a peça</p>
+      <div className="lg:col-start-2 lg:row-start-1">
+        <p className="font-titulo text-[clamp(2.25rem,9vw,4rem)] leading-none uppercase">Monta a sua Divestir</p>
       </div>
-      <div className="mt-6 aspect-[4/5] rounded-2xl bg-estudio lg:col-start-1 lg:row-start-1 lg:mt-0" />
+      <div className="mt-4 flex justify-center pt-3 [--altura-da-vista:clamp(12.5rem,35svh,19rem)] sm:[--altura-da-vista:clamp(16rem,42svh,28rem)] lg:col-start-1 lg:row-start-1 lg:mt-0 lg:pt-0 lg:[--altura-da-vista:min(calc(100dvh-10rem),46rem)]">
+        <div className="aspect-[4/5] w-[calc(var(--altura-da-vista)*0.8)] rounded-2xl bg-estudio" />
+      </div>
     </div>
   );
 }
@@ -46,9 +50,9 @@ export default function Montar() {
           Divestir
         </Link>
       </header>
-      <main className="mx-auto max-w-6xl px-4 pt-6 pb-36 lg:pt-10 lg:pb-24">
+      <main className="mx-auto max-w-6xl px-4 pt-4 pb-24 lg:pt-8">
         <Suspense fallback={<MontadorCarregando />}>
-          <MontadorComCatalogo />
+          <MontadorComDados />
         </Suspense>
       </main>
     </>

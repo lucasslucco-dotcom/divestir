@@ -7,7 +7,7 @@ const LADO_DO_ENVIO = 2048;
 // A Vercel aceita até 4,5 MB por envio.
 const LIMITE_DO_ENVIO = 4 * 1024 * 1024;
 
-export type Recorte = { url: string; teste: boolean };
+export type Recorte = { url: string; recorte: Blob; teste: boolean };
 export type FotoParaRecorte = { foto: Blob; nome: string };
 
 function ehHeic(arquivo: File) {
@@ -51,6 +51,6 @@ export async function pedirRecorte(
     const corpo = (await resposta.json().catch(() => null)) as { erro?: string } | null;
     throw new Error(corpo?.erro ?? 'Não consegui tirar o fundo agora.');
   }
-  const imagem = await resposta.blob();
-  return { url: URL.createObjectURL(imagem), teste: resposta.headers.get('x-recorte-modo') === 'teste' };
+  const recorte = await resposta.blob();
+  return { url: URL.createObjectURL(recorte), recorte, teste: resposta.headers.get('x-recorte-modo') === 'teste' };
 }

@@ -86,12 +86,19 @@ export type ConfigDoMolde = {
   // Cor da peça → tinta. As tintas existentes estão em TINTAS.
   tintas: Record<string, string>;
   pecas_permitidas?: string[];
+  // Com a estampa nas costas, a frente leva a marca pequena no peito, na mesma
+  // tinta (briefing: "logo_peito"). Até o logo ficar pronto, a marca é o nome
+  // DIVESTIR em Anton (decisão do Lucas, 08/11/2026).
+  logo_peito?: boolean;
 };
 
 export type Design = {
   slug: string;
   nome: string;
   config: ConfigDoMolde;
+  // Datas do drop (AAAA-MM-DD): o selo "Novo" nas duas primeiras semanas e
+  // "Últimos dias" na semana final (briefing, "Mecânica de drops").
+  drop?: { entrada: string | null; saida: string | null };
 };
 
 export const LARGURA_DA_ARTE = 1000;
@@ -108,13 +115,14 @@ export type AreaNaFoto = { x: number; topo: number; largura: number };
 
 // Área de impressão de cada lado da peça (coluna area_impressao_cm de pecas).
 // Lado que não aparece aqui não recebe estampa (a jaqueta college só tem costas).
-// As medidas em centímetros chegam quando a estamparia confirmar.
+// "peito" é o lugar da marca no peito, na foto da frente (do lado esquerdo de quem
+// veste). As medidas em centímetros chegam quando a estamparia confirmar.
 export type AreaDeImpressao = {
   largura_cm?: number | null;
   altura_cm?: number | null;
   previa: AreaNaFoto;
 };
-export type AreasDaPeca = Partial<Record<Lado, AreaDeImpressao>>;
+export type AreasDaPeca = Partial<Record<Lado, AreaDeImpressao>> & { peito?: AreaDeImpressao };
 
 // Confere o que veio do banco antes de desenhar: um molde quebrado não pode
 // derrubar a tela.

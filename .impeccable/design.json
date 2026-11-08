@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-08T18:30:00-03:00",
+  "generatedAt": "2026-11-08T18:40:00-03:00",
   "title": "Design System: Divestir",
   "extensions": {
     "colorMeta": {
@@ -206,7 +206,7 @@
     {
       "name": "Passo numerado",
       "kind": "custom",
-      "description": "Item de lista com número vazado de camisa, título e texto em tinta única.",
+      "description": "Item de lista com número vazado de camisa, título e texto em tinta única. No montador, cada um dos 7 passos usa a mesma forma, com um visto e o resumo da escolha quando o passo está resolvido.",
       "html": "<div class=\"ds-passo\"><span class=\"ds-passo-numero\">1</span><div><p class=\"ds-passo-titulo\">Escolhe a peça</p><p class=\"ds-passo-texto\">Camiseta regular ou oversized, moletom com ou sem capuz, ou jaqueta college.</p></div></div>",
       "css": ".ds-passo{display:flex;gap:1.25rem;max-width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-passo p{margin:0}.ds-passo-numero{flex-shrink:0;width:1.75rem;font-family:var(--font-anton),'Arial Narrow',sans-serif;font-size:3rem;line-height:1;color:transparent;-webkit-text-stroke:1.5px var(--color-verde)}.ds-passo-titulo{font-size:1.125rem;line-height:1.75rem;font-weight:600}.ds-passo-texto{margin-top:.375rem!important;line-height:1.625}"
     },
@@ -214,9 +214,9 @@
       "name": "Prévia do montador",
       "kind": "custom",
       "refersTo": "previa-montador",
-      "description": "Foto de base 4:5 na moldura de Cinza do Estúdio, sem botão nenhum por cima.",
-      "html": "<div class=\"ds-previa\"><img src=\"/catalogo/camiseta-regular-preto-frente.jpg\" alt=\"Camiseta regular preta, de frente\" width=\"1440\" height=\"1800\"></div>",
-      "css": ".ds-previa{position:relative;width:18rem;aspect-ratio:4/5;overflow:hidden;border-radius:1rem;background:var(--color-estudio)}.ds-previa img{display:block;width:100%;height:100%;object-fit:cover}"
+      "description": "Prévia fixa do montador: a vista grande em 4:5 na moldura de Cinza do Estúdio, sem botão por cima, e as outras vistas em miniatura ao lado (de perto, o lado da estampa inteiro e o outro lado), que viram a grande ao toque. As cores ficam embaixo.",
+      "html": "<div class=\"ds-doca\"><div class=\"ds-vistas\"><div class=\"ds-previa\"><img src=\"/catalogo/camiseta-regular-preto-costas.jpg\" alt=\"Camiseta regular preta, de costas\" width=\"1440\" height=\"1800\"></div><ul class=\"ds-pequenas\"><li><span class=\"ds-mini\"><img src=\"/catalogo/camiseta-regular-preto-frente.jpg\" alt=\"\" width=\"1440\" height=\"1800\"></span>Frente</li></ul></div></div>",
+      "css": ".ds-doca{width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-vistas{display:flex;gap:.5rem;justify-content:center}.ds-previa{width:13.5rem;aspect-ratio:4/5;overflow:hidden;border-radius:1rem;background:var(--color-estudio)}.ds-previa img,.ds-mini img{display:block;width:100%;height:100%;object-fit:cover}.ds-pequenas{display:flex;flex-direction:column;gap:.5rem;width:5.5rem;margin:0;padding:0;list-style:none;text-align:center;font-size:.75rem;line-height:1rem;font-weight:600}.ds-mini{display:block;aspect-ratio:4/5;overflow:hidden;margin-bottom:.25rem;border-radius:.75rem;background:var(--color-estudio)}"
     },
     {
       "name": "Seletor de peça",
@@ -230,9 +230,9 @@
       "name": "Barra de cor",
       "kind": "custom",
       "refersTo": "barra-cor",
-      "description": "No celular, presa no pé da tela: bolinhas de cor com anel verde na escolhida e, à direita, a pílula Frente/Costas.",
-      "html": "<div class=\"ds-barra\"><div class=\"ds-cores\" role=\"radiogroup\" aria-label=\"Cor da peça\"><span class=\"ds-cor ds-cor-ativa\"><i style=\"background:#141414\"></i>Preto</span><span class=\"ds-cor\"><i style=\"background:#ffffff\"></i>Branco</span><span class=\"ds-cor\"><i style=\"background:#efe6d3\"></i>Creme</span></div><div class=\"ds-lado\" role=\"radiogroup\" aria-label=\"Lado da peça\"><span class=\"ds-lado-ativa\">Frente</span><span>Costas</span></div></div>",
-      "css": ".ds-barra{display:flex;align-items:center;justify-content:space-between;gap:.75rem;width:22.5rem;box-sizing:border-box;padding:.75rem 1rem .875rem;border-top:1px solid var(--color-verde);background:var(--color-creme);color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-cores{display:flex;gap:.75rem}.ds-cor{display:flex;min-width:2.75rem;flex-direction:column;align-items:center;gap:.375rem;font-size:.75rem;line-height:1}.ds-cor i{display:block;width:2.5rem;height:2.5rem;border:1px solid var(--color-verde);border-radius:9999px;outline-offset:3px}.ds-cor-ativa i{outline:2px solid var(--color-verde)}.ds-lado{display:flex;padding:.25rem;border:1px solid var(--color-verde);border-radius:9999px;font-size:.875rem;font-weight:600}.ds-lado span{display:block;padding:.75rem .875rem;border-radius:9999px;line-height:1.25rem}.ds-lado .ds-lado-ativa{background:var(--color-verde);color:var(--color-creme)}"
+      "description": "Embaixo da vista grande: bolinhas de 32px com contorno verde fino e área de toque de 44px, anel verde na escolhida e o nome dela ao lado; à direita, o selo Prévia ilustrativa, fora da imagem.",
+      "html": "<div class=\"ds-barra\"><div class=\"ds-cores\" role=\"radiogroup\" aria-label=\"Cor da peça\"><span class=\"ds-cor ds-cor-ativa\" style=\"background:#141414\"></span><span class=\"ds-cor\" style=\"background:#ffffff\"></span><span class=\"ds-cor\" style=\"background:#efe6d3\"></span><b>Preto</b></div><span class=\"ds-selo\">Prévia ilustrativa</span></div>",
+      "css": ".ds-barra{display:flex;align-items:center;justify-content:space-between;gap:.75rem;width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-cores{display:flex;align-items:center;gap:.5rem}.ds-cor{display:block;width:2rem;height:2rem;margin:.375rem;border:1px solid var(--color-verde);border-radius:9999px;outline-offset:3px}.ds-cor-ativa{outline:2px solid var(--color-verde)}.ds-cores b{font-size:.875rem;font-weight:600}.ds-selo{padding:.25rem .625rem;border:1px solid var(--color-verde);border-radius:9999px;font-size:.6875rem;line-height:1rem;font-weight:600}"
     },
     {
       "name": "Par certo e errado",
@@ -251,20 +251,28 @@
       "css": ".ds-resultado{display:flex;align-items:flex-start;gap:1rem;width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-resultado img{width:6rem;aspect-ratio:4/5;object-fit:cover;border-radius:.75rem;background:var(--color-estudio)}.ds-resultado p{margin:.5rem 0 0;font-size:.9375rem;line-height:1.375}.ds-perfeita{display:inline-block;margin:0!important;padding:.375rem .875rem;border-radius:9999px;background:var(--color-verde);color:var(--color-creme);font-size:.875rem!important;font-weight:600}.ds-medida{font-size:.75rem!important;font-variant-numeric:tabular-nums}"
     },
     {
-      "name": "Enquadramento do recorte",
+      "name": "Enquadramento em cima do design",
       "kind": "custom",
-      "refersTo": "quadro-recorte",
-      "description": "O quadro do recorte vira o ajuste: arrastar move, pinça e botões dão zoom. Botões de 44px com contorno verde; no limite, contorno tracejado. \"Redefinir\" só aparece quando há algo para desfazer.",
-      "html": "<div class=\"ds-enquadrar\"><div class=\"ds-quadro\" role=\"group\" aria-label=\"Enquadramento da foto\" tabindex=\"0\"><img src=\"/guia/foco-sim.jpg\" alt=\"A sua foto, já sem o fundo\" width=\"900\" height=\"1125\"></div><p>Arraste para mover e use dois dedos para dar zoom.</p><div class=\"ds-zoom\"><button type=\"button\" aria-label=\"Diminuir o zoom\">−</button><span>125%</span><button type=\"button\" aria-label=\"Aumentar o zoom\">+</button><button type=\"button\" class=\"ds-redefinir\">Redefinir</button></div></div>",
-      "css": ".ds-enquadrar{width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-quadro{position:relative;aspect-ratio:4/5;overflow:hidden;border-radius:1rem;background:var(--color-estudio);cursor:grab;touch-action:none}.ds-quadro img{position:absolute;left:-6%;top:-4%;width:112%;height:auto}.ds-enquadrar p{margin:.75rem 0 0;font-size:.9375rem;line-height:1.375}.ds-zoom{display:flex;align-items:center;gap:.25rem;margin-top:.5rem}.ds-zoom button{display:inline-flex;width:2.75rem;height:2.75rem;align-items:center;justify-content:center;border:1px solid var(--color-verde);border-radius:9999px;background:var(--color-creme);color:var(--color-verde);font-size:1.125rem}.ds-zoom button:hover{background:var(--color-verde);color:var(--color-creme)}.ds-zoom button:disabled{border-style:dashed}.ds-zoom span{width:3.5rem;text-align:center;font-size:.875rem;font-weight:600;font-variant-numeric:tabular-nums}.ds-zoom .ds-redefinir{width:auto;height:auto;margin-left:auto;padding:.75rem 0;border:0;border-radius:0;background:none;font-size:.9375rem;text-decoration:underline;text-underline-offset:.3em}.ds-zoom .ds-redefinir:hover{background:none;color:var(--color-verde);text-decoration-thickness:2px}"
+      "refersTo": "botao-zoom",
+      "description": "Com o recorte pronto, a vista grande fica De perto e vira o ajuste: a foto se move junto com o dedo e a pinça dá zoom. No passo da foto, os botões de zoom de 44px com contorno verde (tracejado no limite), a porcentagem e Redefinir, que só aparece quando há algo para desfazer.",
+      "html": "<div class=\"ds-enquadrar\"><div class=\"ds-quadro\" role=\"img\" aria-roledescription=\"ajuste do enquadramento\" tabindex=\"0\"><img src=\"/exemplos/exemplo-thor.jpg\" alt=\"Prévia ilustrativa: Fã-Clube com o nome THOR\" width=\"896\" height=\"1120\"></div><p>Ajuste na própria prévia: arraste a foto para mover e use dois dedos para dar zoom.</p><div class=\"ds-zoom\"><button type=\"button\" aria-label=\"Diminuir o zoom\">−</button><span>125%</span><button type=\"button\" aria-label=\"Aumentar o zoom\">+</button><button type=\"button\" class=\"ds-redefinir\">Redefinir</button></div></div>",
+      "css": ".ds-enquadrar{width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-quadro{position:relative;aspect-ratio:4/5;overflow:hidden;border-radius:1rem;background:var(--color-estudio);cursor:grab;touch-action:none}.ds-quadro img{display:block;width:100%;height:100%;object-fit:cover}.ds-enquadrar p{margin:.75rem 0 0;font-size:.9375rem;line-height:1.375}.ds-zoom{display:flex;align-items:center;gap:.25rem;margin-top:.5rem}.ds-zoom button{display:inline-flex;width:2.75rem;height:2.75rem;align-items:center;justify-content:center;border:1px solid var(--color-verde);border-radius:9999px;background:var(--color-creme);color:var(--color-verde);font-size:1.125rem}.ds-zoom button:hover{background:var(--color-verde);color:var(--color-creme)}.ds-zoom button:disabled{border-style:dashed}.ds-zoom span{width:3.5rem;text-align:center;font-size:.875rem;font-weight:600;font-variant-numeric:tabular-nums}.ds-zoom .ds-redefinir{width:auto;height:auto;margin-left:auto;padding:.75rem 0;border:0;border-radius:0;background:none;font-size:.9375rem;text-decoration:underline;text-underline-offset:.3em}.ds-zoom .ds-redefinir:hover{background:none;color:var(--color-verde);text-decoration-thickness:2px}"
     },
     {
-      "name": "Veja como fica",
+      "name": "Miniatura de design",
       "kind": "custom",
-      "refersTo": "campo-texto",
-      "description": "Depois do recorte aprovado: campo do nome, pílulas de peça e de lado e as prévias do design nas 3 cores, de perto, com o selo Prévia ilustrativa.",
-      "html": "<div class=\"ds-veja\"><h2>Veja como fica</h2><label for=\"ds-nome\">Como ele(a) se chama?</label><input id=\"ds-nome\" value=\"PAÇOCA\"><p>Até 10 letras, como Thor, Vó Cida ou Duda.</p><div class=\"ds-pilulas\"><span>Camiseta regular</span><span class=\"ds-ativa\">Camiseta oversized</span><span>Jaqueta college</span></div><div class=\"ds-previa\"><span class=\"ds-selo\">Prévia ilustrativa</span></div></div>",
-      "css": ".ds-veja{width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-veja h2{margin:0;font-family:var(--font-anton),sans-serif;font-weight:400;font-size:2rem;line-height:1;text-transform:uppercase}.ds-veja label{display:block;margin-top:1.25rem;font-weight:600}.ds-veja input{box-sizing:border-box;width:100%;height:3rem;margin-top:.5rem;padding:0 1rem;border:1px solid var(--color-verde);border-radius:.375rem;background:var(--color-creme);color:var(--color-verde);font:600 1.125rem/1 var(--font-inter),sans-serif;letter-spacing:.04em;text-transform:uppercase}.ds-veja p{margin:.5rem 0 0;font-size:.9375rem}.ds-pilulas{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}.ds-pilulas span{padding:.75rem .875rem;border:1px solid var(--color-verde);border-radius:9999px;font-size:.875rem;font-weight:600}.ds-pilulas .ds-ativa{background:var(--color-verde);color:var(--color-creme)}.ds-previa{position:relative;margin-top:1rem;aspect-ratio:4/5;border-radius:1rem;background:var(--color-estudio)}.ds-selo{position:absolute;bottom:-2rem;right:0;padding:.25rem .625rem;border:1px solid var(--color-verde);border-radius:9999px;background:var(--color-creme);font-size:.6875rem;font-weight:600}"
+      "refersTo": "selo-drop",
+      "description": "No passo do design: a miniatura de perto já com a foto e o nome do cliente, borda verde de 2px no escolhido, o nome do design e, nos drops, o selo Novo ou Últimos dias (pílula verde cheia, texto creme).",
+      "html": "<label class=\"ds-design\"><span class=\"ds-design-foto\"><img src=\"/exemplos/exemplo-thor.jpg\" alt=\"\" width=\"896\" height=\"1120\"></span><span class=\"ds-design-nome\">Fã-Clube <b>Novo</b></span></label>",
+      "css": ".ds-design{display:block;width:11rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-design-foto{display:block;aspect-ratio:4/5;overflow:hidden;border:2px solid var(--color-verde);border-radius:.75rem;background:var(--color-estudio)}.ds-design-foto img{display:block;width:100%;height:100%;object-fit:cover}.ds-design-nome{display:flex;align-items:center;justify-content:space-between;margin-top:.375rem;font-size:.875rem;line-height:1.25rem;font-weight:600}.ds-design-nome b{padding:.125rem .5rem;border-radius:9999px;background:var(--color-verde);color:var(--color-creme);font-size:.6875rem;line-height:1rem}"
+    },
+    {
+      "name": "Pílulas de tamanho",
+      "kind": "custom",
+      "refersTo": "pilula-escolha",
+      "description": "PP ao GGG em pílulas de 44px com contorno verde de 1px; a escolhida fica verde cheia com texto creme. Tabela de medidas é link de texto e abre ali mesmo, quando a peça tem medidas.",
+      "html": "<div class=\"ds-tamanhos\" role=\"radiogroup\" aria-label=\"Tamanho\"><span>PP</span><span>P</span><span class=\"ds-ativo\">M</span><span>G</span><span>GG</span><span>GGG</span></div>",
+      "css": ".ds-tamanhos{display:flex;flex-wrap:wrap;gap:.5rem;width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-tamanhos span{display:flex;min-width:3rem;height:2.75rem;box-sizing:border-box;align-items:center;justify-content:center;padding:0 .75rem;border:1px solid var(--color-verde);border-radius:9999px;font-size:.875rem;font-weight:600}.ds-tamanhos .ds-ativo{background:var(--color-verde);color:var(--color-creme)}"
     }
   ],
   "narrative": {

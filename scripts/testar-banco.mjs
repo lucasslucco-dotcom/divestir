@@ -104,6 +104,8 @@ await confere('NÃO lê a equipe', 'anon', null, 'select * from public.equipe', 
 await confere('NÃO lê as fotos dos clientes', 'anon', null, 'select * from public.fotos', 'negado');
 await confere('NÃO cria linha de foto', 'anon', null, "insert into public.fotos (sessao_id, original_url) values ('x', 'x') returning id", 'negado');
 await confere('NÃO cria peças', 'anon', null, "insert into public.pecas (slug, nome, caimento) values ('x', 'x', 'x') returning id", 'negado');
+await confere('lê a tabela de medidas das peças ativas', 'anon', null, 'select medidas from public.pecas', 1);
+await confere('NÃO muda a tabela de medidas', 'anon', null, "update public.pecas set medidas = '{}' returning id", 'negado');
 await confere('o espaço das fotos é privado', 'anon', null, "select 1 from storage.buckets where id = 'fotos' and public = false", 1);
 await confere('NÃO vê os arquivos do espaço das fotos', 'anon', null, "select * from storage.objects where bucket_id = 'fotos'", 0);
 await confere('NÃO grava direto no espaço das fotos', 'anon', null, "insert into storage.objects (bucket_id, name) values ('fotos', 'invasor.jpg') returning id", 'negado');
@@ -130,6 +132,8 @@ await confere('vê a equipe toda', 'authenticated', ADMIN, 'select * from public
 
 console.log('\nServidor do site (service_role)');
 await confere('lê os pedidos', 'service_role', null, 'select * from public.pedidos', 1);
+await confere('NÃO aceita tabela de medidas fora do formato', 'service_role', null, "update public.pecas set medidas = '[]' returning id", 'negado');
+await confere('guarda a tabela de medidas de uma peça', 'service_role', null, `update public.pecas set medidas = '{"unidade": "cm", "linhas": []}' where slug = 'camiseta-regular' returning id`, 1);
 await confere(
   'guarda uma foto com nota de nitidez alta (5.600)',
   'service_role',

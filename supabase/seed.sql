@@ -37,14 +37,17 @@ on conflict (peca_id, cor_id, lado) do update set url = excluded.url;
 
 -- Área de impressão de cada lado, em frações da foto de base: centro (x), topo e
 -- largura (a altura sai da proporção do molde). O cliente escolhe frente ou costas;
--- a jaqueta college só tem costas (decisão do Lucas, 08/11/2026).
+-- a jaqueta college só tem costas (decisão do Lucas, 08/11/2026). "peito" é o lugar
+-- da marca no peito, na foto da frente, do lado esquerdo de quem veste: com a
+-- estampa nas costas, a frente leva DIVESTIR em Anton até o logo ficar pronto
+-- (decisão do Lucas, 08/11/2026).
 update public.pecas as p set area_impressao_cm = a.area
 from (values
-  ('camiseta-regular', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.205, "largura": 0.3}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.31}}}'::jsonb),
-  ('camiseta-oversized', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.218, "largura": 0.326}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.177, "largura": 0.326}}}'::jsonb),
-  ('moletom', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.2, "largura": 0.31}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.32}}}'::jsonb),
-  ('moletom-capuz', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.305, "largura": 0.2}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.325, "largura": 0.36}}}'::jsonb),
-  ('jaqueta-college', '{"costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.17, "largura": 0.3}}}'::jsonb)
+  ('camiseta-regular', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.205, "largura": 0.3}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.31}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.215, "largura": 0.11}}}'::jsonb),
+  ('camiseta-oversized', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.218, "largura": 0.326}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.177, "largura": 0.326}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.225, "largura": 0.11}}}'::jsonb),
+  ('moletom', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.2, "largura": 0.31}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.32}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.225, "largura": 0.11}}}'::jsonb),
+  ('moletom-capuz', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.305, "largura": 0.2}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.325, "largura": 0.36}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.655, "topo": 0.275, "largura": 0.1}}}'::jsonb),
+  ('jaqueta-college', '{"costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.17, "largura": 0.3}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.64, "topo": 0.23, "largura": 0.1}}}'::jsonb)
 ) as a (slug, area)
 where p.slug = a.slug;
 
@@ -65,7 +68,8 @@ insert into public.designs (slug, nome, status, ordem, config) values
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
     "tintas": {"preto": "creme", "branco": "verde-escuro", "creme": "verde-escuro"},
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"]
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
+    "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
   nome = excluded.nome,

@@ -107,15 +107,11 @@ components:
   previa-montador:
     backgroundColor: "{colors.estudio}"
     rounded: "{rounded.previa}"
-  chave-lado:
-    backgroundColor: "{colors.creme}"
+  vista-pequena:
+    backgroundColor: "{colors.estudio}"
     textColor: "{colors.verde}"
     typography: "{typography.label}"
-    rounded: "{rounded.pilula}"
-    padding: "12px 16px"
-  chave-lado-ativa:
-    backgroundColor: "{colors.verde}"
-    textColor: "{colors.creme}"
+    rounded: "{rounded.miniatura}"
   seletor-peca:
     backgroundColor: "{colors.estudio}"
     textColor: "{colors.verde}"
@@ -125,7 +121,7 @@ components:
     backgroundColor: "{colors.creme}"
     textColor: "{colors.verde}"
     typography: "{typography.label}"
-    padding: "12px 16px"
+    size: "32px"
   selo-sim:
     backgroundColor: "{colors.verde}"
     textColor: "{colors.creme}"
@@ -138,9 +134,6 @@ components:
     typography: "{typography.label}"
     rounded: "{rounded.pilula}"
     padding: "4px 10px"
-  quadro-recorte:
-    backgroundColor: "{colors.estudio}"
-    rounded: "{rounded.previa}"
   botao-zoom:
     backgroundColor: "{colors.creme}"
     textColor: "{colors.verde}"
@@ -170,6 +163,11 @@ components:
     textColor: "{colors.verde}"
     rounded: "{rounded.pilula}"
     padding: "4px 10px"
+  selo-drop:
+    backgroundColor: "{colors.verde}"
+    textColor: "{colors.creme}"
+    rounded: "{rounded.pilula}"
+    padding: "2px 8px"
 ---
 
 # Design System: Divestir
@@ -206,7 +204,7 @@ Uma cor de marca, um papel e um acento, como uma impressão em duas tintas com u
 
 ### Neutral
 - **Papel Creme** (#FAF5EB): o papel das superfícies de ler e de montar, e o texto sobre o verde. Ele conversa com o Cloud Dancer, a cor do ano 2026 da Pantone.
-- **Cinza do Estúdio** (#E9E9E7): não é cor de marca. É o fundo das fotos de base do catálogo, e aparece só atrás de fotos: na moldura da prévia e das miniaturas do montador, no quadro do recorte e nas fotos do guia, para a moldura ter a cor da foto enquanto ela carrega. Nunca é fundo de texto corrido nem de faixa.
+- **Cinza do Estúdio** (#E9E9E7): não é cor de marca. É o fundo das fotos de base do catálogo, e aparece só atrás de fotos: na moldura da prévia, das vistas pequenas e das miniaturas do montador e nas fotos do guia, para a moldura ter a cor da foto enquanto ela carrega. Nunca é fundo de texto corrido nem de faixa.
 
 ### Named Rules
 **A Regra da Tinta Única.** Cada superfície tem uma tinta só, cheia: creme sobre o verde, verde sobre o creme. Nada de texto com transparência para recuar. A hierarquia vem do tamanho, do peso e da fonte.
@@ -247,7 +245,7 @@ A vitrine desliza com o dedo no celular: cada peça ocupa 78% da largura, com 8p
 
 No celular, cada faixa respira 80px em cima e embaixo; a partir de 640px, 112px. Grupos ficam apertados e grupos diferentes ficam bem separados: 24px entre o título e a frase, 40px antes do ingresso, 48px antes da vitrine. Sempre há mais espaço acima de um título do que abaixo dele.
 
-O montador é uma tela de trabalho, toda no creme. No celular, é uma coluna só: título, prévia grande, a fila de peças que desliza com o dedo e, presa no pé da tela, a barra de cor. De 640px a 1023px, a mesma coluna fica centralizada com até 36rem, para a prévia não engolir a tela do tablet. A partir de 1024px, a prévia vai para a esquerda e acompanha a rolagem, e as escolhas ficam à direita numa coluna de 25rem, juntas no alto. A prévia nunca passa da altura da janela, nem em notebook baixo.
+O montador é uma página só e uma tela de trabalho, toda no creme (briefing: "a prévia da peça fica fixa, no topo no celular, à esquerda no desktop, e os passos rolam ao lado"). No celular: a marca, o título e, presa no alto da tela, a prévia (a vista grande, as vistas pequenas ao lado e as cores embaixo), separada dos passos por um fio verde; os 7 passos rolam por baixo dela. A vista grande tem 35% da altura da tela (de 200 a 304px) e nunca passa da largura disponível. Enquanto a pessoa digita no celular, a prévia encolhe e o campo para logo abaixo dela. De 640px a 1023px, a mesma coluna fica centralizada com até 36rem, para a prévia não engolir a tela do tablet. A partir de 1024px, a prévia vai para a esquerda e acompanha a rolagem, e o título e os passos ficam à direita, numa coluna de 26rem. A prévia nunca passa da altura da janela, nem em notebook baixo.
 
 ## Elevation & Depth
 
@@ -258,7 +256,7 @@ O sistema é chapado: a interface não tem sombra. A única profundidade é a da
 
 ## Shapes
 
-A forma vem do papel de fã. O botão principal é um ingresso: retângulo com canto de 6px e dois furos de 10px de raio nas laterais, recortados por máscara. O contorno de foco segue o ingresso com canto de 8px. Os números dos passos são vazados, como a numeração de uma camisa de time ou de uma jaqueta college. As fotos da vitrine não têm forma nenhuma: sem canto, sem borda e sem moldura. No montador é diferente, porque ali a foto é ferramenta e não palco: a prévia fica numa moldura de Cinza do Estúdio com canto de 16px, e as miniaturas, com canto de 12px. As escolhas que se alternam (Frente e Costas) são pílulas.
+A forma vem do papel de fã. O botão principal é um ingresso: retângulo com canto de 6px e dois furos de 10px de raio nas laterais, recortados por máscara. O contorno de foco segue o ingresso com canto de 8px. Os números dos passos são vazados, como a numeração de uma camisa de time ou de uma jaqueta college. As fotos da vitrine não têm forma nenhuma: sem canto, sem borda e sem moldura. No montador é diferente, porque ali a foto é ferramenta e não palco: a prévia fica numa moldura de Cinza do Estúdio com canto de 16px, e as miniaturas, com canto de 12px. As escolhas que se alternam (Nas costas e Na frente) e os tamanhos são pílulas.
 
 ### Named Rules
 **A Regra do Picote.** Furo e picote são a assinatura da Divestir: estão no ingresso e no ícone do site. Eles dizem "isso é seu", e nunca viram textura de fundo ou enfeite solto.
@@ -283,29 +281,25 @@ O ingresso é a ação principal, firme e única por tela.
 A vitrine mostra a peça pronta antes de a pessoa ter a sua. Cada foto mostra as costas de uma peça com o design Fã-Clube, no fundo verde exato, sem moldura, e embaixo vem a legenda: o nome em Rosa Elétrico e a peça em Papel Creme ("Thor · Camiseta oversized preta"). Abaixo de tudo, uma legenda diz que são exemplos. Toda foto nova passa pelo `scripts/preparar-fotos.py` no modo vitrine, que recorta em 4:5 (896 × 1120px) e acerta só o fundo perto das bordas, sem tocar na peça. A primeira foto carrega com prioridade; as outras, quando chegam perto da tela.
 
 ### Montador
-A tela onde a pessoa escolhe a peça e vê na hora como ela fica. Tudo é escolha única, feita com botões de opção de verdade no código (o leitor de tela anuncia "Peça", "Cor da peça" e "Lado da peça"), e o resumo da escolha é lido em voz alta quando muda.
-- **Prévia (signature):** foto de base grande em 4:5, na moldura de Cinza do Estúdio com canto de 16px, sem nenhum botão por cima: a peça aparece inteira. Todas as cores e os dois lados da peça escolhida já ficam carregados e empilhados; trocar de cor ou de lado só acende a foto certa, num esmaecer de 300ms com saída exponencial. Nada pisca: enquanto a foto chega, aparece o cinza da própria foto.
-- **Frente e Costas:** pílula com contorno Verde Garrafa de 1px, ao lado das cores. A opção escolhida fica Verde Garrafa com texto creme. Cada opção tem 44px de altura.
-- **Seletor de peça:** miniaturas da peça na cor escolhida, com nome em Inter 600 e caimento em Inter 400 embaixo. A escolhida ganha borda Verde Garrafa de 2px. No celular, a fila desliza com o dedo e mostra a próxima peça pela metade; no computador, vira uma grade de três colunas.
-- **Barra de cor:** no celular, presa no pé da tela com um fio verde em cima, para a cor e o lado estarem sempre ao alcance do polegar, mesmo com a prévia rolada. Bolinhas de 40px com contorno verde fino, nome embaixo e área de toque de 44px; a escolhida ganha um anel verde de 2px a 3px de distância. À direita, a pílula Frente e Costas. A barra tem uma linha só até nos celulares de 360px. O resumo da escolha ("Jaqueta college · Mangas contrastantes, cor creme, de frente") não aparece na tela, mas é lido pelo leitor de tela a cada troca. No computador, a barra deixa de ser presa e entra na coluna das escolhas, com as cores e o lado lado a lado.
+A página onde a pessoa monta a peça e vê na hora como ela fica: a prévia fixa e os 7 passos do briefing (peça, foto, nome, design, cor, tamanho e carrinho). Toda escolha é feita com botões de opção de verdade no código (o leitor de tela anuncia "Peça", "Cor da peça", "Design", "Tamanho"), e a prévia é lida em voz alta quando muda. Tudo fica guardado no navegador: fechou a aba, volta de onde parou, com a foto.
+- **Prévia fixa (signature):** a vista grande, em 4:5, na moldura de Cinza do Estúdio com canto de 16px e nenhum botão por cima, e, ao lado, as outras vistas em miniatura (canto de 12px, legenda em Inter 600 de 12px), que viram a grande ao toque. Antes da foto, as vistas são a frente e as costas da peça; com a foto, "De perto" (uma janela em volta da estampa, que mostra a arte grande sem perder o tecido), o lado da estampa inteiro e o outro lado. A luz e a sombra da foto de base passam por cima da tinta. Nada pisca: enquanto uma vista nova é montada, fica a anterior.
+- **Cores:** embaixo da vista grande, bolinhas de 32px com contorno verde fino e área de toque de 44px; a escolhida ganha um anel verde de 2px a 3px de distância, e o nome dela aparece ao lado em Inter 600. À direita, o selo "Prévia ilustrativa", fora da imagem para nunca cobrir a arte.
+- **Marca no peito:** com a estampa nas costas, a frente leva DIVESTIR em Anton caixa-alta com 0,06em, pequenininho, do lado esquerdo de quem veste e na tinta do design (decisão do Lucas, 08/11/2026, até o logo chegar).
+- **Passos:** a lista numerada (abaixo), com o título em Inter 600 e, quando o passo está resolvido, um visto e o resumo da escolha ("Camiseta oversized", "Fã-Clube, nas costas"). Um fio verde separa um passo do outro. Ao ir para um passo, ele para logo abaixo da prévia.
+- **1. A peça:** miniaturas da peça na cor escolhida, com nome em Inter 600, caimento em Inter 400 e "a partir de" com o preço, quando houver. A escolhida ganha borda Verde Garrafa de 2px. No celular, a fila desliza com o dedo; no computador, vira uma grade de três colunas.
+- **2. A foto:** a frase em Instrument Serif itálica, o guia da foto perfeita (abaixo) e o ingresso "Escolher a foto" ("Pode ser do álbum ou tirada na hora."). As fotos que a pessoa já mandou (das peças no carrinho) aparecem antes do guia, em miniatura com o nome, para reaproveitar.
+- **3. O nome:** rótulo em Inter 600 ("Como ele(a) se chama?"), caixa de 48px de altura, contorno Verde Garrafa de 1px, canto de 6px, texto em Inter 600 caixa-alta com 0,04em. Sem texto de exemplo dentro da caixa: o exemplo vem embaixo, em Inter 400 ("Até 10 letras, como Thor, Vó Cida ou Duda."). O nome entra na prévia enquanto a pessoa digita.
+- **4. O design:** miniaturas de cada design já com a foto e o nome do cliente (canto de 12px, borda verde de 2px no escolhido), o nome do design em Inter 600 e, nos designs de drop, o selo "Novo" ou "Últimos dias" (pílula Verde Garrafa cheia, texto creme de 11px). Embaixo, "Prévias ilustrativas, com a sua foto e o nome." Depois, "Onde vai a estampa?" com a pílula "Nas costas / Na frente" (a jaqueta college troca a pílula pela frase "Nessa peça, a estampa vai nas costas.") e, com a estampa nas costas, o aviso do DIVESTIR no peito. Antes da foto, o passo só explica que os designs aparecem ali com ela.
+- **5. A cor:** as três cores lado a lado, já com a estampa na tinta de cada uma (de perto), com o nome embaixo e borda verde de 2px na escolhida.
+- **6. O tamanho:** pílulas de 44px de altura (PP ao GGG) com contorno verde de 1px; a escolhida fica Verde Garrafa com texto creme. "Tabela de medidas" é link de texto e abre a tabela ali mesmo, só nas peças que têm medidas: tamanho em Inter 600, valores em números tabulares, fio verde entre as linhas e, embaixo, como medir.
+- **7. Sua Divestir:** a miniatura de perto com o selo embaixo e o resumo em duas colunas (rótulo em Inter 400, valor em Inter 600). Se faltar algo, a frase diz o quê, com um link para cada passo. O ingresso é "Adicionar ao carrinho"; com a peça guardada, aparecem "Prontinho, sua Divestir está no carrinho!", o ingresso "Finalizar compra" e o link "Criar outra Divestir".
 
-### Tela da foto: guia da foto perfeita
-O passo "Manda a foto" (`/montar/foto`) mostra o guia antes do botão de enviar, como pede o briefing. A tela segue o desenho do montador: no celular, uma coluna com o botão "Escolher a foto" preso no pé da tela; no tablet, a coluna centralizada; no computador, o guia à esquerda e, à direita, o título, o resultado e o botão, que acompanham a rolagem.
-- **Par certo e errado (signature):** cada dica mostra a mesma foto feita do jeito certo e do jeito errado, lado a lado, com canto de 12px. As duas fotos têm o mesmo protagonista (o mesmo cachorro, a mesma moça), para a diferença ser só o erro. Embaixo de cada par vêm o nome da dica em Inter 600 e uma linha em Inter 400. No celular, as dicas deslizam com o dedo e a próxima aparece na beirada; a partir de 640px, viram uma grade de duas colunas.
+### Passo da foto: guia, checagem e enquadramento
+- **Par certo e errado (signature):** cada dica mostra a mesma foto feita do jeito certo e do jeito errado, lado a lado, com canto de 12px. As duas fotos têm o mesmo protagonista (o mesmo cachorro, a mesma moça), para a diferença ser só o erro. Embaixo de cada par vêm o nome da dica em Inter 600 e uma linha em Inter 400. As dicas deslizam com o dedo numa fila só, a próxima aparecendo na beirada, e a dica de ouro fecha a fila: título em Anton, a frase em Instrument Serif itálica e o mesmo detalhe de uma foto antes e depois de passar pelo WhatsApp.
 - **Selos "Assim sim" e "Assim não":** pílulas pequenas no canto de baixo da foto. "Assim sim" é Verde Garrafa com texto creme e um visto; "Assim não" é creme com contorno verde de 1px e um xis. O sentido nunca depende só da cor: o ícone e a palavra dizem o mesmo.
-- **Dica de ouro:** depois das dicas, com um fio verde em cima, o título em Anton, a frase em Instrument Serif itálica e o mesmo detalhe de uma foto antes e depois de passar pelo WhatsApp.
-- **Resultado da checagem:** a miniatura da foto escolhida (canto de 12px) e, ao lado, o veredito. "Foto perfeita" é a única pílula verde cheia, com um visto. Aviso e bloqueio são frase em Inter 600 com ícone: um círculo de alerta no aviso e um xis no bloqueio. O briefing pede aviso amarelo, mas a paleta é fechada, então a diferença entre aviso e bloqueio vem do ícone, da frase e do botão, nunca de uma cor nova. Embaixo, a mensagem e o tamanho da foto em números tabulares.
-- **Recorte:** depois da checagem, a foto segue sozinha para o recorte. O quadro do recorte (4:5, Cinza do Estúdio, canto de 16px) mostra "Tirando o fundo…" e depois a foto sem fundo, com o protagonista no centro ocupando 90% do quadro. No celular, ele fica logo abaixo do veredito; no computador, aparece grande na coluna da esquerda e, junto com os botões de zoom, nunca passa da altura da janela. Com o recorte pronto, o botão do pé vira "Ficou ótimo" e "Trocar a foto" vira link de texto, para continuar existindo um ingresso só por tela.
-- **Enquadramento (signature):** com o recorte pronto, o próprio quadro vira o ajuste, sem botão por cima da foto. Arrastar move a foto; a pinça de dois dedos dá zoom em volta dos dedos; no computador, a rodinha com Ctrl (ou a pinça do trackpad) faz o mesmo, e sem Ctrl a página rola normalmente. Embaixo do quadro, uma linha diz como usar (o texto muda entre toque e mouse) e vêm os botões de zoom: círculos de 44px com contorno Verde Garrafa de 1px e ícone de traço, que acendem em verde com texto creme no hover. No limite do zoom, o contorno fica tracejado em vez de apagar, porque a tinta é única. Entre os botões, a porcentagem em Inter 600 com números tabulares. "Redefinir" é link de texto à direita e só aparece quando há algo para desfazer. Pelo teclado, o quadro recebe foco: as setas movem, + e − dão zoom e 0 redefine. O zoom vai de 50% a 400%, e o centro do protagonista nunca sai do quadro. Depois de "Ficou ótimo", o quadro trava com o enquadramento escolhido e aparece o link "Ajustar o enquadramento".
+- **Resultado da checagem:** a miniatura da foto escolhida (canto de 12px) e, ao lado, o veredito. "Foto perfeita" é a única pílula verde cheia, com um visto. Aviso e bloqueio são frase em Inter 600 com ícone: um círculo de alerta no aviso e um xis no bloqueio. O briefing pede aviso amarelo, mas a paleta é fechada, então a diferença entre aviso e bloqueio vem do ícone, da frase e do botão, nunca de uma cor nova. Embaixo, a mensagem e o tamanho da foto em números tabulares. Depois vem "Tirando o fundo…".
+- **Enquadramento (signature):** com o recorte pronto, a própria prévia vira o ajuste, já com o design: a vista grande fica "De perto" e a foto se move junto com o dedo. Arrastar move; a pinça de dois dedos dá zoom em volta dos dedos; no computador, a rodinha com Ctrl (ou a pinça do trackpad) faz o mesmo, e sem Ctrl a página rola normalmente. Pelo teclado, a prévia recebe foco: as setas movem, + e − dão zoom e 0 redefine. No passo, o veredito fica curto, uma linha diz como ajustar (o texto muda entre toque e mouse) e vêm os botões de zoom: círculos de 44px com contorno Verde Garrafa de 1px, que acendem em verde com texto creme no hover; no limite do zoom, o contorno fica tracejado em vez de apagar, porque a tinta é única. Entre os botões, a porcentagem em Inter 600 com números tabulares; "Redefinir" é link de texto e só aparece quando há algo para desfazer. Logo depois, o ingresso "Ficou ótimo" e o link "Trocar a foto". O zoom vai de 50% a 400%, e o centro do protagonista nunca sai do quadro. Depois de "Ficou ótimo", a prévia trava e aparece "Ajustar o enquadramento".
 - **Ícones:** desenhados em SVG, com traço de 2px e pontas redondas, na cor do texto. Nunca emoji.
-
-### Veja como fica (prévia do design)
-Depois do recorte aprovado, a foto entra no design. As escolhas ficam no lugar do resultado (no computador, na coluna da direita) e as prévias, no lugar do quadro do recorte (no computador, no alto da coluna da esquerda; no celular, logo depois das escolhas).
-- **Título:** "Veja como fica" em Anton caixa-alta, depois de um fio verde, como a dica de ouro.
-- **Campo do nome:** rótulo em Inter 600 ("Como ele(a) se chama?"), caixa de 48px de altura, contorno Verde Garrafa de 1px, canto de 6px, texto em Inter 600 caixa-alta com 0.04em. Sem texto de exemplo dentro da caixa (ele teria de ser apagado e quebraria a tinta única): o exemplo vem embaixo, em Inter 400 ("Até 10 letras, como Thor, Vó Cida ou Duda.").
-- **Peça e lado:** pílulas com contorno verde de 1px e 44px de altura; a escolhida fica Verde Garrafa com texto creme. As peças quebram em linhas; Frente e Costas ficam juntas numa pílula só, como no montador. Peça de um lado só (a jaqueta college) troca a pílula por uma frase: "Nessa peça, a estampa vai nas costas."
-- **Prévias:** uma por cor de peça, em 4:5 com canto de 16px. Abrem "De perto" (uma janela em volta da estampa, que mostra a arte grande sem perder o tecido) e têm "Peça inteira" numa pílula acima delas. A luz e a sombra da foto de base passam por cima da tinta. No celular deslizam com o dedo, como o guia; do tablet para cima, três lado a lado. O nome da cor vai embaixo, em Inter 600.
-- **Selo "Prévia ilustrativa":** pílula pequena com contorno verde embaixo de cada prévia, ao lado do nome da cor. Ela fica fora da imagem para nunca cobrir a arte (briefing: toda prévia leva o selo).
 
 ### Lista numerada (signature)
 - **Style:** números vazados em Anton de 48px, com contorno verde de 1.5px, numa coluna de 28px. Ao lado vêm o título em Inter 600 e o texto em Inter 400. A lista é numerada de verdade no código, e o número desenhado é só visual.

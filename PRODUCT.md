@@ -29,7 +29,7 @@ A foto de quem você ama vira ídolo, numa peça com cara de merch oficial (fã-
 
 ## Operating Context
 
-- Fluxo do montador: peça → foto → nome → design → cor → tamanho → carrinho (detalhes em `docs/divestir-briefing.md`, seção "Jornada do cliente e o montador").
+- Fluxo do montador: peça → foto → nome → design → cor → tamanho → carrinho, numa página só, com a prévia fixa (detalhes em `docs/divestir-briefing.md`, seção "Jornada do cliente e o montador"). O que a pessoa escolhe fica guardado no navegador: fechou a aba, volta de onde parou, com a foto.
 - A foto é checada (resolução e nitidez), recortada automaticamente e encaixada no template. Toda prévia é marcada como ilustrativa.
 - Produção, estamparia (DTF) e entrega já são resolvidas pela operação. O site só mostra ao cliente o prazo e o rastreio.
 - O cliente acompanha o pedido por e-mail e WhatsApp, sem precisar de conta. A equipe opera um painel interno: revisão de arte, lote de produção, status e avisos.
@@ -38,11 +38,11 @@ A foto de quem você ama vira ídolo, numa peça com cara de merch oficial (fã-
 
 - Peças da v1: camiseta regular, camiseta oversized, moletom sem capuz, moletom com capuz e jaqueta college (mangas contrastantes). Cores de peça: preto, branco e creme. Tamanhos: PP ao GGG.
 - Designs são templates configuráveis (área da foto, campo do nome, tinta por cor de peça), nunca imagens fixas. A arte fixa de cada design sai dos modelos de vetor do Higgsfield e o resto é montado no navegador (decisão do Lucas, 08/11/2026).
-- O cliente escolhe se a estampa vai na frente ou nas costas; a jaqueta college só aceita costas (decisão do Lucas, 08/11/2026). Linha inicial: Fã-Clube, Turnê, Futebol Clube, Capa de Revista, Procura-se e Maison.
+- O cliente escolhe se a estampa vai na frente ou nas costas; a jaqueta college só aceita costas (decisão do Lucas, 08/11/2026). Com a estampa nas costas, a frente leva DIVESTIR pequeno no peito, no lugar do logo até ele ficar pronto (decisão do Lucas, 08/11/2026). Linha inicial: Fã-Clube, Turnê, Futebol Clube, Capa de Revista, Procura-se e Maison.
 - Fora da v1: programa de indicação, conta do cliente com histórico e app nativo.
 - Fotos de terceiros: o cliente declara ter autorização para usar a imagem, e as fotos são apagadas depois do prazo definido nos termos (LGPD).
 - Designs autorais: sem logos, nomes ou símbolos de marcas, bandas, times ou revistas reais.
-- Em aberto: preços das peças, áreas de impressão em centímetros, prazo de personalização exibido no checkout e política de troca.
+- Em aberto: preços das peças, tabela de medidas de cada modelo, áreas de impressão em centímetros, prazo de personalização exibido no checkout e política de troca.
 
 ## Brand Commitments
 

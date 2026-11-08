@@ -1,4 +1,4 @@
-// Ícones desenhados da tela da foto: traço de 2px, pontas redondas, na cor do texto.
+// Ícones desenhados do montador: traço de 2px, pontas redondas, na cor do texto.
 type Props = { className?: string; tamanho?: number };
 
 function Svg({ className, tamanho = 16, children }: Props & { children: React.ReactNode }) {

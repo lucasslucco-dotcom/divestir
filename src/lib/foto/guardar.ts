@@ -16,7 +16,7 @@ const PIXELS_MAXIMOS = 16_000_000;
 
 let sessaoDaAba: string | undefined;
 
-function codigoNovo(): string {
+export function codigoNovo(): string {
   if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
   const b = crypto.getRandomValues(new Uint8Array(16));
   b[6] = (b[6] & 0x0f) | 0x40;
