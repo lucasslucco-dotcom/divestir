@@ -217,14 +217,18 @@ export function EnviarFoto({ guia }: { guia: ReactNode }) {
 
     const url = URL.createObjectURL(arquivo);
     setFoto({ url, arquivo, checagem: null, recorte: { etapa: 'esperando' }, vaga: null });
+    // Leva a pessoa até o resultado. No computador, o quadro do recorte fica no alto
+    // da coluna da esquerda (e a da direita acompanha a rolagem): volta para o topo.
+    // No celular, rola até o veredito, logo abaixo do título.
     requestAnimationFrame(() => {
+      const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+      if (window.matchMedia('(min-width: 1024px)').matches) {
+        if (window.scrollY > 0) window.scrollTo({ top: 0, behavior });
+        return;
+      }
       const caixa = resultado.current?.getBoundingClientRect();
       if (caixa && (caixa.top < 0 || caixa.bottom > window.innerHeight)) {
-        const suave = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        resultado.current?.scrollIntoView({
-          behavior: suave ? 'smooth' : 'auto',
-          block: 'start',
-        });
+        resultado.current?.scrollIntoView({ behavior, block: 'start' });
       }
     });
 
