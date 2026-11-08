@@ -35,9 +35,17 @@ export async function prepararParaRecorte(url: string, arquivo: File): Promise<F
   }
 }
 
-export async function pedirRecorte({ foto, nome }: FotoParaRecorte): Promise<Recorte> {
+// Com a vaga aberta em /api/fotos, o servidor guarda o recorte ao lado da original.
+export async function pedirRecorte(
+  { foto, nome }: FotoParaRecorte,
+  vaga?: { id: string; sessao: string } | null,
+): Promise<Recorte> {
   const dados = new FormData();
   dados.append('foto', foto, nome);
+  if (vaga) {
+    dados.append('foto_id', vaga.id);
+    dados.append('sessao', vaga.sessao);
+  }
   const resposta = await fetch('/api/recorte', { method: 'POST', body: dados });
   if (!resposta.ok) {
     const corpo = (await resposta.json().catch(() => null)) as { erro?: string } | null;

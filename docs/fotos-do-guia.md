@@ -14,6 +14,8 @@ Método: primeiro foi gerada a foto certa de cada dica. A versão errada saiu de
 | `rosto-nao.jpg` | A mesma moça de óculos escuros e testa cortada | `f26746f8-6998-4c3e-9fc2-832828f3cc44` |
 | `sozinho-sim.jpg` | Rapaz sozinho na foto | `ff875f21-97de-45aa-99ca-759d2d1bcf25` |
 | `sozinho-nao.jpg` | O mesmo rapaz no meio de muita gente | `ec0db725-ac0f-4af2-9596-adbea6a493b3` |
+| `frente-sim.jpg` | Cachorro preto sentado, sem nada na frente | `30bc9df3-b246-48bd-8931-4165421b9598` |
+| `frente-nao.jpg` | O mesmo cachorro com uma mão e uma mesa com copo na frente | `2e2eb053-019b-4aef-9e3f-36b4a88c2d0e` |
 | `filtro-sim.jpg` | Senhora sem filtro | `f17ff8c7-4beb-447c-ac6e-f886cf83ae00` |
 | `filtro-nao.jpg` | A mesma foto com filtro, figurinhas e moldura | `197a9cb0-7c67-44f5-8452-21311fc9bded` |
 | `altura-sim.jpg` | O cachorro de `luz-sim`, mais de perto | `f3d0381c-b72b-4035-8fe1-855f8df4951c` |
@@ -24,3 +26,5 @@ Método: primeiro foi gerada a foto certa de cada dica. A versão errada saiu de
 | `ouro-whatsapp.jpg` | O mesmo detalhe depois do WhatsApp | (feita a partir de `ouro-original`) |
 
 A primeira versão da foto da multidão (`02ab1161-7dff-4051-a864-6a0ecb624bfc`) foi descartada: tinha um rapaz com o escudo da Seleção na camisa e um copo de cerveja na mão. A marca não usa escudo, logo ou marca de verdade, nem nas fotos de exemplo.
+
+A dica "Nada na frente" entrou depois do teste do recorte com as 8 fotos reais do Lucas (decisão do Lucas, 08/11/2026): o que encosta no protagonista, como a mesa, o carrinho ou a perna de alguém, sai junto no recorte.

@@ -53,6 +53,22 @@ export function IconeVoltar(props: Props) {
   );
 }
 
+export function IconeMais(props: Props) {
+  return (
+    <Svg {...props}>
+      <path d="M8 3.5v9M3.5 8h9" />
+    </Svg>
+  );
+}
+
+export function IconeMenos(props: Props) {
+  return (
+    <Svg {...props}>
+      <path d="M3.5 8h9" />
+    </Svg>
+  );
+}
+
 export function IconeCarregando(props: Props) {
   return (
     <Svg {...props} className={`animate-spin motion-reduce:animate-none ${props.className ?? ''}`}>

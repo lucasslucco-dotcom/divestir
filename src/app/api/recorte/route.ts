@@ -4,6 +4,13 @@
 //
 // Enquanto PHOTOROOM_MODO não for "producao", o recorte roda no modo de teste
 // gratuito do Photoroom (até 100 por dia, com marca d'água).
+//
+// Quando o navegador manda também o código da foto e da sessão (a vaga aberta em
+// /api/fotos), o recorte fica guardado no espaço privado "fotos", ao lado da original.
+
+import { erro, veioDeFora } from '@/lib/api';
+import { ESPACO_DAS_FOTOS, caminhoDaFoto, ehCodigo, extensaoDoTipo } from '@/lib/foto/espaco';
+import { criarClienteAdmin } from '@/lib/supabase/admin';
 
 export const maxDuration = 30;
 
@@ -16,26 +23,43 @@ function ehHeic(foto: File) {
   return /hei[cf]/i.test(foto.type) || /\.hei[cf]$/i.test(foto.name);
 }
 
-function erro(mensagem: string, status: number) {
-  return Response.json({ erro: mensagem }, { status, headers: { 'Cache-Control': 'no-store' } });
+async function guardarRecorte(foto: unknown, sessao: unknown, recorte: ArrayBuffer, tipo: string) {
+  if (!ehCodigo(foto) || !ehCodigo(sessao)) return false;
+  const admin = criarClienteAdmin();
+  if (!admin) return false;
+
+  // O recorte só vai para a foto daquela sessão.
+  const { data: linha } = await admin.from('fotos').select('sessao_id').eq('id', foto).maybeSingle();
+  if (!linha || linha.sessao_id !== sessao) return false;
+
+  const caminho = caminhoDaFoto(sessao, foto, `recorte.${extensaoDoTipo(tipo) ?? 'webp'}`);
+  const { error: erroDoArquivo } = await admin.storage
+    .from(ESPACO_DAS_FOTOS)
+    .upload(caminho, recorte, { contentType: tipo, upsert: true });
+  if (erroDoArquivo) {
+    console.error('recorte: não consegui guardar o arquivo', erroDoArquivo.message);
+    return false;
+  }
+  const { error: erroDaLinha } = await admin.from('fotos').update({ recorte_url: caminho }).eq('id', foto);
+  if (erroDaLinha) {
+    console.error('recorte: não consegui registrar o recorte', erroDaLinha.message);
+    return false;
+  }
+  return true;
 }
 
 export async function POST(request: Request) {
   const chave = process.env.PHOTOROOM_API_KEY;
   if (!chave) return erro('O recorte ainda não está ligado.', 503);
+  if (veioDeFora(request)) return erro('Pedido de fora do site.', 403);
 
-  // Só aceita pedidos vindos do próprio site.
-  const origem = request.headers.get('origin');
-  if (origem && new URL(origem).host !== request.headers.get('host')) {
-    return erro('Pedido de fora do site.', 403);
-  }
-
-  let foto: FormDataEntryValue | null;
+  let dados: FormData;
   try {
-    foto = (await request.formData()).get('foto');
+    dados = await request.formData();
   } catch {
     return erro('Não deu para ler a foto.', 400);
   }
+  const foto = dados.get('foto');
   if (!(foto instanceof File)) return erro('Faltou a foto.', 400);
   if (!TIPOS.includes(foto.type) && !ehHeic(foto)) return erro('Esse formato não dá para recortar.', 415);
   if (foto.size > LIMITE_BYTES) return erro('A foto chegou grande demais.', 413);
@@ -47,6 +71,7 @@ export async function POST(request: Request) {
   envio.append('image_file', foto, ehHeic(foto) ? 'foto.heic' : 'foto.jpg');
   envio.append('format', 'webp'); // mantém a transparência com arquivo leve
   envio.append('size', 'hd'); // até 4 megapixels, de sobra para a prévia
+  envio.append('crop', 'true'); // corta a sobra transparente em volta do protagonista
 
   let resposta: Response;
   try {
@@ -67,11 +92,19 @@ export async function POST(request: Request) {
     return erro('Não consegui tirar o fundo dessa foto agora.', 502);
   }
 
-  return new Response(await resposta.arrayBuffer(), {
+  const recorte = await resposta.arrayBuffer();
+  const tipo = resposta.headers.get('content-type')?.split(';')[0] ?? 'image/webp';
+  const guardado = await guardarRecorte(dados.get('foto_id'), dados.get('sessao'), recorte, tipo).catch((motivo) => {
+    console.error('recorte: falhou ao guardar', motivo);
+    return false;
+  });
+
+  return new Response(recorte, {
     headers: {
-      'Content-Type': resposta.headers.get('content-type') ?? 'image/webp',
+      'Content-Type': tipo,
       'Cache-Control': 'no-store',
       'X-Recorte-Modo': teste ? 'teste' : 'producao',
+      'X-Recorte-Guardado': guardado ? 'sim' : 'nao',
     },
   });
 }

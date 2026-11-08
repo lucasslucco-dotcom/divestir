@@ -10,6 +10,7 @@ export type Checagem = {
   mensagens: string[];
   largura?: number;
   altura?: number;
+  nitidez?: number;
 };
 
 const TIPOS = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
@@ -128,7 +129,8 @@ export async function checarFoto(arquivo: File, url: string): Promise<Checagem> 
       mensagem: 'Ela serve, mas uma foto maior fica mais nítida na peça.',
     });
   }
-  if (medirNitidez(imagem) < NITIDEZ_MINIMA) {
+  const nitidez = medirNitidez(imagem);
+  if (nitidez < NITIDEZ_MINIMA) {
     avisos.push({
       titulo: 'Parece que ficou tremida',
       mensagem: 'Se tiver outra mais nítida, ela vai ficar melhor na peça.',
@@ -136,7 +138,14 @@ export async function checarFoto(arquivo: File, url: string): Promise<Checagem> 
   }
 
   if (avisos.length > 0) {
-    return { nivel: 'aviso', titulo: avisos[0].titulo, mensagens: avisos.map((a) => a.mensagem), largura, altura };
+    return {
+      nivel: 'aviso',
+      titulo: avisos[0].titulo,
+      mensagens: avisos.map((a) => a.mensagem),
+      largura,
+      altura,
+      nitidez,
+    };
   }
   return {
     nivel: 'perfeita',
@@ -144,5 +153,6 @@ export async function checarFoto(arquivo: File, url: string): Promise<Checagem> 
     mensagens: ['Tem resolução de sobra para a estampa ficar nítida.'],
     largura,
     altura,
+    nitidez,
   };
 }

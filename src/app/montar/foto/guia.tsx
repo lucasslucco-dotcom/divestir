@@ -34,6 +34,13 @@ const DICAS = [
     nao: 'O mesmo rapaz pequeno no meio de muita gente',
   },
   {
+    id: 'frente',
+    titulo: 'Nada na frente',
+    texto: 'Sem mesa, copo ou mão de alguém na frente: o que encosta no protagonista sai junto no recorte.',
+    sim: 'Cachorro preto sentado, sem nada na frente',
+    nao: 'O mesmo cachorro com uma mão no peito e uma mesa com copo na frente',
+  },
+  {
     id: 'filtro',
     titulo: 'Sem filtro',
     texto: 'Nada de efeito, moldura ou figurinha.',
