@@ -58,7 +58,7 @@ A foto de quem você ama vira ídolo, numa peça com cara de merch oficial (fã-
 - 30 fotos de base das peças em `public/catalogo/`, geradas no Higgsfield em 07/11/2026 (manequim invisível, fundo cinza de estúdio; 5 peças × 3 cores × frente e costas). A versão preta de frente de cada peça foi a matriz das outras, para a silhueta não mudar ao trocar de cor. Os códigos de cada foto estão em `docs/fotos-de-base.md`. São fotos geradas, não fotos de produto real.
 - Mockups de conceito dos designs, gerados no Higgsfield com pets de exemplo. São ilustrações, não fotos de clientes.
 - Vitrine da home com 8 exemplos ilustrativos em `public/exemplos/`: um para cada design (Fã-Clube, Capa de Revista, Futebol Clube, Turnê, Maison, Procura-se), com pets, pessoas e um objeto, em peças e cores diferentes. O Thor veio da foto de referência enviada pelo Lucas; os outros foram gerados no Higgsfield no mesmo estilo, com o mesmo fundo verde. Na home, aparecem sempre como exemplos ilustrativos.
-- 16 fotos ilustrativas do guia da foto perfeita em `public/guia/`, geradas no Higgsfield em 08/11/2026: um par "assim sim / assim não" por dica, com o mesmo protagonista nas duas fotos. A tela avisa que são exemplos. Códigos em `docs/fotos-do-guia.md`.
+- 18 fotos ilustrativas do guia da foto perfeita em `public/guia/`, geradas no Higgsfield em 08/11/2026: um par "assim sim / assim não" para cada uma das 8 dicas, com o mesmo protagonista nas duas fotos, e o par da dica de ouro. A tela avisa que são exemplos. Códigos em `docs/fotos-do-guia.md`.
 - Ainda não existem e não devem ser inventados: depoimentos, clientes, números de vendas, fotos reais de produto e preços.
 
 ## Product Principles

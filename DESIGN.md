@@ -138,6 +138,17 @@ components:
     typography: "{typography.label}"
     rounded: "{rounded.pilula}"
     padding: "4px 10px"
+  quadro-recorte:
+    backgroundColor: "{colors.estudio}"
+    rounded: "{rounded.previa}"
+  botao-zoom:
+    backgroundColor: "{colors.creme}"
+    textColor: "{colors.verde}"
+    rounded: "{rounded.pilula}"
+    size: "44px"
+  botao-zoom-hover:
+    backgroundColor: "{colors.verde}"
+    textColor: "{colors.creme}"
 ---
 
 # Design System: Divestir
@@ -263,7 +274,8 @@ O passo "Manda a foto" (`/montar/foto`) mostra o guia antes do botão de enviar,
 - **Selos "Assim sim" e "Assim não":** pílulas pequenas no canto de baixo da foto. "Assim sim" é Verde Garrafa com texto creme e um visto; "Assim não" é creme com contorno verde de 1px e um xis. O sentido nunca depende só da cor: o ícone e a palavra dizem o mesmo.
 - **Dica de ouro:** depois das dicas, com um fio verde em cima, o título em Anton, a frase em Instrument Serif itálica e o mesmo detalhe de uma foto antes e depois de passar pelo WhatsApp.
 - **Resultado da checagem:** a miniatura da foto escolhida (canto de 12px) e, ao lado, o veredito. "Foto perfeita" é a única pílula verde cheia, com um visto. Aviso e bloqueio são frase em Inter 600 com ícone: um círculo de alerta no aviso e um xis no bloqueio. O briefing pede aviso amarelo, mas a paleta é fechada, então a diferença entre aviso e bloqueio vem do ícone, da frase e do botão, nunca de uma cor nova. Embaixo, a mensagem e o tamanho da foto em números tabulares.
-- **Recorte:** depois da checagem, a foto segue sozinha para o recorte. O quadro do recorte (4:5, Cinza do Estúdio, canto de 16px) mostra "Tirando o fundo…" e depois a foto sem fundo, inteira. No celular, ele fica logo abaixo do veredito; no computador, aparece grande na coluna da esquerda, como a prévia do montador, e nunca passa da altura da janela. Com o recorte pronto, o botão do pé vira "Ficou ótimo" e "Trocar a foto" vira link de texto, para continuar existindo um ingresso só por tela.
+- **Recorte:** depois da checagem, a foto segue sozinha para o recorte. O quadro do recorte (4:5, Cinza do Estúdio, canto de 16px) mostra "Tirando o fundo…" e depois a foto sem fundo, com o protagonista no centro ocupando 90% do quadro. No celular, ele fica logo abaixo do veredito; no computador, aparece grande na coluna da esquerda e, junto com os botões de zoom, nunca passa da altura da janela. Com o recorte pronto, o botão do pé vira "Ficou ótimo" e "Trocar a foto" vira link de texto, para continuar existindo um ingresso só por tela.
+- **Enquadramento (signature):** com o recorte pronto, o próprio quadro vira o ajuste, sem botão por cima da foto. Arrastar move a foto; a pinça de dois dedos dá zoom em volta dos dedos; no computador, a rodinha com Ctrl (ou a pinça do trackpad) faz o mesmo, e sem Ctrl a página rola normalmente. Embaixo do quadro, uma linha diz como usar (o texto muda entre toque e mouse) e vêm os botões de zoom: círculos de 44px com contorno Verde Garrafa de 1px e ícone de traço, que acendem em verde com texto creme no hover. No limite do zoom, o contorno fica tracejado em vez de apagar, porque a tinta é única. Entre os botões, a porcentagem em Inter 600 com números tabulares. "Redefinir" é link de texto à direita e só aparece quando há algo para desfazer. Pelo teclado, o quadro recebe foco: as setas movem, + e − dão zoom e 0 redefine. O zoom vai de 50% a 400%, e o centro do protagonista nunca sai do quadro. Depois de "Ficou ótimo", o quadro trava com o enquadramento escolhido e aparece o link "Ajustar o enquadramento".
 - **Ícones:** desenhados em SVG, com traço de 2px e pontas redondas, na cor do texto. Nunca emoji.
 
 ### Lista numerada (signature)

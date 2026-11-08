@@ -29,8 +29,17 @@ export const NITIDEZ_MINIMA = 80;
 export function abrir(url: string): Promise<HTMLImageElement> {
   const imagem = new Image();
   imagem.decoding = 'async';
+  const carregou = new Promise<void>((ok, erro) => {
+    imagem.onload = () => ok();
+    imagem.onerror = () => erro(new Error('A imagem não abriu.'));
+  });
   imagem.src = url;
-  return imagem.decode().then(() => imagem);
+  // decode() prepara a imagem sem travar a tela, mas não termina enquanto a página
+  // está escondida (aplicativo em segundo plano, navegador embutido). Nesse caso,
+  // segue com a imagem já carregada depois de um tempo.
+  const decodificada = imagem.decode().catch(() => carregou);
+  const reserva = carregou.then(() => new Promise<void>((ok) => setTimeout(ok, 1500)));
+  return Promise.race([decodificada, reserva]).then(() => imagem);
 }
 
 // Nitidez: a foto é reduzida para 1024 px, dividida em 8 × 8 partes, e em cada

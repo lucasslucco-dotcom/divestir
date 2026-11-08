@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-08T14:30:00-03:00",
+  "generatedAt": "2026-11-08T15:40:00-03:00",
   "title": "Design System: Divestir",
   "extensions": {
     "colorMeta": {
@@ -249,6 +249,14 @@
       "description": "Miniatura da foto escolhida e o veredito: pílula verde só para \"Foto perfeita\"; aviso e bloqueio em frase com ícone.",
       "html": "<div class=\"ds-resultado\"><img src=\"/guia/foco-sim.jpg\" alt=\"A foto que você escolheu\" width=\"900\" height=\"1125\"><div><p class=\"ds-perfeita\">Foto perfeita</p><p>Tem resolução de sobra para a estampa ficar nítida.</p><p class=\"ds-medida\">2.400 × 3.000 px</p></div></div>",
       "css": ".ds-resultado{display:flex;align-items:flex-start;gap:1rem;width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-resultado img{width:6rem;aspect-ratio:4/5;object-fit:cover;border-radius:.75rem;background:var(--color-estudio)}.ds-resultado p{margin:.5rem 0 0;font-size:.9375rem;line-height:1.375}.ds-perfeita{display:inline-block;margin:0!important;padding:.375rem .875rem;border-radius:9999px;background:var(--color-verde);color:var(--color-creme);font-size:.875rem!important;font-weight:600}.ds-medida{font-size:.75rem!important;font-variant-numeric:tabular-nums}"
+    },
+    {
+      "name": "Enquadramento do recorte",
+      "kind": "custom",
+      "refersTo": "quadro-recorte",
+      "description": "O quadro do recorte vira o ajuste: arrastar move, pinça e botões dão zoom. Botões de 44px com contorno verde; no limite, contorno tracejado. \"Redefinir\" só aparece quando há algo para desfazer.",
+      "html": "<div class=\"ds-enquadrar\"><div class=\"ds-quadro\" role=\"group\" aria-label=\"Enquadramento da foto\" tabindex=\"0\"><img src=\"/guia/foco-sim.jpg\" alt=\"A sua foto, já sem o fundo\" width=\"900\" height=\"1125\"></div><p>Arraste para mover e use dois dedos para dar zoom.</p><div class=\"ds-zoom\"><button type=\"button\" aria-label=\"Diminuir o zoom\">−</button><span>125%</span><button type=\"button\" aria-label=\"Aumentar o zoom\">+</button><button type=\"button\" class=\"ds-redefinir\">Redefinir</button></div></div>",
+      "css": ".ds-enquadrar{width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-quadro{position:relative;aspect-ratio:4/5;overflow:hidden;border-radius:1rem;background:var(--color-estudio);cursor:grab;touch-action:none}.ds-quadro img{position:absolute;left:-6%;top:-4%;width:112%;height:auto}.ds-enquadrar p{margin:.75rem 0 0;font-size:.9375rem;line-height:1.375}.ds-zoom{display:flex;align-items:center;gap:.25rem;margin-top:.5rem}.ds-zoom button{display:inline-flex;width:2.75rem;height:2.75rem;align-items:center;justify-content:center;border:1px solid var(--color-verde);border-radius:9999px;background:var(--color-creme);color:var(--color-verde);font-size:1.125rem}.ds-zoom button:hover{background:var(--color-verde);color:var(--color-creme)}.ds-zoom button:disabled{border-style:dashed}.ds-zoom span{width:3.5rem;text-align:center;font-size:.875rem;font-weight:600;font-variant-numeric:tabular-nums}.ds-zoom .ds-redefinir{width:auto;height:auto;margin-left:auto;padding:.75rem 0;border:0;border-radius:0;background:none;font-size:.9375rem;text-decoration:underline;text-underline-offset:.3em}.ds-zoom .ds-redefinir:hover{background:none;color:var(--color-verde);text-decoration-thickness:2px}"
     }
   ],
   "narrative": {
