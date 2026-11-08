@@ -268,9 +268,6 @@ function PreviaNaPeca({
           Não consegui montar essa prévia.
         </p>
       ) : null}
-      <span className="absolute top-2 right-2 rounded-full border border-verde bg-creme px-2.5 py-1 text-[0.6875rem] leading-4 font-semibold">
-        Prévia ilustrativa
-      </span>
     </div>
   );
 }
@@ -354,7 +351,13 @@ export function PreviasDoMolde({
                     perto={perto}
                     rotulo={`Prévia ilustrativa: ${resolvido.design.nome} com o nome ${nome}, ${peca} na cor ${cor.nome.toLocaleLowerCase('pt-BR')}, estampa ${lugar}`}
                   />
-                  <p className="mt-2 text-sm leading-5 font-semibold">{cor.nome}</p>
+                  {/* O selo fica embaixo da prévia, para nunca cobrir a arte. */}
+                  <div className="mt-2 flex items-center justify-between gap-2">
+                    <p className="text-sm leading-5 font-semibold">{cor.nome}</p>
+                    <span className="rounded-full border border-verde px-2.5 py-1 text-[0.6875rem] leading-4 font-semibold">
+                      Prévia ilustrativa
+                    </span>
+                  </div>
                 </li>
               );
             })
@@ -364,7 +367,7 @@ export function PreviasDoMolde({
                   <IconeCarregando className="shrink-0" />
                   Montando…
                 </div>
-                <p className="mt-2 text-sm leading-5 font-semibold">&nbsp;</p>
+                <p className="mt-2 text-sm leading-[1.625rem] font-semibold">&nbsp;</p>
               </li>
             ))}
       </ul>
