@@ -48,7 +48,9 @@ O briefing completo está em `docs/divestir-briefing.md`. Ele é a fonte da verd
 - Variáveis de ambiente: lista em `.env.example`.
 - Projeto no Supabase: `divestir` (ref `hpubkogmfhgabtzrpgxv`), região São Paulo, plano Pro desde 08/11/2026 (o banco não pausa mais por falta de uso).
 - Site no ar: https://divestir.vercel.app (projeto `divestir` no time LUCCO da Vercel). Cada envio para a branch `main` do GitHub publica o site sozinho. As funções do site rodam em São Paulo (`gru1`, em `vercel.json`), perto do banco. O time está no plano Pro desde 08/11/2026, que permite uso comercial.
-- Serviços que ainda faltam (tabela "Stack" do briefing), na ordem em que entram: API de remoção de fundo (Etapa 3, ainda não escolhida), meio de pagamento (Etapa 6: Mercado Pago, Pagar.me ou Asaas, ainda não escolhido), Resend para e-mail e provedor da API do WhatsApp (Etapa 9) e domínio próprio (Etapa 10). Antes do lançamento, os termos, a política de privacidade e a política de troca passam por um advogado.
+- Serviços que ainda faltam (tabela "Stack" do briefing), na ordem em que entram: API de remoção de fundo (Etapa 3, ainda não escolhida), meio de pagamento (Etapa 6: Mercado Pago, Pagar.me ou Asaas, ainda não escolhido) e Resend para e-mail (Etapa 9). Antes do lançamento, os termos, a política de privacidade e a política de troca passam por um advogado.
+- Domínio próprio: já registrado pelo Lucas (08/11/2026). Entra na Vercel na Etapa 10, e o Resend usa o mesmo domínio para mandar os e-mails.
+- Avisos ao cliente (decisão do Lucas, 08/11/2026): o e-mail vem primeiro. O WhatsApp não trava nenhuma etapa e entra quando o provedor estiver liberado; até lá, todo aviso vai por e-mail. O WhatsApp do cliente continua sendo pedido no checkout, como no briefing.
 
 ## Pendências técnicas
 
