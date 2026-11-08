@@ -4,10 +4,17 @@ import { abrir } from './checar';
 
 // 2.048 px no lado maior: nítido para a prévia e leve para enviar pelo celular.
 const LADO_DO_ENVIO = 2048;
+// A Vercel aceita até 4,5 MB por envio.
+const LIMITE_DO_ENVIO = 4 * 1024 * 1024;
 
 export type Recorte = { url: string; teste: boolean };
+export type FotoParaRecorte = { foto: Blob; nome: string };
 
-export async function prepararParaRecorte(url: string): Promise<Blob | null> {
+function ehHeic(arquivo: File) {
+  return /hei[cf]/i.test(arquivo.type) || /\.hei[cf]$/i.test(arquivo.name);
+}
+
+export async function prepararParaRecorte(url: string, arquivo: File): Promise<FotoParaRecorte | null> {
   try {
     const imagem = await abrir(url);
     const escala = Math.min(1, LADO_DO_ENVIO / Math.max(imagem.naturalWidth, imagem.naturalHeight));
@@ -18,15 +25,19 @@ export async function prepararParaRecorte(url: string): Promise<Blob | null> {
     if (!contexto) return null;
     contexto.imageSmoothingQuality = 'high';
     contexto.drawImage(imagem, 0, 0, tela.width, tela.height);
-    return await new Promise<Blob | null>((resolver) => tela.toBlob(resolver, 'image/jpeg', 0.9));
+    const foto = await new Promise<Blob | null>((resolver) => tela.toBlob(resolver, 'image/jpeg', 0.9));
+    return foto ? { foto, nome: 'foto.jpg' } : null;
   } catch {
+    // O navegador não abriu a foto. Se for HEIC do iPhone e couber no envio,
+    // ela vai do jeito que está: o Photoroom lê HEIC.
+    if (ehHeic(arquivo) && arquivo.size <= LIMITE_DO_ENVIO) return { foto: arquivo, nome: 'foto.heic' };
     return null;
   }
 }
 
-export async function pedirRecorte(foto: Blob): Promise<Recorte> {
+export async function pedirRecorte({ foto, nome }: FotoParaRecorte): Promise<Recorte> {
   const dados = new FormData();
-  dados.append('foto', foto, 'foto.jpg');
+  dados.append('foto', foto, nome);
   const resposta = await fetch('/api/recorte', { method: 'POST', body: dados });
   if (!resposta.ok) {
     const corpo = (await resposta.json().catch(() => null)) as { erro?: string } | null;

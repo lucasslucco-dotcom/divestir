@@ -9,7 +9,12 @@ export const maxDuration = 30;
 
 // A Vercel aceita até 4,5 MB por envio; o navegador reduz a foto antes de mandar.
 const LIMITE_BYTES = 4 * 1024 * 1024;
-const TIPOS = ['image/jpeg', 'image/png', 'image/webp'];
+const TIPOS = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+
+// HEIC (o formato do iPhone) chega às vezes sem tipo; vale a extensão do nome.
+function ehHeic(foto: File) {
+  return /hei[cf]/i.test(foto.type) || /\.hei[cf]$/i.test(foto.name);
+}
 
 function erro(mensagem: string, status: number) {
   return Response.json({ erro: mensagem }, { status, headers: { 'Cache-Control': 'no-store' } });
@@ -32,14 +37,14 @@ export async function POST(request: Request) {
     return erro('Não deu para ler a foto.', 400);
   }
   if (!(foto instanceof File)) return erro('Faltou a foto.', 400);
-  if (!TIPOS.includes(foto.type)) return erro('Esse formato não dá para recortar.', 415);
+  if (!TIPOS.includes(foto.type) && !ehHeic(foto)) return erro('Esse formato não dá para recortar.', 415);
   if (foto.size > LIMITE_BYTES) return erro('A foto chegou grande demais.', 413);
 
   const teste = process.env.PHOTOROOM_MODO !== 'producao';
   const chaveDoModo = teste && !chave.startsWith('sandbox_') ? `sandbox_${chave}` : chave;
 
   const envio = new FormData();
-  envio.append('image_file', foto, 'foto.jpg');
+  envio.append('image_file', foto, ehHeic(foto) ? 'foto.heic' : 'foto.jpg');
   envio.append('format', 'webp'); // mantém a transparência com arquivo leve
   envio.append('size', 'hd'); // até 4 megapixels, de sobra para a prévia
 

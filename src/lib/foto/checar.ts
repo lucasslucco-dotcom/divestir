@@ -95,13 +95,16 @@ export async function checarFoto(arquivo: File, url: string): Promise<Checagem> 
   try {
     imagem = await abrir(url);
   } catch {
-    // Alguns navegadores não abrem HEIC (o formato do iPhone). A foto vale;
-    // a qualidade dela é conferida depois, no envio.
+    // Alguns navegadores não abrem HEIC (o formato do iPhone). A foto vale e
+    // segue direto para o recorte, porque o Photoroom lê HEIC.
     if (heic) {
       return {
         nivel: 'recebida',
         titulo: 'Foto recebida',
-        mensagens: ['Esse formato a gente confere no próximo passo.', ...avisos.map((a) => a.mensagem)],
+        mensagens: [
+          'Neste navegador não dá para medir esse formato, mas a foto segue para o recorte.',
+          ...avisos.map((a) => a.mensagem),
+        ],
       };
     }
     return { nivel: 'bloqueio', titulo: 'Não consegui abrir essa foto', mensagens: ['Tenta outra?'] };
