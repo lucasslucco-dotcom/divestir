@@ -185,7 +185,7 @@ Uma cor de marca, um papel e um acento, como uma impressão em duas tintas com u
 
 ### Neutral
 - **Papel Creme** (#FAF5EB): o papel das superfícies de ler e de montar, e o texto sobre o verde. Ele conversa com o Cloud Dancer, a cor do ano 2026 da Pantone.
-- **Cinza do Estúdio** (#E9E9E7): não é cor de marca. É o fundo das fotos de base do catálogo, e aparece só atrás delas: na moldura da prévia e das miniaturas do montador, para a moldura ter a cor da foto enquanto ela carrega. Nunca é fundo de texto nem de faixa.
+- **Cinza do Estúdio** (#E9E9E7): não é cor de marca. É o fundo das fotos de base do catálogo, e aparece só atrás de fotos: na moldura da prévia e das miniaturas do montador, no quadro do recorte e nas fotos do guia, para a moldura ter a cor da foto enquanto ela carrega. Nunca é fundo de texto corrido nem de faixa.
 
 ### Named Rules
 **A Regra da Tinta Única.** Cada superfície tem uma tinta só, cheia: creme sobre o verde, verde sobre o creme. Nada de texto com transparência para recuar. A hierarquia vem do tamanho, do peso e da fonte.
@@ -298,7 +298,7 @@ O passo "Manda a foto" (`/montar/foto`) mostra o guia antes do botão de enviar,
 - **Don't** coloque rosa sobre o creme (2.8:1).
 - **Don't** use texto com transparência para criar hierarquia.
 - **Don't** ponha moldura, canto arredondado ou sombra nas fotos da vitrine.
-- **Don't** use o Cinza do Estúdio fora da moldura das fotos de base.
+- **Don't** use o Cinza do Estúdio fora da moldura de uma foto.
 - **Don't** use sombra, brilho, vidro ou gradiente de enfeite na interface.
 - **Don't** coloque um rótulo pequeno em caixa-alta em cima de um título.
 - **Don't** encha a tela: nada de poluição visual ou cara de template genérico.
