@@ -38,21 +38,22 @@ O briefing completo está em `docs/divestir-briefing.md`. Ele é a fonte da verd
   - Cores oficiais da marca (decisão do Lucas, 07/11): verde garrafa `#0D2B17` (cor principal, o verde exato do fundo das fotos do Fã-Clube), creme `#FAF5EB` (o papel) e rosa elétrico `#FF4FA8` (o acento, cor-chave WGSN 2026). Rosa só aparece sobre o verde: sobre o creme ele some (contraste 2.8:1). Sobre o creme, o botão é verde com texto creme; sobre o verde, rosa com texto verde.
   - Regra do palco: o verde é para mostrar (topo, vitrine de peças, rodapé) e o creme é para ler e fazer (como funciona, montador, checkout).
   - Tinta única: sobre o creme, todo texto é verde cheio; sobre o verde, creme cheio. Sem transparência; a hierarquia vem do tamanho, do peso e da fonte.
-  - Fotos da vitrine ficam em `public/exemplos/` e passam antes pelo `scripts/preparar-vitrine.py`, que deixa o fundo da foto no verde exato da página.
+  - Fotos da vitrine ficam em `public/exemplos/` e passam antes pelo `scripts/preparar-fotos.py vitrine`, que deixa o fundo da foto no verde exato da página.
   - Fontes oficiais (decisão do Lucas, 07/11): Anton nos títulos, Instrument Serif no destaque e Inter no texto. Paleta e fontes estão fechadas; só o logo ainda está em produção.
 - Design com o Impeccable (skill em `.claude/skills/impeccable`): a verdade do produto fica em `PRODUCT.md` e o sistema visual em `DESIGN.md`, com os componentes em `.impeccable/design.json`. Leia os dois antes de qualquer tela nova e atualize o `DESIGN.md` quando o sistema mudar. Os guias são lidos direto da pasta `reference/` da skill (o launcher, que baixa um programa, não é usado).
-- Conexão com o Supabase: `src/lib/supabase/client.ts` (navegador) e `src/lib/supabase/server.ts` (servidor).
+- Conexão com o Supabase: `src/lib/supabase/client.ts` (navegador), `src/lib/supabase/server.ts` (servidor, com a sessão de quem está logado) e `src/lib/supabase/publico.ts` (leituras públicas sem sessão, como o catálogo, que podem ficar guardadas em cache).
+- Catálogo: as fotos de base ficam em `public/catalogo/`, com o nome `peca-cor-lado.jpg` (1440 × 1800, fundo cinza `#E9E9E7`), e passam antes pelo `scripts/preparar-fotos.py catalogo`. Os códigos de cada foto no Higgsfield estão em `docs/fotos-de-base.md`. As peças, cores e fotos iniciais estão em `supabase/seed.sql` (são dados, não estrutura; rodar de novo é seguro). O site lê o catálogo em `src/lib/catalogo.ts` e guarda o resultado por até uma hora (etiqueta `catalogo`); o painel da Etapa 8 vai renovar na hora com `revalidateTag('catalogo')`.
 - Banco: migrations em `supabase/migrations/`. Toda mudança no banco vira uma migration nova, nunca edição de uma antiga.
 - Teste das regras de acesso do banco: `npm run testar:banco` (roda as migrations num Postgres local e confere quem lê e altera o quê). Rode sempre que mexer no banco.
 - Variáveis de ambiente: lista em `.env.example`.
 - Projeto no Supabase: `divestir` (ref `hpubkogmfhgabtzrpgxv`), região São Paulo, plano gratuito. Antes do lançamento, passar para o plano pago: no gratuito o banco pausa depois de uma semana sem uso.
-- Site no ar: https://divestir.vercel.app (projeto `divestir` no time LUCCO da Vercel). Cada envio para a branch `main` do GitHub publica o site sozinho. Antes de começar a vender, o time precisa estar no plano Pro: o Hobby da Vercel só permite uso pessoal, não comercial.
+- Site no ar: https://divestir.vercel.app (projeto `divestir` no time LUCCO da Vercel). Cada envio para a branch `main` do GitHub publica o site sozinho. As funções do site rodam em São Paulo (`gru1`, em `vercel.json`), perto do banco. Antes de começar a vender, o time precisa estar no plano Pro: o Hobby da Vercel só permite uso pessoal, não comercial.
 
 ## Pendências técnicas
 
 - Etapa 8 (painel): reorganizar as regras de leitura de `pecas`, `cores`, `peca_imagens`, `designs` e `equipe` para uma regra por papel e por ação. O Supabase avisa que hoje há duas regras de leitura para usuários logados nessas tabelas (aviso só de desempenho). A mudança precisa de DROP POLICY, então pede confirmação.
-- Quando o site ganhar rotas no servidor (upload de foto, checkout), configurar a região das funções da Vercel para São Paulo (`gru1`), perto do banco.
+- Preço de cada peça e área de impressão ainda estão em aberto no briefing: no banco, `preco` e `area_impressao_cm` das peças estão vazios.
 
 ## Etapa atual
 
-Etapa 2: Catálogo. A Etapa 1 (base do projeto) foi concluída e aprovada em 07/11/2026; o logo definitivo ainda está com o Lucas e entra quando ficar pronto. Para começar a Etapa 2, as 30 fotos de base das peças precisam estar na pasta `divestir` do Mac Studio.
+Etapa 2: Catálogo. Construída em 08/11/2026 e esperando o teste e a aprovação do Lucas: em `/montar`, escolher peça, cor e lado e ver a foto certa trocando. As 30 fotos de base foram geradas de novo no Higgsfield (as originais não foram encontradas). A Etapa 1 (base do projeto) foi concluída e aprovada em 07/11/2026; o logo definitivo ainda está com o Lucas e entra quando ficar pronto.

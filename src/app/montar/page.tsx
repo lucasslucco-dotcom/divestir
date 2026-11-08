@@ -1,5 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
+import { connection } from 'next/server';
+import { Suspense } from 'react';
+import { carregarCatalogo } from '@/lib/catalogo';
+import { Montador } from './montador';
 
 export const metadata: Metadata = {
   title: 'Montador | Divestir',
@@ -10,22 +14,43 @@ export const viewport: Viewport = {
   themeColor: '#faf5eb',
 };
 
+// Busca o catálogo na hora da visita (e não na publicação do site), para a
+// página sempre mostrar as peças e cores que estão ativas no banco.
+async function MontadorComCatalogo() {
+  await connection();
+  const catalogo = await carregarCatalogo();
+  return <Montador catalogo={catalogo} />;
+}
+
+// Enquanto o catálogo chega: o formato da prévia e das peças, já no lugar.
+function MontadorCarregando() {
+  return (
+    <div
+      aria-busy="true"
+      aria-label="Carregando as peças"
+      className="sm:mx-auto sm:max-w-xl lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-[minmax(0,1fr)_25rem] lg:gap-x-12 xl:gap-x-16"
+    >
+      <div className="lg:col-start-2">
+        <p className="font-titulo text-[clamp(2.6rem,9vw,4rem)] leading-none uppercase">Escolhe a peça</p>
+      </div>
+      <div className="mt-6 aspect-[4/5] rounded-2xl bg-estudio lg:col-start-1 lg:row-start-1 lg:mt-0" />
+    </div>
+  );
+}
+
 export default function Montar() {
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center px-4 py-16 text-center">
-      <Link href="/" className="px-2 py-2 font-titulo text-xl uppercase tracking-[0.06em]">
-        Divestir
-      </Link>
-      <h1 className="mt-12 font-titulo text-[clamp(4.25rem,19vw,6rem)] leading-[0.9] uppercase">Em breve</h1>
-      <p className="mt-6 max-w-[24ch] font-destaque text-[clamp(1.45rem,5.2vw,2.1rem)] leading-tight text-balance italic">
-        O montador está sendo costurado. Daqui a pouco você monta a sua Divestir aqui.
-      </p>
-      <Link
-        href="/"
-        className="mt-7 py-3 text-[0.9375rem] underline decoration-1 underline-offset-[0.3em] hover:decoration-2"
-      >
-        Voltar para o início
-      </Link>
-    </main>
+    <>
+      <header className="flex justify-center px-4 pt-5">
+        <Link href="/" className="px-2 py-2 font-titulo text-xl uppercase tracking-[0.06em]">
+          Divestir
+        </Link>
+      </header>
+      <main className="mx-auto max-w-6xl px-4 pt-6 pb-36 lg:pt-10 lg:pb-24">
+        <Suspense fallback={<MontadorCarregando />}>
+          <MontadorComCatalogo />
+        </Suspense>
+      </main>
+    </>
   );
 }

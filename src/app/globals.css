@@ -25,6 +25,9 @@
   /* Estados do ingresso (hover e toque). Não são cores de marca. */
   --color-verde-claro: #1f4d30;
   --color-rosa-claro: #ff7dbe;
+  /* O cinza do estúdio das fotos de base. Só atrás das fotos do catálogo,
+     para a moldura da prévia ter a mesma cor da foto enquanto ela carrega. */
+  --color-estudio: #e9e9e7;
 
   /* Movimento: saída exponencial, rápida no começo e macia no fim. */
   --ease-saida: cubic-bezier(0.16, 1, 0.3, 1);

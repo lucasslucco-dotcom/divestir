@@ -27,11 +27,15 @@ O briefing completo do produto está em [`docs/divestir-briefing.md`](docs/dives
 | --- | --- |
 | `src/app` | Páginas do site |
 | `src/app/fontes` | Fontes da identidade |
+| `src/app/montar` | O montador: escolher peça, cor e lado |
 | `src/lib/supabase` | Conexão com o Supabase |
+| `src/lib/catalogo.ts` | Leitura do catálogo (peças, cores e fotos de base) |
 | `supabase/migrations` | Estrutura do banco (tabelas e regras de acesso) |
-| `scripts` | Testes e utilitários (inclui `preparar-vitrine.py`, que ajusta as fotos de exemplo da home) |
+| `supabase/seed.sql` | Catálogo inicial: 5 peças, 3 cores e 30 fotos de base |
+| `scripts` | Testes e utilitários (inclui `preparar-fotos.py`, que ajusta as fotos da vitrine e as fotos de base) |
 | `public/exemplos` | Fotos de exemplo da vitrine da home |
-| `docs` | Briefing do produto |
+| `public/catalogo` | Fotos de base de cada peça, em cada cor, de frente e de costas |
+| `docs` | Briefing do produto e os códigos das fotos de base no Higgsfield |
 | `PRODUCT.md` | Quem é o cliente, o que a Divestir promete e o que ainda está em aberto |
 | `DESIGN.md` | Sistema visual: cores, fontes, formas, componentes e regras |
 | `.claude/skills/impeccable` | Skill de design usada para criar e polir as telas |

@@ -42,6 +42,9 @@ await db.exec(`
     ('camiseta-regular', 'Camiseta', 'regular', true),
     ('peca-desativada', 'Peca antiga', 'regular', false);
   insert into public.cores (slug, nome, hex) values ('preto', 'Preto', '#121212');
+  insert into public.peca_imagens (peca_id, cor_id, lado, url)
+    select p.id, c.id, 'frente', '/catalogo/' || p.slug || '-preto-frente.jpg'
+    from public.pecas p cross join public.cores c;
   insert into public.designs (slug, nome, status) values
     ('fa-clube', 'Fa-Clube', 'ativo'),
     ('rascunho-secreto', 'Rascunho', 'rascunho');
@@ -77,6 +80,8 @@ async function confere(descricao, papel, usuario, sql, esperado) {
 console.log('\nVisitante sem login (anon)');
 await confere('vê só as peças ativas', 'anon', null, 'select * from public.pecas', 1);
 await confere('vê só os designs ativos', 'anon', null, 'select * from public.designs', 1);
+await confere('vê as fotos de base só das peças ativas', 'anon', null, 'select * from public.peca_imagens', 1);
+await confere('NÃO troca a foto de uma peça', 'anon', null, "update public.peca_imagens set url = 'x' returning id", 'negado');
 await confere('NÃO lê pedidos', 'anon', null, 'select * from public.pedidos', 'negado');
 await confere('NÃO lê a equipe', 'anon', null, 'select * from public.equipe', 'negado');
 await confere('NÃO lê as fotos dos clientes', 'anon', null, 'select * from public.fotos', 'negado');

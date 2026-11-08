@@ -7,6 +7,7 @@ colors:
   creme: "#faf5eb"
   rosa: "#ff4fa8"
   rosa-claro: "#ff7dbe"
+  estudio: "#e9e9e7"
 typography:
   display:
     fontFamily: "Anton, Arial Narrow, sans-serif"
@@ -57,6 +58,9 @@ typography:
 rounded:
   ingresso: "6px"
   foco: "8px"
+  miniatura: "12px"
+  previa: "16px"
+  pilula: "9999px"
 spacing:
   margem: "16px"
   vitrine-vao: "8px"
@@ -100,6 +104,28 @@ components:
   vitrine-legenda:
     textColor: "{colors.creme}"
     typography: "{typography.label}"
+  previa-montador:
+    backgroundColor: "{colors.estudio}"
+    rounded: "{rounded.previa}"
+  chave-lado:
+    backgroundColor: "{colors.creme}"
+    textColor: "{colors.verde}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pilula}"
+    padding: "12px 16px"
+  chave-lado-ativa:
+    backgroundColor: "{colors.verde}"
+    textColor: "{colors.creme}"
+  seletor-peca:
+    backgroundColor: "{colors.estudio}"
+    textColor: "{colors.verde}"
+    typography: "{typography.label}"
+    rounded: "{rounded.miniatura}"
+  barra-cor:
+    backgroundColor: "{colors.creme}"
+    textColor: "{colors.verde}"
+    typography: "{typography.label}"
+    padding: "12px 16px"
 ---
 
 # Design System: Divestir
@@ -136,13 +162,14 @@ Uma cor de marca, um papel e um acento, como uma impressão em duas tintas com u
 
 ### Neutral
 - **Papel Creme** (#FAF5EB): o papel das superfícies de ler e de montar, e o texto sobre o verde. Ele conversa com o Cloud Dancer, a cor do ano 2026 da Pantone.
+- **Cinza do Estúdio** (#E9E9E7): não é cor de marca. É o fundo das fotos de base do catálogo, e aparece só atrás delas: na moldura da prévia e das miniaturas do montador, para a moldura ter a cor da foto enquanto ela carrega. Nunca é fundo de texto nem de faixa.
 
 ### Named Rules
 **A Regra da Tinta Única.** Cada superfície tem uma tinta só, cheia: creme sobre o verde, verde sobre o creme. Nada de texto com transparência para recuar. A hierarquia vem do tamanho, do peso e da fonte.
 
 **A Regra do Rosa no Verde.** O rosa só existe sobre o verde. Sobre o creme ele some (2.8:1), então lá ele nunca entra, nem como texto, nem como fundo, nem como ícone. Ele marca o que importa e nunca vira fundo grande.
 
-**A Regra do Palco.** O verde é para mostrar: topo, vitrine de peças e rodapé. O creme é para ler e fazer: como funciona, montador, carrinho e checkout. Toda foto no palco tem o fundo no verde exato da página, acertado pelo script `scripts/preparar-vitrine.py`, para a peça flutuar sem emenda.
+**A Regra do Palco.** O verde é para mostrar: topo, vitrine de peças e rodapé. O creme é para ler e fazer: como funciona, montador, carrinho e checkout. Toda foto no palco tem o fundo no verde exato da página, acertado pelo script `scripts/preparar-fotos.py` (modo vitrine), para a peça flutuar sem emenda. As fotos de base do montador seguem a mesma lógica no papel: fundo no Cinza do Estúdio, acertado pelo mesmo script no modo catálogo.
 
 ## Typography
 
@@ -176,6 +203,8 @@ A vitrine desliza com o dedo no celular: cada peça ocupa 78% da largura, com 8p
 
 No celular, cada faixa respira 80px em cima e embaixo; a partir de 640px, 112px. Grupos ficam apertados e grupos diferentes ficam bem separados: 24px entre o título e a frase, 40px antes do ingresso, 48px antes da vitrine. Sempre há mais espaço acima de um título do que abaixo dele.
 
+O montador é uma tela de trabalho, toda no creme. No celular, é uma coluna só: título, prévia grande, a fila de peças que desliza com o dedo e, presa no pé da tela, a barra de cor. De 640px a 1023px, a mesma coluna fica centralizada com até 36rem, para a prévia não engolir a tela do tablet. A partir de 1024px, a prévia vai para a esquerda e acompanha a rolagem, e as escolhas ficam à direita numa coluna de 25rem, juntas no alto. A prévia nunca passa da altura da janela, nem em notebook baixo.
+
 ## Elevation & Depth
 
 O sistema é chapado: a interface não tem sombra. A única profundidade é a das próprias fotos, com a luz de estúdio e a sombra natural da peça sobre o fundo verde. As fotos se fundem à página por um esfumado de 6% em cima e embaixo, que existe só para esconder a emenda e não aparece como efeito.
@@ -185,7 +214,7 @@ O sistema é chapado: a interface não tem sombra. A única profundidade é a da
 
 ## Shapes
 
-A forma vem do papel de fã. O botão principal é um ingresso: retângulo com canto de 6px e dois furos de 10px de raio nas laterais, recortados por máscara. O contorno de foco segue o ingresso com canto de 8px. Os números dos passos são vazados, como a numeração de uma camisa de time ou de uma jaqueta college. As fotos da vitrine não têm forma nenhuma: sem canto, sem borda e sem moldura.
+A forma vem do papel de fã. O botão principal é um ingresso: retângulo com canto de 6px e dois furos de 10px de raio nas laterais, recortados por máscara. O contorno de foco segue o ingresso com canto de 8px. Os números dos passos são vazados, como a numeração de uma camisa de time ou de uma jaqueta college. As fotos da vitrine não têm forma nenhuma: sem canto, sem borda e sem moldura. No montador é diferente, porque ali a foto é ferramenta e não palco: a prévia fica numa moldura de Cinza do Estúdio com canto de 16px, e as miniaturas, com canto de 12px. As escolhas que se alternam (Frente e Costas) são pílulas.
 
 ### Named Rules
 **A Regra do Picote.** Furo e picote são a assinatura da Divestir: estão no ingresso e no ícone do site. Eles dizem "isso é seu", e nunca viram textura de fundo ou enfeite solto.
@@ -207,7 +236,14 @@ O ingresso é a ação principal, firme e única por tela.
 - **Style:** bloco de largura total em Verde Garrafa com texto Papel Creme. No celular, a barra do navegador fica verde na home e creme nas telas de trabalho.
 
 ### Vitrine de exemplos (signature)
-A vitrine mostra a peça pronta antes de a pessoa ter a sua. Cada foto mostra as costas de uma peça com o design Fã-Clube, no fundo verde exato, sem moldura, e embaixo vem a legenda: o nome em Rosa Elétrico e a peça em Papel Creme ("Thor · Camiseta oversized preta"). Abaixo de tudo, uma legenda diz que são exemplos. Toda foto nova passa pelo `scripts/preparar-vitrine.py`, que recorta em 4:5 (896 × 1120px) e acerta só o fundo perto das bordas, sem tocar na peça. A primeira foto carrega com prioridade; as outras, quando chegam perto da tela.
+A vitrine mostra a peça pronta antes de a pessoa ter a sua. Cada foto mostra as costas de uma peça com o design Fã-Clube, no fundo verde exato, sem moldura, e embaixo vem a legenda: o nome em Rosa Elétrico e a peça em Papel Creme ("Thor · Camiseta oversized preta"). Abaixo de tudo, uma legenda diz que são exemplos. Toda foto nova passa pelo `scripts/preparar-fotos.py` no modo vitrine, que recorta em 4:5 (896 × 1120px) e acerta só o fundo perto das bordas, sem tocar na peça. A primeira foto carrega com prioridade; as outras, quando chegam perto da tela.
+
+### Montador
+A tela onde a pessoa escolhe a peça e vê na hora como ela fica. Tudo é escolha única, feita com botões de opção de verdade no código (o leitor de tela anuncia "Peça", "Cor da peça" e "Lado da peça"), e o resumo da escolha é lido em voz alta quando muda.
+- **Prévia (signature):** foto de base grande em 4:5, na moldura de Cinza do Estúdio com canto de 16px, sem nenhum botão por cima: a peça aparece inteira. Todas as cores e os dois lados da peça escolhida já ficam carregados e empilhados; trocar de cor ou de lado só acende a foto certa, num esmaecer de 300ms com saída exponencial. Nada pisca: enquanto a foto chega, aparece o cinza da própria foto.
+- **Frente e Costas:** pílula com contorno Verde Garrafa de 1px, ao lado das cores. A opção escolhida fica Verde Garrafa com texto creme. Cada opção tem 44px de altura.
+- **Seletor de peça:** miniaturas da peça na cor escolhida, com nome em Inter 600 e caimento em Inter 400 embaixo. A escolhida ganha borda Verde Garrafa de 2px. No celular, a fila desliza com o dedo e mostra a próxima peça pela metade; no computador, vira uma grade de três colunas.
+- **Barra de cor:** no celular, presa no pé da tela com um fio verde em cima, para a cor e o lado estarem sempre ao alcance do polegar, mesmo com a prévia rolada. Bolinhas de 40px com contorno verde fino, nome embaixo e área de toque de 44px; a escolhida ganha um anel verde de 2px a 3px de distância. À direita, a pílula Frente e Costas. A barra tem uma linha só até nos celulares de 360px. O resumo da escolha ("Jaqueta college · Mangas contrastantes, cor creme, de frente") não aparece na tela, mas é lido pelo leitor de tela a cada troca. No computador, a barra deixa de ser presa e entra na coluna das escolhas, com as cores e o lado lado a lado.
 
 ### Lista numerada (signature)
 - **Style:** números vazados em Anton de 48px, com contorno verde de 1.5px, numa coluna de 28px. Ao lado vêm o título em Inter 600 e o texto em Inter 400. A lista é numerada de verdade no código, e o número desenhado é só visual.
@@ -220,7 +256,7 @@ A vitrine mostra a peça pronta antes de a pessoa ter a sua. Cada foto mostra as
 ### Do:
 - **Do** use Verde Garrafa cheio em todo texto sobre o Papel Creme (14:1), e creme cheio sobre o verde.
 - **Do** use o Rosa Elétrico só sobre o verde: no ingresso, nos nomes da vitrine e na seleção.
-- **Do** passe toda foto da vitrine pelo `scripts/preparar-vitrine.py` antes de publicar.
+- **Do** passe toda foto da vitrine pelo `scripts/preparar-fotos.py vitrine`, e toda foto de base do catálogo pelo `scripts/preparar-fotos.py catalogo`, antes de publicar.
 - **Do** mostre na vitrine pet, gente e peças e cores diferentes, sempre com o mesmo fundo verde.
 - **Do** mantenha todo título em até 6rem e o ingresso como ação principal, um por tela.
 - **Do** garanta 44px de área de toque em tudo que é clicável.
@@ -229,6 +265,7 @@ A vitrine mostra a peça pronta antes de a pessoa ter a sua. Cada foto mostra as
 - **Don't** coloque rosa sobre o creme (2.8:1).
 - **Don't** use texto com transparência para criar hierarquia.
 - **Don't** ponha moldura, canto arredondado ou sombra nas fotos da vitrine.
+- **Don't** use o Cinza do Estúdio fora da moldura das fotos de base.
 - **Don't** use sombra, brilho, vidro ou gradiente de enfeite na interface.
 - **Don't** coloque um rótulo pequeno em caixa-alta em cima de um título.
 - **Don't** encha a tela: nada de poluição visual ou cara de template genérico.

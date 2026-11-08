@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-07T12:05:00-03:00",
+  "generatedAt": "2026-11-08T00:30:00-03:00",
   "title": "Design System: Divestir",
   "extensions": {
     "colorMeta": {
@@ -78,6 +78,21 @@
           "#feadd2",
           "#ffdbf5"
         ]
+      },
+      "estudio": {
+        "role": "neutral",
+        "displayName": "Cinza do Estúdio",
+        "canonical": "oklch(93.3% 0.003 106.5)",
+        "tonalRamp": [
+          "#0b0b0a",
+          "#252524",
+          "#424241",
+          "#61615f",
+          "#828280",
+          "#a5a5a3",
+          "#c9c9c8",
+          "#eeeeed"
+        ]
       }
     },
     "typographyMeta": {
@@ -129,6 +144,11 @@
         "name": "botao",
         "value": "200ms",
         "purpose": "Hover e toque do ingresso; o toque também desce o botão 1px."
+      },
+      {
+        "name": "troca-de-foto",
+        "value": "300ms",
+        "purpose": "A foto da prévia do montador esmaece para a próxima cor ou lado, com a saída exponencial."
       }
     ],
     "breakpoints": [
@@ -189,6 +209,30 @@
       "description": "Item de lista com número vazado de camisa, título e texto em tinta única.",
       "html": "<div class=\"ds-passo\"><span class=\"ds-passo-numero\">1</span><div><p class=\"ds-passo-titulo\">Escolhe a peça</p><p class=\"ds-passo-texto\">Camiseta regular ou oversized, moletom com ou sem capuz, ou jaqueta college.</p></div></div>",
       "css": ".ds-passo{display:flex;gap:1.25rem;max-width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-passo p{margin:0}.ds-passo-numero{flex-shrink:0;width:1.75rem;font-family:var(--font-anton),'Arial Narrow',sans-serif;font-size:3rem;line-height:1;color:transparent;-webkit-text-stroke:1.5px var(--color-verde)}.ds-passo-titulo{font-size:1.125rem;line-height:1.75rem;font-weight:600}.ds-passo-texto{margin-top:.375rem!important;line-height:1.625}"
+    },
+    {
+      "name": "Prévia do montador",
+      "kind": "custom",
+      "refersTo": "previa-montador",
+      "description": "Foto de base 4:5 na moldura de Cinza do Estúdio, sem botão nenhum por cima.",
+      "html": "<div class=\"ds-previa\"><img src=\"/catalogo/camiseta-regular-preto-frente.jpg\" alt=\"Camiseta regular preta, de frente\" width=\"1440\" height=\"1800\"></div>",
+      "css": ".ds-previa{position:relative;width:18rem;aspect-ratio:4/5;overflow:hidden;border-radius:1rem;background:var(--color-estudio)}.ds-previa img{display:block;width:100%;height:100%;object-fit:cover}"
+    },
+    {
+      "name": "Seletor de peça",
+      "kind": "custom",
+      "refersTo": "seletor-peca",
+      "description": "Miniatura da peça na cor escolhida, com nome e caimento; a escolhida ganha borda verde de 2px.",
+      "html": "<div class=\"ds-pecas\"><label class=\"ds-peca ds-peca-ativa\"><span class=\"ds-peca-foto\"><img src=\"/catalogo/camiseta-regular-preto-frente.jpg\" alt=\"\" width=\"1440\" height=\"1800\"></span><b>Camiseta</b><span>Regular</span></label><label class=\"ds-peca\"><span class=\"ds-peca-foto\"><img src=\"/catalogo/moletom-capuz-preto-frente.jpg\" alt=\"\" width=\"1440\" height=\"1800\"></span><b>Moletom</b><span>Com capuz</span></label></div>",
+      "css": ".ds-pecas{display:flex;gap:.75rem;font-family:var(--font-inter),system-ui,sans-serif;font-size:.875rem;line-height:1.375;color:var(--color-verde)}.ds-peca{display:block;width:8rem;cursor:pointer}.ds-peca b,.ds-peca>span:last-child{display:block}.ds-peca b{margin-top:.5rem;font-weight:600}.ds-peca-foto{display:block;overflow:hidden;border:2px solid transparent;border-radius:.75rem;background:var(--color-estudio)}.ds-peca-ativa .ds-peca-foto{border-color:var(--color-verde)}.ds-peca img{display:block;width:100%;height:auto}"
+    },
+    {
+      "name": "Barra de cor",
+      "kind": "custom",
+      "refersTo": "barra-cor",
+      "description": "No celular, presa no pé da tela: bolinhas de cor com anel verde na escolhida e, à direita, a pílula Frente/Costas.",
+      "html": "<div class=\"ds-barra\"><div class=\"ds-cores\" role=\"radiogroup\" aria-label=\"Cor da peça\"><span class=\"ds-cor ds-cor-ativa\"><i style=\"background:#141414\"></i>Preto</span><span class=\"ds-cor\"><i style=\"background:#ffffff\"></i>Branco</span><span class=\"ds-cor\"><i style=\"background:#efe6d3\"></i>Creme</span></div><div class=\"ds-lado\" role=\"radiogroup\" aria-label=\"Lado da peça\"><span class=\"ds-lado-ativa\">Frente</span><span>Costas</span></div></div>",
+      "css": ".ds-barra{display:flex;align-items:center;justify-content:space-between;gap:.75rem;width:22.5rem;box-sizing:border-box;padding:.75rem 1rem .875rem;border-top:1px solid var(--color-verde);background:var(--color-creme);color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-cores{display:flex;gap:.75rem}.ds-cor{display:flex;min-width:2.75rem;flex-direction:column;align-items:center;gap:.375rem;font-size:.75rem;line-height:1}.ds-cor i{display:block;width:2.5rem;height:2.5rem;border:1px solid var(--color-verde);border-radius:9999px;outline-offset:3px}.ds-cor-ativa i{outline:2px solid var(--color-verde)}.ds-lado{display:flex;padding:.25rem;border:1px solid var(--color-verde);border-radius:9999px;font-size:.875rem;font-weight:600}.ds-lado span{display:block;padding:.75rem .875rem;border-radius:9999px;line-height:1.25rem}.ds-lado .ds-lado-ativa{background:var(--color-verde);color:var(--color-creme)}"
     }
   ],
   "narrative": {
@@ -215,7 +259,7 @@
       },
       {
         "name": "A Regra do Palco",
-        "body": "O verde é para mostrar: topo, vitrine de peças e rodapé. O creme é para ler e fazer: como funciona, montador, carrinho e checkout. Toda foto no palco tem o fundo no verde exato da página, acertado pelo script `scripts/preparar-vitrine.py`, para a peça flutuar sem emenda.",
+        "body": "O verde é para mostrar: topo, vitrine de peças e rodapé. O creme é para ler e fazer: como funciona, montador, carrinho e checkout. Toda foto no palco tem o fundo no verde exato da página, acertado pelo script `scripts/preparar-fotos.py` (modo vitrine), para a peça flutuar sem emenda. As fotos de base do montador seguem a mesma lógica no papel: fundo no Cinza do Estúdio, acertado pelo mesmo script no modo catálogo.",
         "section": "colors"
       },
       {
@@ -242,7 +286,7 @@
     "dos": [
       "Do use Verde Garrafa cheio em todo texto sobre o Papel Creme (14:1), e creme cheio sobre o verde.",
       "Do use o Rosa Elétrico só sobre o verde: no ingresso, nos nomes da vitrine e na seleção.",
-      "Do passe toda foto da vitrine pelo `scripts/preparar-vitrine.py` antes de publicar.",
+      "Do passe toda foto da vitrine pelo `scripts/preparar-fotos.py vitrine`, e toda foto de base do catálogo pelo `scripts/preparar-fotos.py catalogo`, antes de publicar.",
       "Do mostre na vitrine pet, gente e peças e cores diferentes, sempre com o mesmo fundo verde.",
       "Do mantenha todo título em até 6rem e o ingresso como ação principal, um por tela.",
       "Do garanta 44px de área de toque em tudo que é clicável."
@@ -251,6 +295,7 @@
       "Don't coloque rosa sobre o creme (2.8:1).",
       "Don't use texto com transparência para criar hierarquia.",
       "Don't ponha moldura, canto arredondado ou sombra nas fotos da vitrine.",
+      "Don't use o Cinza do Estúdio fora da moldura das fotos de base.",
       "Don't use sombra, brilho, vidro ou gradiente de enfeite na interface.",
       "Don't coloque um rótulo pequeno em caixa-alta em cima de um título.",
       "Don't encha a tela: nada de poluição visual ou cara de template genérico."
