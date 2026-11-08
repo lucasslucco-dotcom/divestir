@@ -25,7 +25,7 @@ export const LADO_MINIMO = 1000;
 // tremidas recebem. É só um aviso: a equipe ainda revisa cada arte.
 export const NITIDEZ_MINIMA = 80;
 
-function abrir(url: string): Promise<HTMLImageElement> {
+export function abrir(url: string): Promise<HTMLImageElement> {
   const imagem = new Image();
   imagem.decoding = 'async';
   imagem.src = url;
