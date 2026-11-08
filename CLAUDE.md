@@ -46,8 +46,9 @@ O briefing completo está em `docs/divestir-briefing.md`. Ele é a fonte da verd
 - Banco: migrations em `supabase/migrations/`. Toda mudança no banco vira uma migration nova, nunca edição de uma antiga.
 - Teste das regras de acesso do banco: `npm run testar:banco` (roda as migrations num Postgres local e confere quem lê e altera o quê). Rode sempre que mexer no banco.
 - Variáveis de ambiente: lista em `.env.example`.
-- Projeto no Supabase: `divestir` (ref `hpubkogmfhgabtzrpgxv`), região São Paulo, plano gratuito. Antes do lançamento, passar para o plano pago: no gratuito o banco pausa depois de uma semana sem uso.
-- Site no ar: https://divestir.vercel.app (projeto `divestir` no time LUCCO da Vercel). Cada envio para a branch `main` do GitHub publica o site sozinho. As funções do site rodam em São Paulo (`gru1`, em `vercel.json`), perto do banco. Antes de começar a vender, o time precisa estar no plano Pro: o Hobby da Vercel só permite uso pessoal, não comercial.
+- Projeto no Supabase: `divestir` (ref `hpubkogmfhgabtzrpgxv`), região São Paulo, plano Pro desde 08/11/2026 (o banco não pausa mais por falta de uso).
+- Site no ar: https://divestir.vercel.app (projeto `divestir` no time LUCCO da Vercel). Cada envio para a branch `main` do GitHub publica o site sozinho. As funções do site rodam em São Paulo (`gru1`, em `vercel.json`), perto do banco. O time está no plano Pro desde 08/11/2026, que permite uso comercial.
+- Serviços que ainda faltam (tabela "Stack" do briefing), na ordem em que entram: API de remoção de fundo (Etapa 3, ainda não escolhida), meio de pagamento (Etapa 6: Mercado Pago, Pagar.me ou Asaas, ainda não escolhido), Resend para e-mail e provedor da API do WhatsApp (Etapa 9) e domínio próprio (Etapa 10). Antes do lançamento, os termos, a política de privacidade e a política de troca passam por um advogado.
 
 ## Pendências técnicas
 
@@ -56,4 +57,6 @@ O briefing completo está em `docs/divestir-briefing.md`. Ele é a fonte da verd
 
 ## Etapa atual
 
-Etapa 2: Catálogo. Construída em 08/11/2026 e esperando o teste e a aprovação do Lucas: em `/montar`, escolher peça, cor e lado e ver a foto certa trocando. As 30 fotos de base foram geradas de novo no Higgsfield (as originais não foram encontradas). A Etapa 1 (base do projeto) foi concluída e aprovada em 07/11/2026; o logo definitivo ainda está com o Lucas e entra quando ficar pronto.
+Etapa 3: Foto (envio, checagem de resolução e nitidez, remoção de fundo e ajuste de enquadramento). Para começar, falta escolher a API de remoção de fundo e o Lucas separar as 10 fotos reais do teste (pets, pessoas e objetos, incluindo algumas ruins).
+
+Etapas concluídas: Etapa 1 (base do projeto), aprovada em 07/11/2026, com o logo definitivo ainda com o Lucas, que entra quando ficar pronto. Etapa 2 (catálogo), aprovada em 08/11/2026: o montador em `/montar` troca a foto certa por peça, cor e lado. As 30 fotos de base foram geradas de novo no Higgsfield, porque as originais não foram encontradas.
