@@ -28,6 +28,8 @@ O briefing completo do produto está em [`docs/divestir-briefing.md`](docs/dives
 | `src/app` | Páginas do site |
 | `src/app/fontes` | Fontes da identidade |
 | `src/app/montar` | O montador: escolher peça, cor e lado |
+| `src/app/montar/foto` | A tela da foto, com o guia da foto perfeita e a checagem da foto |
+| `src/lib/foto` | Checagem da foto no aparelho do cliente (formato, tamanho, resolução e nitidez) |
 | `src/lib/supabase` | Conexão com o Supabase |
 | `src/lib/catalogo.ts` | Leitura do catálogo (peças, cores e fotos de base) |
 | `supabase/migrations` | Estrutura do banco (tabelas e regras de acesso) |
@@ -35,6 +37,7 @@ O briefing completo do produto está em [`docs/divestir-briefing.md`](docs/dives
 | `scripts` | Testes e utilitários (inclui `preparar-fotos.py`, que ajusta as fotos da vitrine e as fotos de base) |
 | `public/exemplos` | Fotos de exemplo da vitrine da home |
 | `public/catalogo` | Fotos de base de cada peça, em cada cor, de frente e de costas |
+| `public/guia` | Fotos ilustrativas do guia da foto perfeita |
 | `docs` | Briefing do produto e os códigos das fotos de base no Higgsfield |
 | `PRODUCT.md` | Quem é o cliente, o que a Divestir promete e o que ainda está em aberto |
 | `DESIGN.md` | Sistema visual: cores, fontes, formas, componentes e regras |

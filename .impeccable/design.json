@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-08T00:30:00-03:00",
+  "generatedAt": "2026-11-08T14:30:00-03:00",
   "title": "Design System: Divestir",
   "extensions": {
     "colorMeta": {
@@ -233,6 +233,22 @@
       "description": "No celular, presa no pé da tela: bolinhas de cor com anel verde na escolhida e, à direita, a pílula Frente/Costas.",
       "html": "<div class=\"ds-barra\"><div class=\"ds-cores\" role=\"radiogroup\" aria-label=\"Cor da peça\"><span class=\"ds-cor ds-cor-ativa\"><i style=\"background:#141414\"></i>Preto</span><span class=\"ds-cor\"><i style=\"background:#ffffff\"></i>Branco</span><span class=\"ds-cor\"><i style=\"background:#efe6d3\"></i>Creme</span></div><div class=\"ds-lado\" role=\"radiogroup\" aria-label=\"Lado da peça\"><span class=\"ds-lado-ativa\">Frente</span><span>Costas</span></div></div>",
       "css": ".ds-barra{display:flex;align-items:center;justify-content:space-between;gap:.75rem;width:22.5rem;box-sizing:border-box;padding:.75rem 1rem .875rem;border-top:1px solid var(--color-verde);background:var(--color-creme);color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-cores{display:flex;gap:.75rem}.ds-cor{display:flex;min-width:2.75rem;flex-direction:column;align-items:center;gap:.375rem;font-size:.75rem;line-height:1}.ds-cor i{display:block;width:2.5rem;height:2.5rem;border:1px solid var(--color-verde);border-radius:9999px;outline-offset:3px}.ds-cor-ativa i{outline:2px solid var(--color-verde)}.ds-lado{display:flex;padding:.25rem;border:1px solid var(--color-verde);border-radius:9999px;font-size:.875rem;font-weight:600}.ds-lado span{display:block;padding:.75rem .875rem;border-radius:9999px;line-height:1.25rem}.ds-lado .ds-lado-ativa{background:var(--color-verde);color:var(--color-creme)}"
+    },
+    {
+      "name": "Par certo e errado",
+      "kind": "custom",
+      "refersTo": "selo-sim",
+      "description": "Guia da foto perfeita: a mesma foto do jeito certo e do jeito errado, lado a lado, com selos de ícone e palavra.",
+      "html": "<div class=\"ds-par\"><figure><img src=\"/guia/luz-sim.jpg\" alt=\"Cachorro na luz da janela\" width=\"900\" height=\"1125\"><figcaption class=\"ds-selo-sim\">Assim sim</figcaption></figure><figure><img src=\"/guia/luz-nao.jpg\" alt=\"O mesmo cachorro contra a luz\" width=\"900\" height=\"1125\"><figcaption class=\"ds-selo-nao\">Assim não</figcaption></figure><p><b>Luz natural</b><br>Perto de uma janela, de dia. Nada de flash ou contra a luz.</p></div>",
+      "css": ".ds-par{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;width:20rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-par figure{position:relative;margin:0}.ds-par img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;border-radius:.75rem;background:var(--color-estudio)}.ds-par figcaption{position:absolute;bottom:.5rem;left:.5rem;padding:.25rem .625rem;border-radius:9999px;font-size:.75rem;line-height:1rem;font-weight:600}.ds-selo-sim{background:var(--color-verde);color:var(--color-creme)}.ds-selo-nao{border:1px solid var(--color-verde);background:var(--color-creme);color:var(--color-verde)}.ds-par p{grid-column:1/-1;margin:.5rem 0 0;font-size:.9375rem;line-height:1.375}.ds-par b{font-size:1.0625rem;font-weight:600}"
+    },
+    {
+      "name": "Resultado da checagem",
+      "kind": "custom",
+      "refersTo": "selo-sim",
+      "description": "Miniatura da foto escolhida e o veredito: pílula verde só para \"Foto perfeita\"; aviso e bloqueio em frase com ícone.",
+      "html": "<div class=\"ds-resultado\"><img src=\"/guia/foco-sim.jpg\" alt=\"A foto que você escolheu\" width=\"900\" height=\"1125\"><div><p class=\"ds-perfeita\">Foto perfeita</p><p>Tem resolução de sobra para a estampa ficar nítida.</p><p class=\"ds-medida\">2.400 × 3.000 px</p></div></div>",
+      "css": ".ds-resultado{display:flex;align-items:flex-start;gap:1rem;width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-resultado img{width:6rem;aspect-ratio:4/5;object-fit:cover;border-radius:.75rem;background:var(--color-estudio)}.ds-resultado p{margin:.5rem 0 0;font-size:.9375rem;line-height:1.375}.ds-perfeita{display:inline-block;margin:0!important;padding:.375rem .875rem;border-radius:9999px;background:var(--color-verde);color:var(--color-creme);font-size:.875rem!important;font-weight:600}.ds-medida{font-size:.75rem!important;font-variant-numeric:tabular-nums}"
     }
   ],
   "narrative": {
@@ -289,7 +305,8 @@
       "Do passe toda foto da vitrine pelo `scripts/preparar-fotos.py vitrine`, e toda foto de base do catálogo pelo `scripts/preparar-fotos.py catalogo`, antes de publicar.",
       "Do mostre na vitrine pet, gente e peças e cores diferentes, sempre com o mesmo fundo verde.",
       "Do mantenha todo título em até 6rem e o ingresso como ação principal, um por tela.",
-      "Do garanta 44px de área de toque em tudo que é clicável."
+      "Do garanta 44px de área de toque em tudo que é clicável.",
+      "Do mostre o sentido de certo e errado com ícone e palavra juntos, nunca só com cor; a paleta fechada não ganha amarelo nem vermelho."
     ],
     "donts": [
       "Don't coloque rosa sobre o creme (2.8:1).",

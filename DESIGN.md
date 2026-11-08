@@ -126,6 +126,18 @@ components:
     textColor: "{colors.verde}"
     typography: "{typography.label}"
     padding: "12px 16px"
+  selo-sim:
+    backgroundColor: "{colors.verde}"
+    textColor: "{colors.creme}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pilula}"
+    padding: "4px 10px"
+  selo-nao:
+    backgroundColor: "{colors.creme}"
+    textColor: "{colors.verde}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pilula}"
+    padding: "4px 10px"
 ---
 
 # Design System: Divestir
@@ -244,6 +256,14 @@ A tela onde a pessoa escolhe a peça e vê na hora como ela fica. Tudo é escolh
 - **Frente e Costas:** pílula com contorno Verde Garrafa de 1px, ao lado das cores. A opção escolhida fica Verde Garrafa com texto creme. Cada opção tem 44px de altura.
 - **Seletor de peça:** miniaturas da peça na cor escolhida, com nome em Inter 600 e caimento em Inter 400 embaixo. A escolhida ganha borda Verde Garrafa de 2px. No celular, a fila desliza com o dedo e mostra a próxima peça pela metade; no computador, vira uma grade de três colunas.
 - **Barra de cor:** no celular, presa no pé da tela com um fio verde em cima, para a cor e o lado estarem sempre ao alcance do polegar, mesmo com a prévia rolada. Bolinhas de 40px com contorno verde fino, nome embaixo e área de toque de 44px; a escolhida ganha um anel verde de 2px a 3px de distância. À direita, a pílula Frente e Costas. A barra tem uma linha só até nos celulares de 360px. O resumo da escolha ("Jaqueta college · Mangas contrastantes, cor creme, de frente") não aparece na tela, mas é lido pelo leitor de tela a cada troca. No computador, a barra deixa de ser presa e entra na coluna das escolhas, com as cores e o lado lado a lado.
+
+### Tela da foto: guia da foto perfeita
+O passo "Manda a foto" (`/montar/foto`) mostra o guia antes do botão de enviar, como pede o briefing. A tela segue o desenho do montador: no celular, uma coluna com o botão "Escolher a foto" preso no pé da tela; no tablet, a coluna centralizada; no computador, o guia à esquerda e, à direita, o título, o resultado e o botão, que acompanham a rolagem.
+- **Par certo e errado (signature):** cada dica mostra a mesma foto feita do jeito certo e do jeito errado, lado a lado, com canto de 12px. As duas fotos têm o mesmo protagonista (o mesmo cachorro, a mesma moça), para a diferença ser só o erro. Embaixo de cada par vêm o nome da dica em Inter 600 e uma linha em Inter 400. No celular, as dicas deslizam com o dedo e a próxima aparece na beirada; a partir de 640px, viram uma grade de duas colunas.
+- **Selos "Assim sim" e "Assim não":** pílulas pequenas no canto de baixo da foto. "Assim sim" é Verde Garrafa com texto creme e um visto; "Assim não" é creme com contorno verde de 1px e um xis. O sentido nunca depende só da cor: o ícone e a palavra dizem o mesmo.
+- **Dica de ouro:** depois das dicas, com um fio verde em cima, o título em Anton, a frase em Instrument Serif itálica e o mesmo detalhe de uma foto antes e depois de passar pelo WhatsApp.
+- **Resultado da checagem:** a miniatura da foto escolhida (canto de 12px) e, ao lado, o veredito. "Foto perfeita" é a única pílula verde cheia, com um visto. Aviso e bloqueio são frase em Inter 600 com ícone: um círculo de alerta no aviso e um xis no bloqueio. O briefing pede aviso amarelo, mas a paleta é fechada, então a diferença entre aviso e bloqueio vem do ícone, da frase e do botão, nunca de uma cor nova. Embaixo, a mensagem e o tamanho da foto em números tabulares.
+- **Ícones:** desenhados em SVG, com traço de 2px e pontas redondas, na cor do texto. Nunca emoji.
 
 ### Lista numerada (signature)
 - **Style:** números vazados em Anton de 48px, com contorno verde de 1.5px, numa coluna de 28px. Ao lado vêm o título em Inter 600 e o texto em Inter 400. A lista é numerada de verdade no código, e o número desenhado é só visual.

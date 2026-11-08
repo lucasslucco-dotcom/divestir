@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 import type { Catalogo, Lado, Peca } from '@/lib/catalogo';
 
@@ -165,10 +166,11 @@ export function Montador({ catalogo }: { catalogo: Catalogo }) {
         </p>
       </div>
 
-      <p className="mt-10 max-w-[36ch] text-[0.9375rem] leading-relaxed lg:col-start-2 lg:row-start-4">
-        Logo, logo você manda a foto de quem ama e escolhe o design aqui mesmo. Por enquanto, dá para conhecer as
-        peças e as cores.
-      </p>
+      <div className="mt-10 lg:col-start-2 lg:row-start-4">
+        <Link href="/montar/foto" className="ingresso">
+          Continuar para a foto
+        </Link>
+      </div>
     </div>
   );
 }
