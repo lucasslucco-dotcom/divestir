@@ -1,13 +1,22 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type ChangeEvent, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from 'react';
 import { checarFoto, type Checagem } from '@/lib/foto/checar';
 import { ENQUADRAMENTO_INICIAL, medirRecorte } from '@/lib/foto/enquadramento';
 import { abrirVaga, enviarOriginal, type Vaga } from '@/lib/foto/guardar';
 import { pedirRecorte, prepararParaRecorte } from '@/lib/foto/recorte';
+import { esquecerImagem } from '@/lib/molde/recursos';
 import type { EstadoDoRecorte, MudarEnquadramento } from './estado';
 import { IconeAlerta, IconeCarregando, IconeNao, IconeSim } from './icones';
 import { QuadroDoRecorte } from './quadro-do-recorte';
+import {
+  ControlesDaPrevia,
+  PreviasDoMolde,
+  pecaDaUrl,
+  useMontagem,
+  type EscolhasDaPrevia,
+  type FotoAprovada,
+} from './veja-como-fica';
 
 type Foto = {
   url: string;
@@ -100,10 +109,13 @@ function Recorte({
   if (recorte.etapa === 'esperando') return null;
   return (
     <div className="mt-6 lg:mt-4">
-      {/* No computador, o quadro do recorte aparece grande na coluna da esquerda. */}
-      <div className="lg:hidden">
-        <QuadroDoRecorte recorte={recorte} aoEnquadrar={aoEnquadrar} />
-      </div>
+      {/* No computador, o quadro do recorte aparece grande na coluna da esquerda.
+          Com o recorte aprovado, quem mostra a foto é a prévia do design. */}
+      {recorte.etapa !== 'aprovado' ? (
+        <div className="lg:hidden">
+          <QuadroDoRecorte recorte={recorte} aoEnquadrar={aoEnquadrar} />
+        </div>
+      ) : null}
       <AcoesDoRecorte recorte={recorte} aoTentarDeNovo={aoTentarDeNovo} aoAjustar={aoAjustar} />
     </div>
   );
@@ -134,7 +146,7 @@ function AcoesDoRecorte({
         <>
           <p className="mt-4 flex max-w-[36ch] items-start gap-2 text-base leading-snug font-semibold">
             <IconeSim className="mt-[3px] shrink-0" />
-            Recorte aprovado! Ele já está pronto para virar estampa.
+            Recorte aprovado! Agora é ver como fica na peça.
           </p>
           <button type="button" onClick={aoAjustar} className={linkDeTexto}>
             Ajustar o enquadramento
@@ -157,13 +169,32 @@ function AcoesDoRecorte({
 
 export function EnviarFoto({ guia }: { guia: ReactNode }) {
   const [foto, setFoto] = useState<Foto | null>(null);
+  // Escolhas da prévia do design: o nome, a peça (vem do montador) e o lado da estampa.
+  const [escolhas, setEscolhas] = useState<EscolhasDaPrevia>(() => ({ nome: '', peca: pecaDaUrl(), lado: null }));
   const resultado = useRef<HTMLDivElement>(null);
+  const etapa = foto?.recorte.etapa;
+  const montagem = useMontagem(etapa === 'pronto' || etapa === 'aprovado');
+  const recorteAtual = foto?.recorte;
+  const fotoAprovada = useMemo<FotoAprovada | null>(
+    () =>
+      recorteAtual?.etapa === 'aprovado'
+        ? { url: recorteAtual.url, geometria: recorteAtual.geometria, enquadramento: recorteAtual.enquadramento }
+        : null,
+    [recorteAtual],
+  );
   const urlAtual = foto?.url;
   const urlDoRecorte = foto && 'url' in foto.recorte ? foto.recorte.url : undefined;
 
   // Libera da memória a foto e o recorte anteriores quando eles mudam ou a pessoa sai da tela.
   useEffect(() => () => void (urlAtual && URL.revokeObjectURL(urlAtual)), [urlAtual]);
-  useEffect(() => () => void (urlDoRecorte && URL.revokeObjectURL(urlDoRecorte)), [urlDoRecorte]);
+  useEffect(
+    () => () => {
+      if (!urlDoRecorte) return;
+      URL.revokeObjectURL(urlDoRecorte);
+      esquecerImagem(urlDoRecorte);
+    },
+    [urlDoRecorte],
+  );
 
   function mudarRecorte(url: string, recorte: EstadoDoRecorte) {
     setFoto((atual) => (atual?.url === url ? { ...atual, recorte } : atual));
@@ -298,6 +329,14 @@ export function EnviarFoto({ guia }: { guia: ReactNode }) {
           ) : null}
         </div>
 
+        {fotoAprovada ? (
+          <ControlesDaPrevia
+            dados={montagem.dados}
+            escolhas={escolhas}
+            mudar={(mudanca) => setEscolhas((atual) => ({ ...atual, ...mudanca }))}
+          />
+        ) : null}
+
         {/* Celular: presa no pé da tela, sempre a um toque. Computador: logo abaixo do resultado. */}
         <div className="fixed inset-x-0 bottom-0 z-20 border-t border-verde bg-creme px-4 pt-3 pb-[max(0.875rem,env(safe-area-inset-bottom))] lg:static lg:mt-8 lg:border-0 lg:p-0">
           <div className="relative mx-auto max-w-xl lg:max-w-none">
@@ -319,7 +358,15 @@ export function EnviarFoto({ guia }: { guia: ReactNode }) {
       </div>
 
       <div className="mt-10 lg:col-start-1 lg:row-start-1 lg:mt-0">
-        {foto && foto.recorte.etapa !== 'esperando' ? (
+        {fotoAprovada ? (
+          <PreviasDoMolde
+            dados={montagem.dados}
+            erro={montagem.erro}
+            tentarDeNovo={montagem.tentarDeNovo}
+            escolhas={escolhas}
+            foto={fotoAprovada}
+          />
+        ) : foto && foto.recorte.etapa !== 'esperando' ? (
           <div className="mb-14 hidden lg:block" aria-live="polite">
             <QuadroDoRecorte recorte={foto.recorte} aoEnquadrar={enquadrar} grande />
           </div>

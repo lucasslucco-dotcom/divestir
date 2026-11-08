@@ -1,7 +1,8 @@
 import { cacheLife, cacheTag } from 'next/cache';
+import type { AreasDaPeca, Lado } from './molde/tipos';
 import { criarClientePublico } from './supabase/publico';
 
-export type Lado = 'frente' | 'costas';
+export type { Lado };
 
 export type Cor = {
   slug: string;
@@ -16,6 +17,8 @@ export type Peca = {
   preco: number | null;
   // Fotos de base por cor e por lado, por exemplo fotos.preto.frente.
   fotos: Record<string, Partial<Record<Lado, string>>>;
+  // Onde a estampa pode ir em cada lado (a jaqueta college só tem costas).
+  areas: AreasDaPeca;
 };
 
 export type Catalogo = {
@@ -33,7 +36,11 @@ export async function carregarCatalogo(): Promise<Catalogo> {
 
   const supabase = criarClientePublico();
   const [pecas, cores, imagens] = await Promise.all([
-    supabase.from('pecas').select('id, slug, nome, caimento, preco').eq('ativo', true).order('ordem'),
+    supabase
+      .from('pecas')
+      .select('id, slug, nome, caimento, preco, area_impressao_cm')
+      .eq('ativo', true)
+      .order('ordem'),
     supabase.from('cores').select('id, slug, nome, hex').eq('ativo', true).order('ordem'),
     supabase.from('peca_imagens').select('peca_id, cor_id, lado, url'),
   ]);
@@ -59,6 +66,7 @@ export async function carregarCatalogo(): Promise<Catalogo> {
         caimento: peca.caimento,
         preco: peca.preco === null ? null : Number(peca.preco),
         fotos,
+        areas: (peca.area_impressao_cm ?? {}) as AreasDaPeca,
       };
     }),
   };

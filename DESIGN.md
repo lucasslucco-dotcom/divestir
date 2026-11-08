@@ -149,6 +149,27 @@ components:
   botao-zoom-hover:
     backgroundColor: "{colors.verde}"
     textColor: "{colors.creme}"
+  campo-texto:
+    backgroundColor: "{colors.creme}"
+    textColor: "{colors.verde}"
+    typography: "{typography.title}"
+    rounded: "{rounded.ingresso}"
+    padding: "0 16px"
+    height: "48px"
+  pilula-escolha:
+    backgroundColor: "{colors.creme}"
+    textColor: "{colors.verde}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pilula}"
+    padding: "12px 14px"
+  pilula-escolha-ativa:
+    backgroundColor: "{colors.verde}"
+    textColor: "{colors.creme}"
+  selo-previa:
+    backgroundColor: "{colors.creme}"
+    textColor: "{colors.verde}"
+    rounded: "{rounded.pilula}"
+    padding: "4px 10px"
 ---
 
 # Design System: Divestir
@@ -277,6 +298,14 @@ O passo "Manda a foto" (`/montar/foto`) mostra o guia antes do botão de enviar,
 - **Recorte:** depois da checagem, a foto segue sozinha para o recorte. O quadro do recorte (4:5, Cinza do Estúdio, canto de 16px) mostra "Tirando o fundo…" e depois a foto sem fundo, com o protagonista no centro ocupando 90% do quadro. No celular, ele fica logo abaixo do veredito; no computador, aparece grande na coluna da esquerda e, junto com os botões de zoom, nunca passa da altura da janela. Com o recorte pronto, o botão do pé vira "Ficou ótimo" e "Trocar a foto" vira link de texto, para continuar existindo um ingresso só por tela.
 - **Enquadramento (signature):** com o recorte pronto, o próprio quadro vira o ajuste, sem botão por cima da foto. Arrastar move a foto; a pinça de dois dedos dá zoom em volta dos dedos; no computador, a rodinha com Ctrl (ou a pinça do trackpad) faz o mesmo, e sem Ctrl a página rola normalmente. Embaixo do quadro, uma linha diz como usar (o texto muda entre toque e mouse) e vêm os botões de zoom: círculos de 44px com contorno Verde Garrafa de 1px e ícone de traço, que acendem em verde com texto creme no hover. No limite do zoom, o contorno fica tracejado em vez de apagar, porque a tinta é única. Entre os botões, a porcentagem em Inter 600 com números tabulares. "Redefinir" é link de texto à direita e só aparece quando há algo para desfazer. Pelo teclado, o quadro recebe foco: as setas movem, + e − dão zoom e 0 redefine. O zoom vai de 50% a 400%, e o centro do protagonista nunca sai do quadro. Depois de "Ficou ótimo", o quadro trava com o enquadramento escolhido e aparece o link "Ajustar o enquadramento".
 - **Ícones:** desenhados em SVG, com traço de 2px e pontas redondas, na cor do texto. Nunca emoji.
+
+### Veja como fica (prévia do design)
+Depois do recorte aprovado, a foto entra no design. As escolhas ficam no lugar do resultado (no computador, na coluna da direita) e as prévias, no lugar do quadro do recorte (no computador, no alto da coluna da esquerda; no celular, logo depois das escolhas).
+- **Título:** "Veja como fica" em Anton caixa-alta, depois de um fio verde, como a dica de ouro.
+- **Campo do nome:** rótulo em Inter 600 ("Como ele(a) se chama?"), caixa de 48px de altura, contorno Verde Garrafa de 1px, canto de 6px, texto em Inter 600 caixa-alta com 0.04em. Sem texto de exemplo dentro da caixa (ele teria de ser apagado e quebraria a tinta única): o exemplo vem embaixo, em Inter 400 ("Até 10 letras, como Thor, Vó Cida ou Duda.").
+- **Peça e lado:** pílulas com contorno verde de 1px e 44px de altura; a escolhida fica Verde Garrafa com texto creme. As peças quebram em linhas; Frente e Costas ficam juntas numa pílula só, como no montador. Peça de um lado só (a jaqueta college) troca a pílula por uma frase: "Nessa peça, a estampa vai nas costas."
+- **Prévias:** uma por cor de peça, em 4:5 com canto de 16px. Abrem "De perto" (uma janela em volta da estampa, que mostra a arte grande sem perder o tecido) e têm "Peça inteira" numa pílula acima delas. A luz e a sombra da foto de base passam por cima da tinta. No celular deslizam com o dedo, como o guia; do tablet para cima, três lado a lado. O nome da cor vai embaixo, em Inter 600.
+- **Selo "Prévia ilustrativa":** pílula pequena creme com contorno verde no canto de cima à direita de cada prévia, onde não cobre a arte (briefing: toda prévia leva o selo).
 
 ### Lista numerada (signature)
 - **Style:** números vazados em Anton de 48px, com contorno verde de 1.5px, numa coluna de 28px. Ao lado vêm o título em Inter 600 e o texto em Inter 400. A lista é numerada de verdade no código, e o número desenhado é só visual.

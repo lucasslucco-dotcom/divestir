@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-08T15:40:00-03:00",
+  "generatedAt": "2026-11-08T18:30:00-03:00",
   "title": "Design System: Divestir",
   "extensions": {
     "colorMeta": {
@@ -257,6 +257,14 @@
       "description": "O quadro do recorte vira o ajuste: arrastar move, pinça e botões dão zoom. Botões de 44px com contorno verde; no limite, contorno tracejado. \"Redefinir\" só aparece quando há algo para desfazer.",
       "html": "<div class=\"ds-enquadrar\"><div class=\"ds-quadro\" role=\"group\" aria-label=\"Enquadramento da foto\" tabindex=\"0\"><img src=\"/guia/foco-sim.jpg\" alt=\"A sua foto, já sem o fundo\" width=\"900\" height=\"1125\"></div><p>Arraste para mover e use dois dedos para dar zoom.</p><div class=\"ds-zoom\"><button type=\"button\" aria-label=\"Diminuir o zoom\">−</button><span>125%</span><button type=\"button\" aria-label=\"Aumentar o zoom\">+</button><button type=\"button\" class=\"ds-redefinir\">Redefinir</button></div></div>",
       "css": ".ds-enquadrar{width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-quadro{position:relative;aspect-ratio:4/5;overflow:hidden;border-radius:1rem;background:var(--color-estudio);cursor:grab;touch-action:none}.ds-quadro img{position:absolute;left:-6%;top:-4%;width:112%;height:auto}.ds-enquadrar p{margin:.75rem 0 0;font-size:.9375rem;line-height:1.375}.ds-zoom{display:flex;align-items:center;gap:.25rem;margin-top:.5rem}.ds-zoom button{display:inline-flex;width:2.75rem;height:2.75rem;align-items:center;justify-content:center;border:1px solid var(--color-verde);border-radius:9999px;background:var(--color-creme);color:var(--color-verde);font-size:1.125rem}.ds-zoom button:hover{background:var(--color-verde);color:var(--color-creme)}.ds-zoom button:disabled{border-style:dashed}.ds-zoom span{width:3.5rem;text-align:center;font-size:.875rem;font-weight:600;font-variant-numeric:tabular-nums}.ds-zoom .ds-redefinir{width:auto;height:auto;margin-left:auto;padding:.75rem 0;border:0;border-radius:0;background:none;font-size:.9375rem;text-decoration:underline;text-underline-offset:.3em}.ds-zoom .ds-redefinir:hover{background:none;color:var(--color-verde);text-decoration-thickness:2px}"
+    },
+    {
+      "name": "Veja como fica",
+      "kind": "custom",
+      "refersTo": "campo-texto",
+      "description": "Depois do recorte aprovado: campo do nome, pílulas de peça e de lado e as prévias do design nas 3 cores, de perto, com o selo Prévia ilustrativa.",
+      "html": "<div class=\"ds-veja\"><h2>Veja como fica</h2><label for=\"ds-nome\">Como ele(a) se chama?</label><input id=\"ds-nome\" value=\"PAÇOCA\"><p>Até 10 letras, como Thor, Vó Cida ou Duda.</p><div class=\"ds-pilulas\"><span>Camiseta regular</span><span class=\"ds-ativa\">Camiseta oversized</span><span>Jaqueta college</span></div><div class=\"ds-previa\"><span class=\"ds-selo\">Prévia ilustrativa</span></div></div>",
+      "css": ".ds-veja{width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-veja h2{margin:0;font-family:var(--font-anton),sans-serif;font-weight:400;font-size:2rem;line-height:1;text-transform:uppercase}.ds-veja label{display:block;margin-top:1.25rem;font-weight:600}.ds-veja input{box-sizing:border-box;width:100%;height:3rem;margin-top:.5rem;padding:0 1rem;border:1px solid var(--color-verde);border-radius:.375rem;background:var(--color-creme);color:var(--color-verde);font:600 1.125rem/1 var(--font-inter),sans-serif;letter-spacing:.04em;text-transform:uppercase}.ds-veja p{margin:.5rem 0 0;font-size:.9375rem}.ds-pilulas{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}.ds-pilulas span{padding:.75rem .875rem;border:1px solid var(--color-verde);border-radius:9999px;font-size:.875rem;font-weight:600}.ds-pilulas .ds-ativa{background:var(--color-verde);color:var(--color-creme)}.ds-previa{position:relative;margin-top:1rem;aspect-ratio:4/5;border-radius:1rem;background:var(--color-estudio)}.ds-selo{position:absolute;top:.5rem;right:.5rem;padding:.25rem .625rem;border:1px solid var(--color-verde);border-radius:9999px;background:var(--color-creme);font-size:.6875rem;font-weight:600}"
     }
   ],
   "narrative": {

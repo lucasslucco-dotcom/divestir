@@ -167,7 +167,8 @@ export function Montador({ catalogo }: { catalogo: Catalogo }) {
       </div>
 
       <div className="mt-10 lg:col-start-2 lg:row-start-4">
-        <Link href="/montar/foto" className="ingresso">
+        {/* A peça escolhida segue junto, para a prévia do design mostrar a mesma peça. */}
+        <Link href={`/montar/foto?peca=${encodeURIComponent(peca.slug)}`} className="ingresso">
           Continuar para a foto
         </Link>
       </div>
