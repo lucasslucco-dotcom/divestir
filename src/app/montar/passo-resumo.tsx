@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 import type { Falta, Resolvida } from './estado';
 import { IconeSim } from './icones';
@@ -8,9 +9,10 @@ import { linkDeTexto } from './passo-foto';
 import { preco } from './passos';
 import { TelaDaPrevia, type FotoDaPrevia } from './tela-da-previa';
 
-// Passo 7: o resumo da peça e o carrinho. "Finalizar compra" ganha o pagamento na
-// Etapa 6; até lá, a peça fica guardada no carrinho do navegador e "Criar outra
-// Divestir" já funciona, reaproveitando a foto (decisão do Lucas, 08/11/2026).
+// Passo 7: o resumo da peça e o carrinho. A peça fica guardada no carrinho do
+// navegador; "Finalizar compra" leva ao carrinho (onde fica o presente) e "Criar
+// outra Divestir" começa outra, reaproveitando a foto (decisão do Lucas, 08/11/2026).
+// Vindo do "Editar" do carrinho, o botão salva as mudanças na mesma peça.
 
 function juntar(itens: string[]) {
   if (itens.length <= 1) return itens.join('');
@@ -26,6 +28,7 @@ export function PassoResumo({
   falta,
   pecasNoCarrinho,
   adicionada,
+  editando,
   rotulo,
   aoAdicionar,
   aoCriarOutra,
@@ -39,13 +42,13 @@ export function PassoResumo({
   falta: Falta[];
   pecasNoCarrinho: number;
   adicionada: boolean;
+  editando: boolean;
   rotulo: string;
   aoAdicionar: () => void;
   aoCriarOutra: () => void;
   aoIrPara: (passo: Falta['passo']) => void;
 }) {
   const [tentou, setTentou] = useState(false);
-  const [quisFinalizar, setQuisFinalizar] = useState(false);
 
   if (adicionada) {
     return (
@@ -58,18 +61,13 @@ export function PassoResumo({
           {pecasNoCarrinho === 1 ? '1 peça no carrinho.' : `${pecasNoCarrinho} peças no carrinho.`}
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
-          <button type="button" onClick={() => setQuisFinalizar(true)} className="ingresso w-full sm:w-auto">
+          <Link href="/carrinho" className="ingresso w-full sm:w-auto">
             Finalizar compra
-          </button>
+          </Link>
           <button type="button" onClick={aoCriarOutra} className={linkDeTexto}>
             Criar outra Divestir
           </button>
         </div>
-        {quisFinalizar ? (
-          <p className="mt-4 max-w-[38ch] text-[0.9375rem] leading-snug">
-            O pagamento ainda está sendo preparado. Sua peça fica guardada aqui no carrinho até lá.
-          </p>
-        ) : null}
       </div>
     );
   }
@@ -142,6 +140,11 @@ export function PassoResumo({
       ) : null}
 
       <div className="mt-6">
+        {editando ? (
+          <p className="mb-4 max-w-[38ch] text-[0.9375rem] leading-snug">
+            Você está mudando uma peça do carrinho. Ao salvar, ela volta para lá com as mudanças.
+          </p>
+        ) : null}
         <button
           type="button"
           onClick={() => {
@@ -150,11 +153,20 @@ export function PassoResumo({
           }}
           className="ingresso w-full sm:w-auto"
         >
-          Adicionar ao carrinho
+          {editando ? 'Salvar as mudanças' : 'Adicionar ao carrinho'}
         </button>
-        {pecasNoCarrinho ? (
+        {editando ? (
+          <div>
+            <Link href="/carrinho" className={linkDeTexto}>
+              Voltar ao carrinho sem mudar
+            </Link>
+          </div>
+        ) : pecasNoCarrinho ? (
           <p className="mt-3 text-[0.9375rem] leading-snug">
-            {pecasNoCarrinho === 1 ? 'Já tem 1 peça no carrinho.' : `Já tem ${pecasNoCarrinho} peças no carrinho.`}
+            {pecasNoCarrinho === 1 ? 'Já tem 1 peça no carrinho. ' : `Já tem ${pecasNoCarrinho} peças no carrinho. `}
+            <Link href="/carrinho" className="underline decoration-1 underline-offset-[0.3em] hover:decoration-2">
+              Ver o carrinho
+            </Link>
           </p>
         ) : null}
       </div>

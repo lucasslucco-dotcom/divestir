@@ -52,6 +52,9 @@
   }
 
   body {
+    /* O papel vai até o fim da tela, mesmo em páginas curtas: o verde só aparece
+       quando a tela estica além do conteúdo. */
+    min-height: 100svh;
     background-color: var(--color-creme);
     color: var(--color-verde);
     font-family: var(--font-texto);

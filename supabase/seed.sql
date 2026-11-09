@@ -51,6 +51,18 @@ from (values
 ) as a (slug, area)
 where p.slug = a.slug;
 
+-- Pacote de uma peça dobrada, para cotar o frete no Melhor Envio (Etapa 6). É uma
+-- estimativa até a operação pesar e medir as embalagens de verdade.
+update public.pecas as p set envio = e.envio
+from (values
+  ('camiseta-regular', '{"peso_kg": 0.3, "largura_cm": 25, "altura_cm": 4, "comprimento_cm": 30}'::jsonb),
+  ('camiseta-oversized', '{"peso_kg": 0.35, "largura_cm": 25, "altura_cm": 5, "comprimento_cm": 30}'::jsonb),
+  ('moletom', '{"peso_kg": 0.7, "largura_cm": 30, "altura_cm": 8, "comprimento_cm": 35}'::jsonb),
+  ('moletom-capuz', '{"peso_kg": 0.8, "largura_cm": 30, "altura_cm": 10, "comprimento_cm": 35}'::jsonb),
+  ('jaqueta-college', '{"peso_kg": 1.0, "largura_cm": 35, "altura_cm": 10, "comprimento_cm": 40}'::jsonb)
+) as e (slug, envio)
+where p.slug = e.slug;
+
 -- Design Fã-Clube: "Membro Oficial / NOME / Fã-Clube". As medidas estão em
 -- unidades da arte (1000 de largura) e as camadas são pintadas nesta ordem.
 -- A letra "Fã-Clube" foi gerada no Recraft V4.1 (Higgsfield) e limpa para uma tinta só.

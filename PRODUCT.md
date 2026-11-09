@@ -31,6 +31,7 @@ A foto de quem você ama vira ídolo, numa peça com cara de merch oficial (fã-
 
 - Fluxo do montador: peça → foto → nome → design → cor → tamanho → carrinho, numa página só, com a prévia fixa (detalhes em `docs/divestir-briefing.md`, seção "Jornada do cliente e o montador"). O que a pessoa escolhe fica guardado no navegador: fechou a aba, volta de onde parou, com a foto.
 - A foto é checada (resolução e nitidez), recortada automaticamente e encaixada no template. Toda prévia é marcada como ilustrativa.
+- Compra: carrinho no navegador, com presente por peça (embalagem especial e cartão com a mensagem do cliente) e "Editar" de volta ao montador; checkout numa página só, sem conta (nome, e-mail, WhatsApp e CPF), com busca por CEP, entrega direta para quem vai ganhar o presente e o frete do Melhor Envio já somado ao prazo de personalização (10 a 15 dias úteis); pagamento pelo Mercado Pago, em Pix ou cartão em até 12 vezes, numa página do pedido que serve de confirmação e de acompanhamento pelo link (decisões do Lucas, 08/11/2026).
 - Produção, estamparia (DTF) e entrega já são resolvidas pela operação. O site só mostra ao cliente o prazo e o rastreio.
 - O cliente acompanha o pedido por e-mail e WhatsApp, sem precisar de conta. A equipe opera um painel interno: revisão de arte, lote de produção, status e avisos.
 
@@ -42,7 +43,7 @@ A foto de quem você ama vira ídolo, numa peça com cara de merch oficial (fã-
 - Fora da v1: programa de indicação, conta do cliente com histórico e app nativo.
 - Fotos de terceiros: o cliente declara ter autorização para usar a imagem, e as fotos são apagadas depois do prazo definido nos termos (LGPD).
 - Designs autorais: sem logos, nomes ou símbolos de marcas, bandas, times ou revistas reais.
-- Em aberto: preços das peças, tabela de medidas de cada modelo, áreas de impressão em centímetros, prazo de personalização exibido no checkout e política de troca.
+- Em aberto: preços das peças e do presente (até lá, a loja fica em modo de teste, com preços de teste marcados na tela), desconto no Pix, parcelamento sem juros, tabela de medidas de cada modelo, áreas de impressão em centímetros e política de troca.
 
 ## Brand Commitments
 

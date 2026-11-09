@@ -168,6 +168,38 @@ components:
     textColor: "{colors.creme}"
     rounded: "{rounded.pilula}"
     padding: "2px 8px"
+  carrinho-topo:
+    textColor: "{colors.verde}"
+    typography: "{typography.caption}"
+    size: "44px"
+  campo-checkout:
+    backgroundColor: "{colors.creme}"
+    textColor: "{colors.verde}"
+    typography: "{typography.body}"
+    rounded: "{rounded.ingresso}"
+    padding: "0 16px"
+    height: "48px"
+  opcao-frete:
+    backgroundColor: "{colors.creme}"
+    textColor: "{colors.verde}"
+    typography: "{typography.caption}"
+    rounded: "{rounded.miniatura}"
+    padding: "14px 16px"
+  opcao-frete-ativa:
+    backgroundColor: "{colors.verde}"
+    textColor: "{colors.creme}"
+  aviso-teste:
+    backgroundColor: "{colors.creme}"
+    textColor: "{colors.verde}"
+    typography: "{typography.caption}"
+    rounded: "{rounded.ingresso}"
+    padding: "12px 16px"
+  selo-pedido:
+    backgroundColor: "{colors.verde}"
+    textColor: "{colors.creme}"
+    typography: "{typography.title}"
+    rounded: "{rounded.pilula}"
+    padding: "8px 16px"
 ---
 
 # Design System: Divestir
@@ -245,6 +277,8 @@ A vitrine desliza com o dedo no celular: cada peça ocupa 78% da largura, com 8p
 
 No celular, cada faixa respira 80px em cima e embaixo; a partir de 640px, 112px. Grupos ficam apertados e grupos diferentes ficam bem separados: 24px entre o título e a frase, 40px antes do ingresso, 48px antes da vitrine. Sempre há mais espaço acima de um título do que abaixo dele.
 
+O carrinho, o checkout e a página do pedido são telas de trabalho no creme, com o título em Anton e até 64rem de largura. No celular, uma coluna só: no carrinho, as peças e depois o resumo; no checkout, os quatro passos numerados e, antes do botão, o resumo com o total. A partir de 1024px, o conteúdo fica à esquerda e o resumo à direita, numa coluna de 22rem que acompanha a rolagem. O papel creme vai sempre até o fim da tela, mesmo em página curta: o verde só aparece quando a tela estica além do conteúdo.
+
 O montador é uma página só e uma tela de trabalho, toda no creme (briefing: "a prévia da peça fica fixa, no topo no celular, à esquerda no desktop, e os passos rolam ao lado"). No celular: a marca, o título e, presa no alto da tela, a prévia (a vista grande, as vistas pequenas ao lado e as cores embaixo), separada dos passos por um fio verde; os 7 passos rolam por baixo dela. A vista grande tem 35% da altura da tela (de 200 a 304px) e nunca passa da largura disponível. Enquanto a pessoa digita no celular, a prévia encolhe e o campo para logo abaixo dela. De 640px a 1023px, a mesma coluna fica centralizada com até 36rem, para a prévia não engolir a tela do tablet. A partir de 1024px, a prévia vai para a esquerda e acompanha a rolagem, e o título e os passos ficam à direita, numa coluna de 26rem. A prévia nunca passa da altura da janela, nem em notebook baixo.
 
 ## Elevation & Depth
@@ -272,7 +306,8 @@ O ingresso é a ação principal, firme e única por tela.
 - **Secondary:** link de texto sublinhado, com sublinhado de 1px a 0.3em do texto, que engrossa para 2px no hover. A área de toque tem 44px de altura.
 
 ### Navigation
-- **Style:** só a marca, centralizada no topo, em Anton caixa-alta com 0.06em de espaçamento: creme sobre o palco verde e verde sobre o creme. A área de toque tem 44px de altura. Ainda não há menu.
+- **Style:** a marca, centralizada no topo, em Anton caixa-alta com 0.06em de espaçamento: creme sobre o palco verde e verde sobre o creme. A área de toque tem 44px de altura. Ainda não há menu.
+- **Carrinho no topo:** quando tem peça no carrinho, aparece à direita uma sacola desenhada (traço de 2px) com o número de peças em Inter 600 e números tabulares, na tinta da superfície, alinhada com a largura do conteúdo da página. Sem peça no carrinho, e na própria página do carrinho, ela não aparece: a marca fica sozinha.
 
 ### Palco verde
 - **Style:** bloco de largura total em Verde Garrafa com texto Papel Creme. No celular, a barra do navegador fica verde na home e creme nas telas de trabalho.
@@ -300,6 +335,19 @@ A página onde a pessoa monta a peça e vê na hora como ela fica: a prévia fix
 - **Resultado da checagem:** a miniatura da foto escolhida (canto de 12px) e, ao lado, o veredito. "Foto perfeita" é a única pílula verde cheia, com um visto. Aviso e bloqueio são frase em Inter 600 com ícone: um círculo de alerta no aviso e um xis no bloqueio. O briefing pede aviso amarelo, mas a paleta é fechada, então a diferença entre aviso e bloqueio vem do ícone, da frase e do botão, nunca de uma cor nova. Embaixo, a mensagem e o tamanho da foto em números tabulares. Depois vem "Tirando o fundo…".
 - **Enquadramento (signature):** com o recorte pronto, a própria prévia vira o ajuste, já com o design: a vista grande fica "De perto" e a foto se move junto com o dedo. Arrastar move; a pinça de dois dedos dá zoom em volta dos dedos; no computador, a rodinha com Ctrl (ou a pinça do trackpad) faz o mesmo, e sem Ctrl a página rola normalmente. Pelo teclado, a prévia recebe foco: as setas movem, + e − dão zoom e 0 redefine. No passo, o veredito fica curto, uma linha diz como ajustar (o texto muda entre toque e mouse) e vêm os botões de zoom: círculos de 44px com contorno Verde Garrafa de 1px, que acendem em verde com texto creme no hover; no limite do zoom, o contorno fica tracejado em vez de apagar, porque a tinta é única. Entre os botões, a porcentagem em Inter 600 com números tabulares; "Redefinir" é link de texto e só aparece quando há algo para desfazer. Logo depois, o ingresso "Ficou ótimo" e o link "Trocar a foto". O zoom vai de 50% a 400%, e o centro do protagonista nunca sai do quadro. Depois de "Ficou ótimo", a prévia trava e aparece "Ajustar o enquadramento".
 - **Ícones:** desenhados em SVG, com traço de 2px e pontas redondas, na cor do texto. Nunca emoji.
+
+### Carrinho, checkout e pedido
+A compra continua no papel creme, com as mesmas peças do montador: lista com fio verde entre os itens, número vazado nos passos, ingresso como ação única e link de texto para o resto. Nada de cartão em volta de cartão.
+- **Peça no carrinho:** a miniatura de perto já com a foto e o nome (canto de 12px), o nome da peça em Inter 600 e o preço à direita (com "preço de teste" embaixo, em 14px, enquanto a loja estiver em teste), a cor, o tamanho e o design numa linha, o nome da estampa em Anton caixa-alta e os links "Editar" e "Tirar do carrinho". Tirar uma peça mostra "Você tirou THOR do carrinho." com "Desfazer", em vez de pedir confirmação.
+- **Presente:** caixa de marcar nativa, verde, com a sacola de presente desenhada e "É presente" em Inter 600; embaixo, o que vem junto e o preço. Marcada, abre a "Mensagem do cartão" (caixa de texto com contorno verde de 1px e canto de 6px) com o contador de letras em números tabulares.
+- **Foto que não chegou:** ícone de alerta e frase em Inter 600 ("A foto desta peça não chegou até a gente."), a explicação e o link "Mandar a foto de novo". Enquanto a foto não chega, "Finalizar compra" explica o que falta em vez de seguir.
+- **Resumo:** rótulo à esquerda e valor à direita, em números tabulares; um fio verde separa o total, em Inter 600. Embaixo do ingresso vem a mensagem de prazo do briefing: a primeira frase em Instrument Serif itálica ("Cada Divestir é feita sob medida pra você.") e o resto em Inter.
+- **Campos do checkout:** rótulo em Inter 600 sempre visível em cima, caixa de 48px com contorno verde de 1px, canto de 6px e texto em Inter 16px (o celular não dá zoom), ajuda embaixo em Inter 15px. Com erro, a caixa ganha um segundo contorno por dentro (fica com 2px, sem mudar de tamanho) e a ajuda vira a frase do erro em Inter 600 com o ícone de alerta; o foco vai para o primeiro campo com problema. Erro só aparece depois que a pessoa sai do campo ou tenta seguir. CPF, WhatsApp e CEP ganham máscara enquanto a pessoa digita, e o CEP preenche rua, bairro, cidade e estado.
+- **Opções de frete:** cartões de 12px com contorno verde de 1px: o serviço em Inter 600, "Chega em X a Y dias úteis" (o prazo de fazer a peça já somado) e, menor, quanto é de produção e quanto é de entrega; o preço à direita. A escolhida fica verde cheia com texto creme, como a pílula escolhida.
+- **Aviso de teste:** enquanto a loja estiver em modo de teste, um quadro com contorno tracejado verde de 1px e canto de 6px diz que os preços são de teste e nada é cobrado. Tracejado é o "ainda não é de verdade" da marca, como no limite do zoom.
+- **Pagamento:** o formulário do Mercado Pago entra na página com as cores da marca (base e textos verde garrafa, fundo e campos creme, botão verde com texto creme, cantos de 6px e 12px). Recusa vira frase com ícone de alerta acima do formulário, dizendo o motivo e o que fazer.
+- **Pix:** título em Anton ("Falta só o Pix"), o QR, o "Pix copia e cola" num campo de leitura e o ingresso "Copiar o código Pix" (que vira "Código copiado!" com um visto), a hora em que o código vence e "Esperando o Pix…" com o ícone girando. A página muda sozinha quando o Pix cai.
+- **Confirmação (signature):** "Valeu, Lucas!" em Instrument Serif itálica, "Recebemos seu pedido!" em Anton gigante, "Agora é com a gente." e o selo do pedido: pílula verde cheia com texto creme, visto e "Pedido nº 1001". As prévias das peças compradas aparecem com o nome em Inter 600; no computador, ficam à direita do texto. Depois vêm "E agora?", os valores e o link do pedido para guardar.
 
 ### Lista numerada (signature)
 - **Style:** números vazados em Anton de 48px, com contorno verde de 1.5px, numa coluna de 28px. Ao lado vêm o título em Inter 600 e o texto em Inter 400. A lista é numerada de verdade no código, e o número desenhado é só visual.

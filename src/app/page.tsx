@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Cabecalho } from './cabecalho';
 import { Vitrine } from './vitrine';
 
 const PASSOS = [
@@ -32,11 +33,7 @@ export default function Home() {
   return (
     <>
       <div className="bg-verde text-creme">
-        <header className="flex justify-center px-4 pt-5">
-          <Link href="/" className="px-2 py-2 font-titulo text-xl uppercase tracking-[0.06em]">
-            Divestir
-          </Link>
-        </header>
+        <Cabecalho />
       </div>
 
       <main>

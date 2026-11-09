@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useId, useMemo, useReducer, useRef, useState, type FocusEvent } from 'react';
 import type { Catalogo, Cor } from '@/lib/catalogo';
 import { checarFoto } from '@/lib/foto/checar';
@@ -13,7 +14,9 @@ import {
   guardarRecorte,
   lerCarrinhoGuardado,
   lerMontagemGuardada,
+  lerPedidosGuardados,
   lerRecorte,
+  recortesEmUso,
 } from '@/lib/montagem/guardar';
 import { CARRINHO_VAZIO, MONTAGEM_VAZIA, type Carrinho, type ItemDoCarrinho } from '@/lib/montagem/tipos';
 import { textoDoCampo } from '@/lib/molde/desenhar';
@@ -42,6 +45,8 @@ const noLado = (lado: Lado) => (lado === 'costas' ? 'nas costas' : 'na frente');
 export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: Design[] }) {
   const [montagem, despachar] = useReducer(reduzir, MONTAGEM_VAZIA);
   const [carrinho, setCarrinho] = useState<Carrinho>(CARRINHO_VAZIO);
+  // Peças de pedidos feitos neste navegador: as fotos delas também podem ser reaproveitadas.
+  const [jaPedidas, setJaPedidas] = useState<ItemDoCarrinho[]>([]);
   const [restaurada, setRestaurada] = useState(false);
   const [recorte, setRecorte] = useState<{ chave: string; url: string } | null>(null);
   const [envio, setEnvio] = useState<EnvioDaFoto | null>(null);
@@ -54,19 +59,31 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   const raiz = useRef<HTMLDivElement>(null);
   const doca = useRef<HTMLDivElement>(null);
   const idDaDica = useId();
+  const router = useRouter();
 
   // Volta de onde a pessoa parou (depois de a página abrir, porque o servidor não
-  // conhece o que está guardado no navegador).
+  // conhece o que está guardado no navegador). O site mantém a página escondida
+  // entre uma visita e outra, e este efeito roda de novo cada vez que ela aparece:
+  // assim o montador sempre mostra o que está guardado, inclusive a peça que o
+  // carrinho mandou editar ou a montagem nova de "Criar outra Divestir".
   useEffect(() => {
     const salva = lerMontagemGuardada();
-    if (salva) despachar({ tipo: 'restaurar', montagem: salva });
+    despachar({ tipo: 'restaurar', montagem: salva ?? MONTAGEM_VAZIA });
     // eslint-disable-next-line react-hooks/set-state-in-effect -- o navegador só é lido depois de a página abrir
     setCarrinho(lerCarrinhoGuardado());
+    setJaPedidas(lerPedidosGuardados().flatMap((pedido) => pedido.itens));
+    if (salva?.editando) setAdicionada(null);
     setRestaurada(true);
   }, []);
 
+  // Guarda só quando a montagem muda. Quando a página volta a aparecer, os efeitos
+  // rodam de novo com a montagem de antes: gravar ali apagaria o que o carrinho
+  // acabou de deixar guardado ("Editar", "Criar outra Divestir").
+  const guardada = useRef<typeof montagem | null>(null);
   useEffect(() => {
-    if (restaurada) guardarMontagem(montagem);
+    if (!restaurada || montagem === guardada.current) return;
+    guardada.current = montagem;
+    guardarMontagem(montagem);
   }, [montagem, restaurada]);
 
   // O recorte em uso: um endereço temporário do navegador, liberado quando sai de cena.
@@ -99,14 +116,18 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
     };
   }, [chaveDaFoto, trocarRecorte]);
 
-  // Recortes que nenhuma montagem nem peça do carrinho usa mais saem do navegador.
+  // Recortes que nenhuma montagem, peça do carrinho ou pedido usa mais saem do navegador.
   const chavesEmUso = [montagem.foto?.chave, ...carrinho.itens.map((item) => item.foto.chave)]
     .filter(Boolean)
     .sort()
     .join('|');
   useEffect(() => {
     if (!restaurada) return;
-    const espera = setTimeout(() => void apagarRecortesFora(new Set(chavesEmUso.split('|').filter(Boolean))), 3000);
+    const espera = setTimeout(() => {
+      const emUso = recortesEmUso(null, lerCarrinhoGuardado());
+      for (const chave of chavesEmUso.split('|')) if (chave) emUso.add(chave);
+      void apagarRecortesFora(emUso);
+    }, 3000);
     return () => clearTimeout(espera);
   }, [chavesEmUso, restaurada]);
 
@@ -257,12 +278,18 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
     montagem.foto?.aprovada,
   ]);
 
+  // A peça que está sendo editada, se ela ainda estiver no carrinho.
+  const editada = montagem.editando ? carrinho.itens.find((item) => item.id === montagem.editando) : undefined;
+
   function adicionar() {
     if (!r || !r.design || !r.tamanho || !montagem.foto?.aprovada) return;
     if (oQueFalta(montagem, r).length) return;
+    // Lê de novo antes de mexer: outra aba pode ter mudado o carrinho.
+    const atual = lerCarrinhoGuardado();
+    const anterior = montagem.editando ? atual.itens.find((i) => i.id === montagem.editando) : undefined;
     const item: ItemDoCarrinho = {
-      id: codigoNovo(),
-      criadoEm: new Date().toISOString(),
+      id: anterior?.id ?? codigoNovo(),
+      criadoEm: anterior?.criadoEm ?? new Date().toISOString(),
       peca: r.peca.slug,
       cor: r.cor.slug,
       design: r.design.slug,
@@ -270,11 +297,22 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
       campos: Object.fromEntries(r.design.config.campos.map((c) => [c.chave, (montagem.campos[c.chave] ?? '').trim()])),
       tamanho: r.tamanho,
       foto: montagem.foto,
+      presente: anterior?.presente ?? null,
     };
-    // Lê de novo antes de somar: outra aba pode ter mexido no carrinho.
-    const novo: Carrinho = { versao: 1, itens: [...lerCarrinhoGuardado().itens, item] };
+    const novo: Carrinho = {
+      versao: 1,
+      itens: anterior ? atual.itens.map((i) => (i.id === anterior.id ? item : i)) : [...atual.itens, item],
+    };
     guardarCarrinho(novo);
     setCarrinho(novo);
+    if (anterior) {
+      // Editou do carrinho: a peça volta para lá já com as mudanças, e o montador
+      // fica livre para a próxima.
+      despachar({ tipo: 'nova' });
+      trocarRecorte(null);
+      router.push('/carrinho');
+      return;
+    }
     setAdicionada(assinatura);
   }
 
@@ -393,7 +431,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   const falta: Falta[] = oQueFalta(montagem, r);
   const campoDoNome = r.design?.config.campos.find((campo) => campo.chave === 'nome');
   const reaproveitaveis: FotoReaproveitavel[] = [];
-  for (const item of [...carrinho.itens].reverse()) {
+  for (const item of [...carrinho.itens].reverse().concat(jaPedidas)) {
     if (item.foto.chave === montagem.foto?.chave) continue;
     if (reaproveitaveis.some((outra) => outra.foto.chave === item.foto.chave)) continue;
     reaproveitaveis.push({ foto: item.foto, campos: item.campos });
@@ -537,6 +575,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
             falta={falta}
             pecasNoCarrinho={carrinho.itens.length}
             adicionada={adicionada === assinatura}
+            editando={!!editada}
             rotulo={r.design ? descreverDesign(r.design, r.cor, ', de perto') : pecaNome}
             aoAdicionar={adicionar}
             aoCriarOutra={criarOutra}

@@ -25,7 +25,8 @@ function seloDoDrop(design: Design, hoje: number) {
   return null;
 }
 
-const opcao =
+// Uma opção da pílula de escolha (Nas costas / Na frente), também usada no checkout.
+export const opcaoDaPilula =
   'block cursor-pointer rounded-full px-3.5 py-3 text-sm leading-5 font-semibold transition-colors duration-200 ease-saida peer-checked:bg-verde peer-checked:text-creme peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-verde';
 
 export function PassoDesign({
@@ -162,7 +163,7 @@ export function PassoDesign({
                   onChange={() => aoEscolherLado(l)}
                   className="peer sr-only"
                 />
-                <span className={opcao}>{l === 'frente' ? 'Na frente' : 'Nas costas'}</span>
+                <span className={opcaoDaPilula}>{l === 'frente' ? 'Na frente' : 'Nas costas'}</span>
               </label>
             ))}
           </div>

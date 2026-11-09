@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from 'next';
-import Link from 'next/link';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
 import { carregarCatalogo } from '@/lib/catalogo';
 import { carregarDesigns } from '@/lib/designs';
+import { Cabecalho } from '../cabecalho';
 import { Montador } from './montador';
 
 export const metadata: Metadata = {
@@ -45,11 +45,7 @@ function MontadorCarregando() {
 export default function Montar() {
   return (
     <>
-      <header className="flex justify-center px-4 pt-5">
-        <Link href="/" className="px-2 py-2 font-titulo text-xl uppercase tracking-[0.06em]">
-          Divestir
-        </Link>
-      </header>
+      <Cabecalho />
       <main className="mx-auto max-w-6xl px-4 pt-4 pb-24 lg:pt-8">
         <Suspense fallback={<MontadorCarregando />}>
           <MontadorComDados />

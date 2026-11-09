@@ -17,6 +17,9 @@ export type TabelaDeMedidas = {
   linhas: { nome: string; como_medir?: string; valores: Record<string, number | string> }[];
 };
 
+// Pacote de uma peça dobrada, para cotar o frete (coluna envio de pecas).
+export type PacoteDeEnvio = { peso_kg: number; largura_cm: number; altura_cm: number; comprimento_cm: number };
+
 export type Peca = {
   slug: string;
   nome: string;
@@ -24,6 +27,7 @@ export type Peca = {
   preco: number | null;
   tamanhos: string[];
   medidas: TabelaDeMedidas | null;
+  envio: PacoteDeEnvio | null;
   // Fotos de base por cor e por lado, por exemplo fotos.preto.frente.
   fotos: Record<string, Partial<Record<Lado, string>>>;
   // Onde a estampa pode ir em cada lado (a jaqueta college só tem costas).
@@ -46,6 +50,16 @@ function lerMedidas(valor: unknown): TabelaDeMedidas | null {
   return { unidade: typeof tabela.unidade === 'string' ? tabela.unidade : 'cm', linhas };
 }
 
+// Confere o pacote de envio que veio do banco: medida faltando, não há pacote.
+export function lerPacote(valor: unknown): PacoteDeEnvio | null {
+  if (!valor || typeof valor !== 'object') return null;
+  const p = valor as Record<string, unknown>;
+  const medidas = [p.peso_kg, p.largura_cm, p.altura_cm, p.comprimento_cm];
+  if (!medidas.every((m) => typeof m === 'number' && Number.isFinite(m) && m > 0)) return null;
+  const [peso_kg, largura_cm, altura_cm, comprimento_cm] = medidas as number[];
+  return { peso_kg, largura_cm, altura_cm, comprimento_cm };
+}
+
 // Lê do banco as peças e cores ativas e as fotos de base de cada uma.
 // O resultado fica guardado por algumas horas. Quando o painel mudar o
 // catálogo (etapa 8), ele renova com revalidateTag('catalogo').
@@ -58,7 +72,7 @@ export async function carregarCatalogo(): Promise<Catalogo> {
   const [pecas, cores, imagens] = await Promise.all([
     supabase
       .from('pecas')
-      .select('id, slug, nome, caimento, preco, tamanhos, medidas, area_impressao_cm')
+      .select('id, slug, nome, caimento, preco, tamanhos, medidas, envio, area_impressao_cm')
       .eq('ativo', true)
       .order('ordem'),
     supabase.from('cores').select('id, slug, nome, hex').eq('ativo', true).order('ordem'),
@@ -87,6 +101,7 @@ export async function carregarCatalogo(): Promise<Catalogo> {
         preco: peca.preco === null ? null : Number(peca.preco),
         tamanhos: Array.isArray(peca.tamanhos) ? peca.tamanhos : [],
         medidas: lerMedidas(peca.medidas),
+        envio: lerPacote(peca.envio),
         fotos,
         areas: (peca.area_impressao_cm ?? {}) as AreasDaPeca,
       };

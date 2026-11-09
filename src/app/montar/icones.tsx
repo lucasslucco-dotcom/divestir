@@ -76,3 +76,30 @@ export function IconeCarregando(props: Props) {
     </Svg>
   );
 }
+
+export function IconeSacola(props: Props) {
+  return (
+    <Svg {...props}>
+      <path d="M3.25 5.75h9.5l-.8 7.5h-7.9z" />
+      <path d="M5.75 5.75V4.5a2.25 2.25 0 0 1 4.5 0v1.25" />
+    </Svg>
+  );
+}
+
+export function IconeCopiar(props: Props) {
+  return (
+    <Svg {...props}>
+      <rect x="5.25" y="5.25" width="8" height="8" rx="1.5" />
+      <path d="M10.75 5.25V4.25a1.5 1.5 0 0 0-1.5-1.5h-4.5a1.5 1.5 0 0 0-1.5 1.5v4.5a1.5 1.5 0 0 0 1.5 1.5h1" />
+    </Svg>
+  );
+}
+
+export function IconePresente(props: Props) {
+  return (
+    <Svg {...props}>
+      <rect x="2.75" y="6" width="10.5" height="7.25" rx="1" />
+      <path d="M8 6v7.25M2.75 8.75h10.5M8 6C6.5 6 5 5.25 5 4.1 5 3.2 5.7 2.75 6.4 2.75 7.5 2.75 8 4.25 8 6zm0 0c1.5 0 3-.75 3-1.9 0-.9-.7-1.35-1.4-1.35C8.5 2.75 8 4.25 8 6z" />
+    </Svg>
+  );
+}

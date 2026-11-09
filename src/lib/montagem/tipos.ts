@@ -30,6 +30,8 @@ export type Montagem = {
   campos: Record<string, string>;
   tamanho: string | null;
   foto: FotoDaMontagem | null;
+  // A peça do carrinho que está sendo editada ("Editar", no carrinho).
+  editando: string | null;
 };
 
 export const MONTAGEM_VAZIA: Montagem = {
@@ -41,10 +43,14 @@ export const MONTAGEM_VAZIA: Montagem = {
   campos: {},
   tamanho: null,
   foto: null,
+  editando: null,
 };
 
-// Uma peça pronta no carrinho do navegador. O carrinho de verdade (com pagamento)
-// chega na Etapa 6 e lê esta mesma lista.
+// Presente (briefing, "Carrinho e checkout"): embalagem especial e cartão com a
+// mensagem escrita pelo cliente, peça por peça.
+export type Presente = { mensagem: string };
+
+// Uma peça pronta no carrinho do navegador.
 export type ItemDoCarrinho = {
   id: string;
   criadoEm: string;
@@ -55,11 +61,16 @@ export type ItemDoCarrinho = {
   campos: Record<string, string>;
   tamanho: string;
   foto: FotoDaMontagem;
+  presente: Presente | null;
 };
 
 export type Carrinho = { versao: 1; itens: ItemDoCarrinho[] };
 
 export const CARRINHO_VAZIO: Carrinho = { versao: 1, itens: [] };
+
+// Um pedido feito neste navegador: as peças como estavam no carrinho, para a página
+// do pedido mostrar as prévias (as fotos ficam no próprio aparelho).
+export type PedidoGuardado = { token: string; numero: number; criadoEm: string; itens: ItemDoCarrinho[] };
 
 // As fotos guardadas no banco são apagadas 30 dias depois, se a montagem não virar
 // pedido (briefing, "Segurança desde o primeiro dia"). Aqui vale o mesmo prazo.
@@ -70,6 +81,14 @@ export const VALIDADE_DA_FOTO_EM_DIAS = 30;
 const texto = (valor: unknown) => (typeof valor === 'string' && valor.length <= 200 ? valor : null);
 const numero = (valor: unknown) => (typeof valor === 'number' && Number.isFinite(valor) ? valor : null);
 const lado = (valor: unknown): Lado | null => (valor === 'frente' || valor === 'costas' ? valor : null);
+
+// Mensagem do cartão: até 240 letras, com as quebras de linha que a pessoa escreveu.
+export const LIMITE_DO_CARTAO = 240;
+function presente(valor: unknown): Presente | null {
+  if (!valor || typeof valor !== 'object') return null;
+  const mensagem = (valor as Record<string, unknown>).mensagem;
+  return { mensagem: typeof mensagem === 'string' ? mensagem.slice(0, LIMITE_DO_CARTAO) : '' };
+}
 
 function campos(valor: unknown): Record<string, string> {
   if (!valor || typeof valor !== 'object') return {};
@@ -156,15 +175,14 @@ export function lerMontagem(valor: unknown): Montagem | null {
     campos: campos(m.campos),
     tamanho: texto(m.tamanho),
     foto: lerFoto(m.foto),
+    editando: texto(m.editando),
   };
 }
 
-export function lerCarrinho(valor: unknown): Carrinho {
-  if (!valor || typeof valor !== 'object') return CARRINHO_VAZIO;
-  const c = valor as Record<string, unknown>;
-  if (c.versao !== 1 || !Array.isArray(c.itens)) return CARRINHO_VAZIO;
+function lerItens(valor: unknown): ItemDoCarrinho[] {
+  if (!Array.isArray(valor)) return [];
   const itens: ItemDoCarrinho[] = [];
-  for (const bruto of c.itens.slice(0, 50)) {
+  for (const bruto of valor.slice(0, 50)) {
     if (!bruto || typeof bruto !== 'object') continue;
     const i = bruto as Record<string, unknown>;
     const id = texto(i.id);
@@ -177,7 +195,45 @@ export function lerCarrinho(valor: unknown): Carrinho {
     // Peça cuja foto já passou do prazo sai do carrinho: a foto também já saiu do banco.
     const foto = lerFoto(i.foto);
     if (!id || !criadoEm || !peca || !cor || !design || !l || !tamanho || !foto) continue;
-    itens.push({ id, criadoEm, peca, cor, design, lado: l, campos: campos(i.campos), tamanho, foto });
+    itens.push({
+      id,
+      criadoEm,
+      peca,
+      cor,
+      design,
+      lado: l,
+      campos: campos(i.campos),
+      tamanho,
+      foto,
+      presente: presente(i.presente),
+    });
   }
-  return { versao: 1, itens };
+  return itens;
+}
+
+export function lerCarrinho(valor: unknown): Carrinho {
+  if (!valor || typeof valor !== 'object') return CARRINHO_VAZIO;
+  const c = valor as Record<string, unknown>;
+  if (c.versao !== 1 || !Array.isArray(c.itens)) return CARRINHO_VAZIO;
+  return { versao: 1, itens: lerItens(c.itens) };
+}
+
+// Os pedidos feitos neste navegador, dos últimos 30 dias (o prazo das fotos).
+export function lerPedidos(valor: unknown): PedidoGuardado[] {
+  if (!valor || typeof valor !== 'object') return [];
+  const lista = (valor as Record<string, unknown>).pedidos;
+  if ((valor as Record<string, unknown>).versao !== 1 || !Array.isArray(lista)) return [];
+  const pedidos: PedidoGuardado[] = [];
+  for (const bruto of lista.slice(0, 20)) {
+    if (!bruto || typeof bruto !== 'object') continue;
+    const p = bruto as Record<string, unknown>;
+    const token = texto(p.token);
+    const criadoEm = texto(p.criadoEm);
+    const numeroDoPedido = numero(p.numero);
+    if (!token || !criadoEm || !numeroDoPedido) continue;
+    const criado = Date.parse(criadoEm);
+    if (!Number.isFinite(criado) || Date.now() - criado > VALIDADE_DA_FOTO_EM_DIAS * 24 * 60 * 60 * 1000) continue;
+    pedidos.push({ token, numero: numeroDoPedido, criadoEm, itens: lerItens(p.itens) });
+  }
+  return pedidos;
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-08T18:40:00-03:00",
+  "generatedAt": "2026-11-08T23:30:00-03:00",
   "title": "Design System: Divestir",
   "extensions": {
     "colorMeta": {
@@ -273,6 +273,38 @@
       "description": "PP ao GGG em pílulas de 44px com contorno verde de 1px; a escolhida fica verde cheia com texto creme. Tabela de medidas é link de texto e abre ali mesmo, quando a peça tem medidas.",
       "html": "<div class=\"ds-tamanhos\" role=\"radiogroup\" aria-label=\"Tamanho\"><span>PP</span><span>P</span><span class=\"ds-ativo\">M</span><span>G</span><span>GG</span><span>GGG</span></div>",
       "css": ".ds-tamanhos{display:flex;flex-wrap:wrap;gap:.5rem;width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-tamanhos span{display:flex;min-width:3rem;height:2.75rem;box-sizing:border-box;align-items:center;justify-content:center;padding:0 .75rem;border:1px solid var(--color-verde);border-radius:9999px;font-size:.875rem;font-weight:600}.ds-tamanhos .ds-ativo{background:var(--color-verde);color:var(--color-creme)}"
+    },
+    {
+      "name": "Campo do checkout",
+      "kind": "input",
+      "refersTo": "campo-checkout",
+      "description": "Rótulo em Inter 600 sempre visível, caixa de 48px com contorno verde de 1px e canto de 6px, texto em Inter 16px. Com erro, um segundo contorno por dentro e a frase do erro em Inter 600 com ícone.",
+      "html": "<label class=\"ds-campo\"><span>CPF</span><input value=\"123.456.789-09\" aria-invalid=\"false\"><small>O Mercado Pago pede no pagamento.</small></label>",
+      "css": ".ds-campo{display:flex;flex-direction:column;width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-campo span{font-weight:600}.ds-campo input{margin-top:.5rem;height:3rem;padding:0 1rem;border:1px solid var(--color-verde);border-radius:.375rem;background:var(--color-creme);color:var(--color-verde);font:inherit;font-size:1rem}.ds-campo small{margin-top:.375rem;font-size:.9375rem}"
+    },
+    {
+      "name": "Opção de frete",
+      "kind": "custom",
+      "refersTo": "opcao-frete",
+      "description": "Cartão de 12px com contorno verde: serviço em Inter 600, prazo total somado ao da produção e o preço à direita. A escolhida fica verde cheia com texto creme.",
+      "html": "<div class=\"ds-frete\"><div class=\"ds-ativo\"><b>PAC · Correios</b><span>R$ 26,40</span><small>Chega em 15 a 22 dias úteis</small></div><div><b>SEDEX · Correios</b><span>R$ 48,10</span><small>Chega em 12 a 18 dias úteis</small></div></div>",
+      "css": ".ds-frete{display:flex;flex-direction:column;gap:.75rem;width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-frete div{display:grid;grid-template-columns:1fr auto;padding:.875rem 1rem;border:1px solid var(--color-verde);border-radius:.75rem}.ds-frete b{font-weight:600}.ds-frete span{font-weight:600}.ds-frete small{grid-column:1/-1;font-size:.9375rem}.ds-frete .ds-ativo{background:var(--color-verde);color:var(--color-creme)}"
+    },
+    {
+      "name": "Aviso de teste",
+      "kind": "custom",
+      "refersTo": "aviso-teste",
+      "description": "Contorno tracejado verde de 1px: o \"ainda não é de verdade\" da marca. Aparece no carrinho, no checkout e no pedido enquanto a loja estiver em modo de teste.",
+      "html": "<p class=\"ds-teste\"><b>Loja em modo de teste.</b> Os preços são de teste e nenhum pagamento é cobrado de verdade.</p>",
+      "css": ".ds-teste{width:22rem;margin:0;padding:.75rem 1rem;border:1px dashed var(--color-verde);border-radius:.375rem;color:var(--color-verde);font:.9375rem/1.4 var(--font-inter),system-ui,sans-serif}"
+    },
+    {
+      "name": "Selo do pedido",
+      "kind": "custom",
+      "refersTo": "selo-pedido",
+      "description": "Na confirmação: pílula verde cheia com texto creme, visto e o número do pedido, abaixo do \"Recebemos seu pedido!\" em Anton.",
+      "html": "<span class=\"ds-selo-pedido\">✓ Pedido nº 1001</span>",
+      "css": ".ds-selo-pedido{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1rem;border-radius:9999px;background:var(--color-verde);color:var(--color-creme);font:600 1rem var(--font-inter),system-ui,sans-serif}"
     }
   ],
   "narrative": {
