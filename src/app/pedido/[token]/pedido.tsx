@@ -76,9 +76,9 @@ function AjudaDoTeste() {
     <div className="mt-6 rounded-md border border-dashed border-verde px-4 py-3 text-[0.9375rem] leading-snug">
       <p className="font-semibold">Pagamento em modo de teste: nada é cobrado.</p>
       <p className="mt-1">
-        Para ver o pedido pago, use um cartão de teste do Mercado Pago: Mastercard 5031 4332 1540 6351, validade 11/30,
-        código 123, nome <strong>APRO</strong> e CPF 123.456.789-09. O Pix de teste gera o código, mas não dá para
-        pagar.
+        Para ver o pedido pago, use um cartão de teste do Mercado Pago, como o Visa 4235 6477 2802 5682 (validade 11/30,
+        código 123), com o nome <strong>APRO</strong> e o CPF 123.456.789-09. Com o nome OTHE, o cartão é recusado. O
+        Pix de teste gera o código, mas não dá para pagar.
       </p>
     </div>
   );
