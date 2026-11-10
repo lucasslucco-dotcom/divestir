@@ -485,6 +485,37 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
+-- Design Figurinha Rara: figurinha de álbum, estampa grande, para amigas e amigos. A arte vem do
+-- Higgsfield (a faixa "★ Figurinha rara ★", a moldura do cartão com os raios, o selo "Nº 01", a
+-- tabela das notas, "Fofoca 99, Conselho 100, Pontualidade 12, Parceria 100", e a linha "Edição
+-- limitada · Não tem repetida"); o site põe o nome enorme (Anton, alargada e engrossada) entre a
+-- faixa e o cartão, e a foto dentro do cartão, com a cabeça passando por cima do nome.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('figurinha-rara', 'Figurinha Rara', 'ativo', 14, '2026-11-10', '{
+    "versao": 1,
+    "proporcao": 0.623,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/figurinha-rara/faixa.svg", "x": 500.2, "topo": 0, "largura": 936.2, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/figurinha-rara/cartao.svg", "x": 499.6, "topo": 519.7, "largura": 989.0, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 126, "largura_maxima": 980, "altura_no_centro": 388, "arco": 1, "compressao_maxima": 0.5, "expansao_maxima": 2, "engrossa": 4, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 300, "largura": 930, "altura": 846, "janela": {"largura": 1150, "altura": 1500, "y": 1085}},
+      {"tipo": "arte", "arquivo": "/designs/figurinha-rara/frente.svg", "x": 861.5, "topo": 492.3, "largura": 193.3, "folga": 0, "base": "/designs/figurinha-rara/frente-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/figurinha-rara/linha.svg", "x": 500.4, "topo": 1540.0, "largura": 987.5, "folga": 0}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["amigas", "amigos"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
 -- O Letreiro (letreiro de cinema, conceito Bia & Caio) saiu da linha por decisão do Lucas
 -- (10/11/2026). Onde ele já existir no banco, fica encerrado.
 update public.designs set status = 'encerrado' where slug = 'letreiro';

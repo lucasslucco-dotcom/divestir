@@ -393,6 +393,26 @@ def capa_de_revista():
     print('  fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
 
 
+def figurinha_rara():
+    print('Figurinha Rara')
+    itens = ler('figurinha-rara')
+    # A moldura do cartão (de 54 a 1306) toma a largura da arte, com uma margem de 10 de
+    # cada lado; o topo dela cai em 524, logo abaixo do nome, que o site escreve entre a
+    # faixa e o cartão.
+    corte = (41, 560 - 524 / (1000 / 1278), 1278)
+    faixa = [i for i in itens if i['caixa'][3] < 200]
+    linha = [i for i in itens if i['caixa'][1] > 1860]
+    # O selo "Nº 01" é o disco do canto de cima, à direita, e o que está dentro dele.
+    disco = next(i for i in itens if i['tipo'] == 'W' and 1000 < i['caixa'][0] < 1060 and i['caixa'][1] < 560)
+    selo = [i for i in itens if dentro(centro(i), [(disco['caixa'][0], disco['caixa'][1]), (disco['caixa'][2], disco['caixa'][1]), (disco['caixa'][2], disco['caixa'][3]), (disco['caixa'][0], disco['caixa'][3])])]
+    cartao = [i for i in itens if i not in faixa and i not in linha and i not in selo]
+    gravar('figurinha-rara', 'faixa', faixa, corte, 'A faixa "★ Figurinha rara ★".')
+    gravar('figurinha-rara', 'cartao', cartao, corte, 'A moldura do cartão, os raios e a tabela das notas (atrás da foto).')
+    gravar('figurinha-rara', 'frente', selo, corte, 'O selo "Nº 01" (na frente da foto).', base=True)
+    gravar('figurinha-rara', 'linha', linha, corte, 'A linha "Edição limitada · Não tem repetida".')
+    print('  topo da tabela:', na_arte(corte, y=1360), ' fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
+
+
 if __name__ == '__main__':
     turne_mundial()
     ao_vivo()
@@ -406,3 +426,4 @@ if __name__ == '__main__':
     grandes_sucessos()
     melhor_mae()
     capa_de_revista()
+    figurinha_rara()
