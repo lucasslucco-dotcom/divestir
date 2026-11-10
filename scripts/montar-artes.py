@@ -127,8 +127,14 @@ def turne_mundial():
     # A fita começa em 1104; o que começa acima disso são os raios e as estrelas.
     raios = [i for i in itens if i['caixa'][1] < 1100]
     frente = [i for i in itens if i['caixa'][1] >= 1100]
+    # As datas (entre a fita, que acaba em 1336, e o selo, que começa em 1575) ficam
+    # numa parte só delas: a fita e o selo levam o desgaste de estampa antiga, e a
+    # letra pequena das datas fica inteira, para ler.
+    datas = [i for i in frente if 1338 <= i['caixa'][1] < 1555]
+    fita = [i for i in frente if i not in datas]
     gravar('turne-mundial', 'raios', raios, corte, 'Raios e estrelas (atrás da foto).')
-    gravar('turne-mundial', 'frente', frente, corte, 'Fita "Turnê Mundial 2026", datas e selo (na frente da foto).', base=True)
+    gravar('turne-mundial', 'frente', fita, corte, 'Fita "Turnê Mundial 2026" e selo (na frente da foto).', base=True)
+    gravar('turne-mundial', 'datas', datas, corte, 'As datas da turnê.')
     # O círculo vazio no meio dos raios: ajuste pelos pontos de cada raio mais perto do meio.
     cx, cy = 678.0, 800.0
     for _ in range(30):
@@ -188,17 +194,7 @@ def em_cartaz():
     print('  fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
 
 
-def letreiro():
-    print('Letreiro')
-    itens = ler('letreiro')
-    corte = (39, 380, 1560)
-    gravar('letreiro', 'letreiro', itens, corte, 'Letreiro de cinema com "Em Cartaz"; o nome entra vazado na faixa de baixo.')
-    print('  faixa do nome: x', na_arte(corte, x=176), 'a', na_arte(corte, x=1463), ' topo no meio', na_arte(corte, y=1011), 'nas pontas', na_arte(corte, y=1062), ' base no meio', na_arte(corte, y=1274), 'nas pontas', na_arte(corte, y=1325))
-    print('  fim do letreiro:', na_arte(corte, y=1605), ' lâmpadas de baixo terminam em', na_arte(corte, y=1405))
-
-
 if __name__ == '__main__':
     turne_mundial()
     ao_vivo()
     em_cartaz()
-    letreiro()

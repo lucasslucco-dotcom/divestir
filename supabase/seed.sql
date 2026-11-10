@@ -92,24 +92,29 @@ on conflict (slug) do update set
 -- Os designs de 10/11/2026 (escolhidos pelo Lucas entre os conceitos do Higgsfield).
 -- A arte fixa de cada um nasce no Higgsfield (imagem chapada a partir do mockup aprovado,
 -- vetorizada pelo Ideogram Vector) e é montada pelo scripts/montar-artes.py, que também
--- mostra onde cada parte entra (x, topo e largura abaixo).
+-- mostra onde cada parte entra (x, topo e largura abaixo). A tinta na peça preta é o
+-- creme quente dos mockups.
 -- "drop_entrada" liga o selo "Novo" nas duas primeiras semanas; rodar de novo não mexe nas datas.
 
--- Design Turnê Mundial: camiseta de turnê. A arte (raios, fita "Turnê Mundial 2026", datas e
--- selo) vem do Higgsfield; o site põe o nome em arco e a foto solta no meio dos raios.
+-- Design Turnê Mundial: camiseta de turnê antiga. A arte (raios, fita "Turnê Mundial 2026",
+-- datas e selo) vem do Higgsfield; o site põe o nome em arco, na letra gorda de turnê
+-- (Caprasimo), e a foto solta no meio dos raios. O nome, a fita e o selo saem rachados
+-- (desgaste); as datas ficam inteiras, para ler.
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
   ('turne-mundial', 'Turnê Mundial', 'ativo', 2, '2026-11-10', '{
     "versao": 1,
-    "proporcao": 0.7042,
+    "proporcao": 0.7012,
     "posicao": "costas",
     "camadas": [
-      {"tipo": "arte", "arquivo": "/designs/turne-mundial/raios.svg", "x": 498.2, "topo": 219, "largura": 826.2, "folga": 0},
-      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 8, "largura_maxima": 940, "altura_no_centro": 200, "arco": 1, "compressao_maxima": 0.75, "curva": 60},
-      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 230, "largura": 900, "altura": 640, "janela": {"largura": 900, "altura": 720, "y": 600}},
-      {"tipo": "arte", "arquivo": "/designs/turne-mundial/frente.svg", "x": 499.9, "topo": 802.7, "largura": 972.4, "folga": 8, "base": "/designs/turne-mundial/frente-base.svg"}
+      {"tipo": "arte", "arquivo": "/designs/turne-mundial/raios.svg", "x": 498.2, "topo": 225, "largura": 826.2, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "vintage", "x": 500, "topo": 12, "largura_maxima": 900, "altura_no_centro": 215, "arco": 1.5, "compressao_maxima": 0.52, "curva": 14, "expansao_maxima": 1, "folga": 8, "desgaste": true, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 236, "largura": 900, "altura": 640, "janela": {"largura": 920, "altura": 760, "y": 616}},
+      {"tipo": "arte", "arquivo": "/designs/turne-mundial/frente.svg", "x": 499.9, "topo": 808.7, "largura": 972.4, "folga": 8, "base": "/designs/turne-mundial/frente-base.svg", "desgaste": true},
+      {"tipo": "arte", "arquivo": "/designs/turne-mundial/datas.svg", "x": 517.5, "topo": 1002.1, "largura": 923.4, "folga": 0}
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
-    "tintas": {"preto": "creme", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "desgaste": {"arquivo": "/designs/texturas/craquelado.png"},
     "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
     "logo_peito": true
   }'::jsonb)
@@ -120,7 +125,8 @@ on conflict (slug) do update set
   config = excluded.config;
 
 -- Design Ao Vivo: pôster de show. A arte (etiqueta, círculo de pontos, faixa "Turnê 2026" e a
--- linha de lugares) vem do Higgsfield; o site põe o nome grande e a foto solta.
+-- linha de lugares) vem do Higgsfield; o site põe o nome enorme, de ponta a ponta, e a
+-- foto solta por cima do círculo.
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
   ('ao-vivo', 'Ao Vivo', 'ativo', 3, '2026-11-10', '{
     "versao": 1,
@@ -129,12 +135,12 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "camadas": [
       {"tipo": "arte", "arquivo": "/designs/ao-vivo/selo.svg", "x": 201.9, "topo": 13.9, "largura": 301.5, "folga": 0},
       {"tipo": "arte", "arquivo": "/designs/ao-vivo/pontos.svg", "x": 490.8, "topo": 411.7, "largura": 883.4, "folga": 0},
-      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 128, "largura_maxima": 960, "altura_no_centro": 330, "arco": 1.3, "compressao_maxima": 0.8, "folga": 9},
-      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 400, "largura": 960, "altura": 865, "janela": {"largura": 940, "altura": 960, "y": 850}},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 114, "largura_maxima": 900, "altura_no_centro": 372, "arco": 1.28, "compressao_maxima": 0.62, "folga": 9, "expansao_maxima": 1.35, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 400, "largura": 960, "altura": 865, "janela": {"largura": 1000, "altura": 1090, "y": 965}},
       {"tipo": "arte", "arquivo": "/designs/ao-vivo/frente.svg", "x": 498.4, "topo": 1105.8, "largura": 971.1, "folga": 0, "base": "/designs/ao-vivo/frente-base.svg"}
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
-    "tintas": {"preto": "creme", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
     "logo_peito": true
   }'::jsonb)
@@ -145,8 +151,8 @@ on conflict (slug) do update set
   config = excluded.config;
 
 -- Design Em Cartaz: pôster de cinema. A foto entra com o fundo original e escurece na base,
--- com o nome em creme por cima (Bodoni Moda); moldura, louros e créditos vêm do Higgsfield;
--- o cliente diz o ano ("desde").
+-- com o nome em itálico por cima (Instrument Serif); moldura, louros e créditos vêm do
+-- Higgsfield; o cliente diz o ano ("desde").
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
   ('em-cartaz', 'Em Cartaz', 'ativo', 4, '2026-11-10', '{
     "versao": 1,
@@ -156,12 +162,12 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
       {"tipo": "texto", "texto": "UMA HISTÓRIA DE AMOR", "fonte": "cinema-forte", "x": 500, "base": 60, "largura": 860, "altura": 27, "espaco": 0.34},
       {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 92, "largura": 881, "altura": 1005, "fundo": true, "sombra": 0.42},
       {"tipo": "arte", "arquivo": "/designs/em-cartaz/moldura.svg", "x": 500, "topo": 83, "largura": 898.9, "folga": 0},
-      {"tipo": "nome", "campo": "nome", "fonte": "cinema", "x": 500, "topo": 935, "largura_maxima": 800, "altura_no_centro": 120, "arco": 1, "compressao_maxima": 0.7, "tinta": "creme"},
+      {"tipo": "nome", "campo": "nome", "fonte": "destaque-italico", "x": 500, "topo": 888, "largura_maxima": 830, "altura_no_centro": 150, "arco": 1, "compressao_maxima": 0.75, "tinta": "creme-quente"},
       {"tipo": "texto", "texto": "EM CARTAZ DESDE {desde}", "fonte": "cinema-forte", "x": 500, "base": 1167, "largura": 880, "altura": 29, "espaco": 0.34},
       {"tipo": "arte", "arquivo": "/designs/em-cartaz/creditos.svg", "x": 502.1, "topo": 1200.9, "largura": 982.4, "folga": 0}
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 16, "caixa": "alta"}, {"chave": "desde", "rotulo": "Desde que ano?", "max": 4, "caixa": "alta", "exemplo": "2019"}],
-    "tintas": {"preto": "creme", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
     "logo_peito": true
   }'::jsonb)
@@ -171,26 +177,6 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
--- Design Letreiro: o letreiro de cinema vem do Higgsfield; o nome entra vazado na faixa de
--- baixo, a foto solta fica embaixo do letreiro e o cliente diz o ano ("desde").
-insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
-  ('letreiro', 'Letreiro', 'ativo', 5, '2026-11-10', '{
-    "versao": 1,
-    "proporcao": 0.6431,
-    "posicao": "costas",
-    "camadas": [
-      {"tipo": "arte", "arquivo": "/designs/letreiro/letreiro.svg", "x": 500.1, "topo": 20.4, "largura": 964.8, "folga": 0},
-      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 436, "largura_maxima": 760, "altura_no_centro": 105, "arco": 1, "compressao_maxima": 0.7, "curva": 28, "vazado": true},
-      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 650, "largura": 960, "altura": 790, "janela": {"largura": 960, "altura": 900, "y": 1085}},
-      {"tipo": "texto", "texto": "★ ★   DESDE {desde}  ·  SESSÃO TODOS OS DIAS   ★ ★", "fonte": "titulo", "x": 500, "base": 1525, "largura": 900, "altura": 32, "espaco": 0.1}
-    ],
-    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 16, "caixa": "alta"}, {"chave": "desde", "rotulo": "Desde que ano?", "max": 4, "caixa": "alta", "exemplo": "2019"}],
-    "tintas": {"preto": "creme", "branco": "verde-escuro", "creme": "verde-escuro"},
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
-    "logo_peito": true
-  }'::jsonb)
-on conflict (slug) do update set
-  nome = excluded.nome,
-  status = excluded.status,
-  ordem = excluded.ordem,
-  config = excluded.config;
+-- O Letreiro (letreiro de cinema, conceito Bia & Caio) saiu da linha por decisão do Lucas
+-- (10/11/2026). Onde ele já existir no banco, fica encerrado.
+update public.designs set status = 'encerrado' where slug = 'letreiro';

@@ -24,7 +24,9 @@ export function esquecerImagem(url: string) {
 }
 
 // A arte vem em SVG com uma tinta só (currentColor); aqui ela ganha a cor da tinta.
+// Textura de desgaste vem em PNG (só a transparência conta) e entra como está.
 export function carregarArte(arquivo: string, tinta: string): Promise<ImagemDaArte> {
+  if (!/\.svg$/i.test(arquivo)) return carregarImagem(arquivo);
   const chave = `${arquivo}|${tinta}`;
   let arte = artes.get(chave);
   if (!arte) {
@@ -55,12 +57,14 @@ export function fontesDaPagina(): Promise<Fontes> {
     const titulo = estilo.getPropertyValue('--font-anton').trim() || 'Anton, sans-serif';
     const destaque = estilo.getPropertyValue('--font-instrument-serif').trim() || 'Georgia, serif';
     const cinema = estilo.getPropertyValue('--font-bodoni-moda').trim() || 'Georgia, serif';
+    const vintage = estilo.getPropertyValue('--font-caprasimo').trim() || 'Georgia, serif';
     await Promise.all([
       document.fonts.load(`400 100px ${titulo}`),
       document.fonts.load(`400 100px ${destaque}`),
       document.fonts.load(`italic 400 100px ${destaque}`),
       document.fonts.load(`500 100px ${cinema}`),
       document.fonts.load(`700 100px ${cinema}`),
+      document.fonts.load(`400 100px ${vintage}`),
     ]).catch(() => undefined);
     return {
       titulo: { familia: titulo, estilo: 'normal' },
@@ -68,6 +72,7 @@ export function fontesDaPagina(): Promise<Fontes> {
       'destaque-italico': { familia: destaque, estilo: 'italic' },
       cinema: { familia: cinema, estilo: 'normal', peso: 500 },
       'cinema-forte': { familia: cinema, estilo: 'normal', peso: 700 },
+      vintage: { familia: vintage, estilo: 'normal' },
     } satisfies Fontes;
   })();
   return fontes;

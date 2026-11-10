@@ -243,11 +243,17 @@ function rascunharNome(
   medida.save();
   medida.font = fonteCss(fonte, 100);
   const capa = medida.measureText('H').actualBoundingBoxAscent / 100 || 0.86;
-  let px = (c.altura_no_centro * escala) / capa;
+  // "acento_dentro": o acento de cima (Â, É, Ã) cabe dentro da altura do nome. A letra
+  // fica um pouco menor e desce, e nada acima do nome (a etiqueta, a borda da arte) é
+  // atropelado.
+  const comAcento = c.acento_dentro && ACENTO_DE_CIMA.test(texto.normalize('NFD'));
+  const subida = comAcento ? Math.max(capa, medida.measureText(texto).actualBoundingBoxAscent / 100) : capa;
+  const altura = (c.altura_no_centro * capa) / subida;
+  let px = (altura * escala) / capa;
   medida.font = fonteCss(fonte, px);
   let largura = medida.measureText(texto).width;
   const maxima = c.largura_maxima * escala;
-  const estreita = Math.min(1, Math.max(c.compressao_maxima, maxima / largura));
+  const estreita = Math.min(Math.max(1, c.expansao_maxima ?? 1), Math.max(c.compressao_maxima, maxima / largura));
   if (largura * estreita > maxima) {
     px *= maxima / (largura * estreita);
     medida.font = fonteCss(fonte, px);
@@ -267,7 +273,9 @@ function rascunharNome(
   r.textBaseline = 'alphabetic';
   r.scale(estreita, 1);
   r.fillText(texto, 1 / estreita, acima + alturaDaCapa);
-  return { tela, w, h, acima, alturaDaCapa, x0: Math.round(c.x * escala - w / 2), topo: c.topo * escala };
+  // Com o acento dentro, o topo da maiúscula desce o tamanho do acento.
+  const topo = c.topo * escala + px * (subida - capa);
+  return { tela, w, h, acima, alturaDaCapa, x0: Math.round(c.x * escala - w / 2), topo };
 }
 
 // Quanto a coluna do nome estica do topo da maiúscula para baixo: nada no meio da
@@ -310,6 +318,9 @@ function desenharNome(
   }
   liberarTelas(rascunho);
 }
+
+// Acentos que ficam em cima da letra (agudo, grave, circunflexo, til, trema...).
+const ACENTO_DE_CIMA = /[\u0300-\u030c]/;
 
 // Letras com um pedaço abaixo da linha de base (a cedilha do Ç, a perna do Q e, com
 // minúsculas, g j p q y). Esse pedaço cai dentro do círculo da foto, e a cabeça de
@@ -557,6 +568,21 @@ export async function prepararArte(pedido: Omit<Pedido, 'foto'>, escala: number)
     return fixa;
   };
 
+  // Desgaste de estampa antiga: a textura fura a tinta das camadas marcadas (o nome, a
+  // fita), sempre no mesmo lugar da arte. "x" e "y" dizem onde a tela está na arte.
+  const textura = config.desgaste?.arquivo ? await pedido.carregarArte(config.desgaste.arquivo, '#000000') : null;
+  const desgastar = (tela: Tela, x = 0, y = 0) => {
+    if (!textura) return;
+    const proporcao = textura.height / textura.width;
+    const largura = Math.max(W, H / proporcao);
+    const ctx = contexto(tela);
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(textura, (W - largura) / 2 - x, -y, largura, largura * proporcao);
+    ctx.restore();
+  };
+
   const ano = pedido.ano ?? new Date().getFullYear();
   for (const [indice, camada] of config.camadas.entries()) {
     if (camada.tipo === 'foto') {
@@ -594,13 +620,17 @@ export async function prepararArte(pedido: Omit<Pedido, 'foto'>, escala: number)
         desenharNome(contexto(mascara), camada, texto, '#000', escala, pedido.fontes, criarTela);
         passos.push({ tipo: 'folga', mascara });
         fixa = null;
-      } else if ((camada.folga ?? 0) > 0) {
-        // Respiro em volta das letras: o nome passa por cima da foto sem se misturar.
+      } else if ((camada.folga ?? 0) > 0 || camada.desgaste) {
         const tela = criarTela(W, H);
         desenharNome(contexto(tela), camada, texto, tintaDoNome, escala, pedido.fontes, criarTela);
-        const mascara = mascaraComFolga(tela, 0, 0, (camada.folga ?? 0) * escala, W, H, criarTela);
-        passos.push({ tipo: 'folga', mascara });
-        fixa = null;
+        if ((camada.folga ?? 0) > 0) {
+          // Respiro em volta das letras: o nome passa por cima do que está embaixo sem
+          // se misturar.
+          const mascara = mascaraComFolga(tela, 0, 0, (camada.folga ?? 0) * escala, W, H, criarTela);
+          passos.push({ tipo: 'folga', mascara });
+          fixa = null;
+        }
+        if (camada.desgaste) desgastar(tela);
         telaFixa().drawImage(tela, 0, 0);
         liberarTelas(tela);
       } else desenharNome(telaFixa(), camada, texto, tintaDoNome, escala, pedido.fontes, criarTela);
@@ -630,6 +660,7 @@ export async function prepararArte(pedido: Omit<Pedido, 'foto'>, escala: number)
         passos.push({ tipo: 'folga', mascara: mascaraComFolga(tela, x, y, camada.folga * escala, W, H, criarTela) });
         fixa = null;
       }
+      if (camada.desgaste) desgastar(tela, x, y);
       telaFixa().drawImage(tela, x, y);
       liberarTelas(tela);
     }

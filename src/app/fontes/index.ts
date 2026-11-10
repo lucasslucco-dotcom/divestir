@@ -36,6 +36,17 @@ export const bodoniModa = localFont({
   preload: false,
 });
 
+// Só nas estampas de turnê: Caprasimo, de licença aberta (OFL), a letra gorda de
+// camiseta antiga. Não é fonte do site (decisão a confirmar com o Lucas, 10/11/2026).
+export const caprasimo = localFont({
+  src: './caprasimo-400.woff2',
+  weight: '400',
+  style: 'normal',
+  variable: '--font-caprasimo',
+  display: 'swap',
+  preload: false,
+});
+
 // Textos e botões.
 export const inter = localFont({
   src: './inter-variavel.woff2',
@@ -45,4 +56,4 @@ export const inter = localFont({
   display: 'swap',
 });
 
-export const variaveisDeFonte = `${anton.variable} ${instrumentSerif.variable} ${inter.variable} ${bodoniModa.variable}`;
+export const variaveisDeFonte = `${anton.variable} ${instrumentSerif.variable} ${inter.variable} ${bodoniModa.variable} ${caprasimo.variable}`;

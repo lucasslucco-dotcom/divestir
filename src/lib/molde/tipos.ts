@@ -9,8 +9,9 @@ export type Lado = 'frente' | 'costas';
 
 // Papéis de fonte da marca: o site resolve cada um para a fonte carregada.
 // titulo: Anton; destaque: Instrument Serif; destaque-italico: a mesma, itálica;
-// cinema e cinema-forte: Bodoni Moda (só nas estampas de cinema).
-export type FonteDoMolde = 'titulo' | 'destaque' | 'destaque-italico' | 'cinema' | 'cinema-forte';
+// cinema e cinema-forte: Bodoni Moda (só nas estampas de cinema); vintage: Caprasimo
+// (a letra gorda de camiseta de turnê antiga, só nas estampas).
+export type FonteDoMolde = 'titulo' | 'destaque' | 'destaque-italico' | 'cinema' | 'cinema-forte' | 'vintage';
 
 // Giro de uma camada, em graus (positivo: sentido horário), em volta de um ponto.
 export type Giro = { graus: number; x: number; y: number };
@@ -63,7 +64,8 @@ export type CamadaAnel = {
 // desce nas pontas da arte ("arco": quanto uma letra na ponta da largura máxima
 // fica mais alta que uma no meio). Nome curto fica no meio e quase não desce.
 // Nomes longos primeiro estreitam as letras (até "compressao_maxima") e só
-// depois diminuem.
+// depois diminuem. Com "expansao_maxima" (1,3, por exemplo), nome curto alarga as
+// letras até ocupar a largura máxima: LUNA enche a estampa como PAÇOCA.
 //
 // "curva" faz o nome inteiro subir no meio, como um arco (quantas unidades as pontas
 // da largura máxima ficam abaixo do meio). "folga" abre um respiro em volta das
@@ -78,6 +80,10 @@ export type CamadaNome = {
   altura_no_centro: number;
   arco: number;
   compressao_maxima: number;
+  expansao_maxima?: number;
+  // O acento de cima (Â, É, Ã) cabe dentro da altura do nome, em vez de subir além
+  // do topo: a letra diminui um pouco e a base fica onde está.
+  acento_dentro?: boolean;
   curva?: number;
   folga?: number;
   // "vazado": o nome fura o que está embaixo (a faixa do letreiro) e aparece o tecido.
@@ -85,6 +91,8 @@ export type CamadaNome = {
   // "tinta": uma tinta fixa (de TINTAS) no lugar da tinta da peça: o nome em creme
   // por cima da foto do pôster, em qualquer cor de peça.
   tinta?: string;
+  // Com o "desgaste" do molde: o nome sai rachado, como estampa antiga.
+  desgaste?: boolean;
 };
 
 // A foto do cliente, recortada pelo círculo. Na metade de cima, ela pode passar do
@@ -144,6 +152,8 @@ export type CamadaArte = {
   largura: number;
   folga: number;
   base?: string;
+  // Com o "desgaste" do molde: a arte sai rachada, como estampa antiga.
+  desgaste?: boolean;
 };
 
 export type Camada = CamadaTexto | CamadaAnel | CamadaNome | CamadaFoto | CamadaArte | CamadaForma;
@@ -165,6 +175,10 @@ export type ConfigDoMolde = {
   campos: Campo[];
   // Cor da peça → tinta. As tintas existentes estão em TINTAS.
   tintas: Record<string, string>;
+  // Desgaste de estampa antiga: uma textura (PNG transparente: onde tem cor, a tinta
+  // sai) que fura o nome e as artes marcadas com "desgaste", deixando aparecer o
+  // tecido. A foto e os textos pequenos ficam inteiros.
+  desgaste?: { arquivo: string };
   pecas_permitidas?: string[];
   // Com a estampa nas costas, a frente leva a marca pequena no peito, na mesma
   // tinta (briefing: "logo_peito"). Até o logo ficar pronto, a marca é o nome
@@ -202,9 +216,11 @@ export function limparTextoDaEstampa(valor: string) {
   return tirarSimbolosDaEstampa(valor).replace(/ {2,}/g, ' ').trim();
 }
 
-// As tintas da estampa: as cores da marca.
+// As tintas da estampa: as cores da marca e o creme quente das estampas de turnê e
+// de cinema (o tom dos mockups aprovados pelo Lucas em 10/11/2026).
 export const TINTAS: Record<string, string> = {
   creme: '#FAF5EB',
+  'creme-quente': '#F3DFB2',
   'verde-escuro': '#0D2B17',
 };
 
