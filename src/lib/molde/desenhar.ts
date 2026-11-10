@@ -16,11 +16,15 @@ import {
   type AreaNaFoto,
   type CamadaAnel,
   type CamadaArte,
+  type CamadaForma,
   type CamadaFoto,
+  type CamadaFotoCirculo,
+  type CamadaFotoQuadro,
   type CamadaNome,
   type CamadaTexto,
   type ConfigDoMolde,
   type FonteDoMolde,
+  type Giro,
 } from './tipos';
 
 export type Tela = HTMLCanvasElement;
@@ -30,6 +34,9 @@ export type FotoNoMolde = {
   imagem: CanvasImageSource;
   geometria: Geometria;
   enquadramento: Enquadramento;
+  // A mesma foto com o fundo original, no mesmo quadro do recorte (para os designs
+  // que usam a foto inteira). Sem ela, esses designs mostram só o recorte.
+  inteira?: CanvasImageSource | null;
 };
 
 // Fonte de cada papel: a família CSS já carregada na página e o estilo.
@@ -46,6 +53,9 @@ export type Pedido = {
   fontes: Fontes;
   carregarArte: (arquivo: string, tinta: string) => Promise<ImagemDaArte>;
   criarTela?: CriarTela;
+  // O ano que entra nos textos com {ano} (Turnê 2026). Sem ele, o ano de hoje; o
+  // arquivo de impressão (Etapa 7) passa o ano em que o pedido foi feito.
+  ano?: number;
 };
 
 const telaDoNavegador: CriarTela = (largura, altura) => {
@@ -86,20 +96,125 @@ export function textoDoCampo(config: ConfigDoMolde, chave: string, valores: Reco
   const valor = limparTextoDaEstampa(valores[chave] ?? '')
     .slice(0, campo?.max ?? 40)
     .trim();
-  const texto = valor || campo?.rotulo || '';
+  const texto = valor || campo?.exemplo || campo?.rotulo || '';
   return campo?.caixa === 'alta' ? texto.toLocaleUpperCase('pt-BR') : texto;
 }
 
-function desenharTexto(ctx: CanvasRenderingContext2D, c: CamadaTexto, tinta: string, escala: number, fontes: Fontes) {
-  const fonte = fontes[c.fonte];
+// Texto fixo com o que muda dentro dele: {ano} e o valor dos campos ({nome}, {desde}).
+export function preencherTexto(texto: string, config: ConfigDoMolde, valores: Record<string, string>, ano: number) {
+  return texto.replace(/\{([a-z_]+)\}/g, (_, chave: string) =>
+    chave === 'ano' ? String(ano) : textoDoCampo(config, chave, valores),
+  );
+}
+
+function girar(ctx: CanvasRenderingContext2D, giro: Giro | undefined, escala: number) {
+  if (!giro?.graus) return;
+  ctx.translate(giro.x * escala, giro.y * escala);
+  ctx.rotate((giro.graus * Math.PI) / 180);
+  ctx.translate(-giro.x * escala, -giro.y * escala);
+}
+
+// Estrela de cinco pontas (o ★ dos textos): desenhada, porque as fontes da estampa
+// não têm esse sinal e cada aparelho poria uma estrela diferente no lugar.
+function desenharEstrela(ctx: CanvasRenderingContext2D, cx: number, cy: number, raio: number) {
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const r = i % 2 ? raio * 0.42 : raio;
+    const a = -Math.PI / 2 + (i * Math.PI) / 5;
+    if (i) ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+    else ctx.moveTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+  }
+  ctx.closePath();
+  ctx.fill();
+}
+
+// Texto mais largo que o espaço dele primeiro estreita as letras (até aqui) e só
+// depois diminui.
+const TEXTO_ESTREITA_ATE = 0.72;
+
+function desenharTexto(
+  ctx: CanvasRenderingContext2D,
+  c: CamadaTexto,
+  texto: string,
+  tinta: string,
+  escala: number,
+  fontes: Fontes,
+) {
+  if (!texto) return;
+  const fonte = fontes[c.fonte] ?? fontes.titulo;
   ctx.save();
-  ctx.font = fonteCss(fonte, 100);
-  const px = (100 * c.largura * escala) / Math.max(1, ctx.measureText(c.texto).width);
-  ctx.font = fonteCss(fonte, px);
+  girar(ctx, c.giro, escala);
   ctx.fillStyle = tinta;
-  ctx.textAlign = 'center';
+  ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
-  ctx.fillText(c.texto, c.x * escala, c.base * escala);
+  ctx.font = fonteCss(fonte, 100);
+  const capa = ctx.measureText('H').actualBoundingBoxAscent / 100 || 0.7;
+  // Sem espaço entre as letras nem estrela, o texto vai inteiro (as letras ficam com
+  // o encaixe da fonte); senão, letra por letra.
+  const pedacos = !c.espaco && !texto.includes('★') ? [texto] : [...texto];
+  const medir = (px: number) => {
+    ctx.font = fonteCss(fonte, px);
+    const larguras = pedacos.map((pedaco) => (pedaco === '★' ? px * capa : ctx.measureText(pedaco).width));
+    const espaco = (c.espaco ?? 0) * px;
+    return { larguras, espaco, total: larguras.reduce((soma, l) => soma + l, 0) + espaco * (pedacos.length - 1) };
+  };
+  const maxima = c.largura * escala;
+  let px: number;
+  let estreita = 1;
+  let medida: ReturnType<typeof medir>;
+  if (c.altura) {
+    px = (c.altura * escala) / capa;
+    medida = medir(px);
+    if (medida.total > maxima) {
+      estreita = Math.max(TEXTO_ESTREITA_ATE, maxima / medida.total);
+      if (medida.total * estreita > maxima) {
+        px *= maxima / (medida.total * estreita);
+        medida = medir(px);
+      }
+    }
+  } else {
+    px = (100 * maxima) / Math.max(1, medir(100).total);
+    medida = medir(px);
+  }
+  const total = medida.total * estreita;
+  const alinhar = c.alinhar ?? 'centro';
+  ctx.translate(c.x * escala - (alinhar === 'centro' ? total / 2 : alinhar === 'direita' ? total : 0), 0);
+  ctx.scale(estreita, 1);
+  const base = c.base * escala;
+  let x = 0;
+  pedacos.forEach((pedaco, i) => {
+    if (pedaco === '★') desenharEstrela(ctx, x + medida.larguras[i] / 2, base - (px * capa) / 2, px * capa * 0.56);
+    else ctx.fillText(pedaco, x, base);
+    x += medida.larguras[i] + medida.espaco;
+  });
+  ctx.restore();
+}
+
+function desenharForma(ctx: CanvasRenderingContext2D, c: CamadaForma, tinta: string, escala: number) {
+  ctx.save();
+  girar(ctx, c.giro, escala);
+  // O contorno fica por dentro da medida da forma.
+  const borda = Math.max(0, c.contorno ?? 0) * escala;
+  const w = c.largura * escala - borda;
+  const h = c.altura * escala - borda;
+  const x = c.x * escala - w / 2;
+  const y = c.y * escala - h / 2;
+  const r = Math.max(0, Math.min((c.raio ?? 0) * escala - borda / 2, w / 2, h / 2));
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+  if (borda > 0) {
+    ctx.strokeStyle = tinta;
+    ctx.lineWidth = borda;
+    ctx.stroke();
+  } else {
+    ctx.fillStyle = tinta;
+    ctx.fill();
+  }
   ctx.restore();
 }
 
@@ -166,6 +281,14 @@ const esticar = (c: CamadaNome, x: number, x0: number, escala: number) => {
   return 1 + (c.arco - 1) * u * u;
 };
 
+// Quanto a coluna do nome desce inteira ("curva"): nada no meio da arte e cada vez
+// mais perto das pontas, e o nome todo vira um arco, como em camiseta de turnê.
+const descer = (c: CamadaNome, x: number, x0: number, escala: number) => {
+  if (!c.curva) return 0;
+  const u = Math.min(1.2, Math.abs(x0 + x + 0.5 - c.x * escala) / Math.max(1, (c.largura_maxima * escala) / 2));
+  return c.curva * escala * u * u;
+};
+
 // O nome: redesenhado coluna a coluna a partir do rascunho. Até o topo da maiúscula
 // nada muda (os acentos ficam no lugar); dali para baixo a coluna estica.
 function desenharNome(
@@ -181,8 +304,9 @@ function desenharNome(
   const { tela: rascunho, w, h, acima, x0, topo } = rascunharNome(ctx, c, texto, tinta, escala, fontes, criarTela);
   for (let x = 0; x < w; x++) {
     const s = esticar(c, x, x0, escala);
-    ctx.drawImage(rascunho, x, 0, 1, acima, x0 + x, topo - acima, 1, acima);
-    ctx.drawImage(rascunho, x, acima, 1, h - acima, x0 + x, topo, 1, (h - acima) * s);
+    const d = descer(c, x, x0, escala);
+    ctx.drawImage(rascunho, x, 0, 1, acima, x0 + x, topo - acima + d, 1, acima);
+    ctx.drawImage(rascunho, x, acima, 1, h - acima, x0 + x, topo + d, 1, (h - acima) * s);
   }
   liberarTelas(rascunho);
 }
@@ -240,14 +364,15 @@ function descidasDoNome(
   }
   for (const x of colunas) {
     const s = esticar(c, x, x0, escala);
-    f.drawImage(rascunho, x, base, 1, h - base, x0 + x, topo + alturaDaCapa * s, 1, (h - base) * s);
+    const d = descer(c, x, x0, escala);
+    f.drawImage(rascunho, x, base, 1, h - base, x0 + x, topo + d + alturaDaCapa * s, 1, (h - base) * s);
   }
   const mascara = mascaraComFolga(forma, 0, 0, 9 * escala, W, H, criarTela);
   // O respiro vale só abaixo da linha de base: as letras do nome ficam inteiras.
   const m = contexto(mascara);
   for (let x = -Math.ceil(10 * escala); x < w + Math.ceil(10 * escala); x++) {
     const s = esticar(c, x, x0, escala);
-    m.clearRect(x0 + x, 0, 1, topo + alturaDaCapa * s);
+    m.clearRect(x0 + x, 0, 1, topo + descer(c, x, x0, escala) + alturaDaCapa * s);
   }
   liberarTelas(rascunho);
   return { forma, mascara };
@@ -266,29 +391,41 @@ function mascaraComFolga(forma: Tela, x: number, y: number, folga: number, W: nu
   return mascara;
 }
 
-// A janela de 4:5 onde a foto entra, em unidades da arte. É o quadro do
-// enquadramento da Etapa 3, com a largura do diâmetro do círculo e o mesmo centro:
-// o que está no meio do quadro vai para o meio do círculo.
-// O molde pode encolher e baixar esse quadro ("janela"), para a cabeça chegar
-// encostando na base do nome em vez de passar por cima das letras.
+// A janela onde a foto entra, em unidades da arte. É o quadro do enquadramento da
+// Etapa 3: o que está no meio do quadro vai para o meio da janela.
+// No círculo, ela é de 4:5, com a largura do diâmetro e o mesmo centro, e o molde
+// pode encolher e baixar esse quadro ("janela"), para a cabeça chegar encostando na
+// base do nome em vez de passar por cima das letras. Na foto solta, a largura, a
+// altura e o centro vêm do molde.
 export function janelaDaFoto(c: CamadaFoto) {
+  if (c.formato === 'quadro') {
+    const largura = Math.max(1, c.janela?.largura ?? c.largura);
+    const altura = Math.max(1, c.janela?.altura ?? c.altura);
+    const y = c.janela?.y ?? c.topo + c.altura / 2;
+    return { x: c.x - largura / 2, y: y - altura / 2, largura, altura };
+  }
   const escala = Math.min(1.5, Math.max(0.5, c.janela?.escala ?? 1));
   const raio = c.raio * escala;
   const y = c.y + (c.janela?.desce ?? 0);
   return { x: c.x - raio, y: y - 1.25 * raio, largura: 2 * raio, altura: 2.5 * raio };
 }
 
-function desenharFoto(ctx: CanvasRenderingContext2D, c: CamadaFoto, foto: FotoNoMolde, escala: number) {
+// Onde o recorte cai dentro da arte, em unidades da arte.
+function lugarDaFoto(c: CamadaFoto, foto: FotoNoMolde) {
   const janela = janelaDaFoto(c);
-  const p = posicaoNoQuadro(foto.geometria, foto.enquadramento);
-  const desenhar = () =>
-    ctx.drawImage(
-      foto.imagem,
-      (janela.x + (p.esquerda / 100) * janela.largura) * escala,
-      (janela.y + (p.topo / 100) * janela.altura) * escala,
-      (p.largura / 100) * janela.largura * escala,
-      (p.altura / 100) * janela.altura * escala,
-    );
+  const p = posicaoNoQuadro(foto.geometria, foto.enquadramento, janela.largura / janela.altura);
+  return {
+    janela,
+    x: janela.x + (p.esquerda / 100) * janela.largura,
+    y: janela.y + (p.topo / 100) * janela.altura,
+    w: (p.largura / 100) * janela.largura,
+    h: (p.altura / 100) * janela.altura,
+  };
+}
+
+function desenharFotoNoCirculo(ctx: CanvasRenderingContext2D, c: CamadaFotoCirculo, foto: FotoNoMolde, escala: number) {
+  const { x, y, w, h } = lugarDaFoto(c, foto);
+  const desenhar = () => ctx.drawImage(foto.imagem, x * escala, y * escala, w * escala, h * escala);
   const cx = c.x * escala;
   const cy = c.y * escala;
   const raio = c.raio * escala;
@@ -315,6 +452,43 @@ function desenharFoto(ctx: CanvasRenderingContext2D, c: CamadaFoto, foto: FotoNo
     desenhar();
     ctx.restore();
   }
+}
+
+// A foto solta: o recorte inteiro, cortado só pelo retângulo do molde. Com "fundo",
+// entra a foto com o fundo original no mesmo lugar do recorte (as duas têm o mesmo
+// quadro), aumentada e encostada o quanto for preciso para cobrir o retângulo todo.
+function desenharFotoNoQuadro(ctx: CanvasRenderingContext2D, c: CamadaFotoQuadro, foto: FotoNoMolde, escala: number) {
+  const lugar = lugarDaFoto(c, foto);
+  const { janela } = lugar;
+  let { x, y, w, h } = lugar;
+  const corte = { x: c.x - c.largura / 2, y: c.topo, w: c.largura, h: c.altura };
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(corte.x * escala, corte.y * escala, corte.w * escala, corte.h * escala);
+  ctx.clip();
+  if (c.fundo && foto.inteira) {
+    const aumento = Math.max(1, corte.w / w, corte.h / h);
+    if (aumento > 1) {
+      // Aumenta em volta de quem está na foto, que não sai do lugar.
+      const cx = janela.x + (0.5 + foto.enquadramento.x) * janela.largura;
+      const cy = janela.y + (0.5 + foto.enquadramento.y) * janela.altura;
+      x = cx - (cx - x) * aumento;
+      y = cy - (cy - y) * aumento;
+      w *= aumento;
+      h *= aumento;
+    }
+    x = Math.min(corte.x, Math.max(x, corte.x + corte.w - w));
+    y = Math.min(corte.y, Math.max(y, corte.y + corte.h - h));
+    ctx.drawImage(foto.inteira, x * escala, y * escala, w * escala, h * escala);
+  } else {
+    ctx.drawImage(foto.imagem, x * escala, y * escala, w * escala, h * escala);
+  }
+  ctx.restore();
+}
+
+function desenharFoto(ctx: CanvasRenderingContext2D, c: CamadaFoto, foto: FotoNoMolde, escala: number) {
+  if (c.formato === 'quadro') desenharFotoNoQuadro(ctx, c, foto, escala);
+  else desenharFotoNoCirculo(ctx, c, foto, escala);
 }
 
 // A arte fixa (SVG) vira uma imagem pronta, no tamanho final, uma vez só:
@@ -364,13 +538,15 @@ export async function prepararArte(pedido: Omit<Pedido, 'foto'>, escala: number)
     return fixa;
   };
 
-  const nomes = config.camadas.filter((c): c is CamadaNome => c.tipo === 'nome');
-  for (const camada of config.camadas) {
+  const ano = pedido.ano ?? new Date().getFullYear();
+  for (const [indice, camada] of config.camadas.entries()) {
     if (camada.tipo === 'foto') {
       passos.push({ tipo: 'foto', camada });
       fixa = null;
-      // A cedilha (e o que mais descer da linha de base do nome) volta por cima da foto.
-      for (const nome of nomes) {
+      // A cedilha (e o que mais descer da linha de base de um nome pintado antes da
+      // foto) volta por cima da foto.
+      for (const nome of config.camadas.slice(0, indice)) {
+        if (nome.tipo !== 'nome') continue;
         const texto = textoDoCampo(config, nome.campo, pedido.valores);
         const descidas = descidasDoNome(nome, texto, tinta, escala, pedido.fontes, criarTela, W, H);
         if (!descidas) continue;
@@ -379,11 +555,29 @@ export async function prepararArte(pedido: Omit<Pedido, 'foto'>, escala: number)
         telaFixa().drawImage(descidas.forma, 0, 0);
         liberarTelas(descidas.forma);
       }
-    } else if (camada.tipo === 'texto') desenharTexto(telaFixa(), camada, tinta, escala, pedido.fontes);
+    } else if (camada.tipo === 'texto') {
+      const texto = preencherTexto(camada.texto, config, pedido.valores, ano);
+      if (camada.vazado) {
+        // O texto fura o que está embaixo (a faixa, a foto): aparece o tecido.
+        const mascara = criarTela(W, H);
+        desenharTexto(contexto(mascara), camada, texto, '#000', escala, pedido.fontes);
+        passos.push({ tipo: 'folga', mascara });
+        fixa = null;
+      } else desenharTexto(telaFixa(), camada, texto, tinta, escala, pedido.fontes);
+    } else if (camada.tipo === 'forma') desenharForma(telaFixa(), camada, tinta, escala);
     else if (camada.tipo === 'anel') desenharAnel(telaFixa(), camada, tinta, escala);
     else if (camada.tipo === 'nome') {
       const texto = textoDoCampo(config, camada.campo, pedido.valores);
-      desenharNome(telaFixa(), camada, texto, tinta, escala, pedido.fontes, criarTela);
+      if ((camada.folga ?? 0) > 0) {
+        // Respiro em volta das letras: o nome passa por cima da foto sem se misturar.
+        const tela = criarTela(W, H);
+        desenharNome(contexto(tela), camada, texto, tinta, escala, pedido.fontes, criarTela);
+        const mascara = mascaraComFolga(tela, 0, 0, (camada.folga ?? 0) * escala, W, H, criarTela);
+        passos.push({ tipo: 'folga', mascara });
+        fixa = null;
+        telaFixa().drawImage(tela, 0, 0);
+        liberarTelas(tela);
+      } else desenharNome(telaFixa(), camada, texto, tinta, escala, pedido.fontes, criarTela);
     } else if (camada.tipo === 'arte') {
       const { tela, x, y } = rasterizarArte(
         await pedido.carregarArte(camada.arquivo, tinta),

@@ -56,10 +56,12 @@ export function fontesDaPagina(): Promise<Fontes> {
     const destaque = estilo.getPropertyValue('--font-instrument-serif').trim() || 'Georgia, serif';
     await Promise.all([
       document.fonts.load(`400 100px ${titulo}`),
+      document.fonts.load(`400 100px ${destaque}`),
       document.fonts.load(`italic 400 100px ${destaque}`),
     ]).catch(() => undefined);
     return {
       titulo: { familia: titulo, estilo: 'normal' },
+      destaque: { familia: destaque, estilo: 'normal' },
       'destaque-italico': { familia: destaque, estilo: 'italic' },
     } satisfies Fontes;
   })();

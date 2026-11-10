@@ -8,9 +8,20 @@
 export type Lado = 'frente' | 'costas';
 
 // Papéis de fonte da marca: o site resolve cada um para a fonte carregada.
-export type FonteDoMolde = 'titulo' | 'destaque-italico';
+// titulo: Anton; destaque: Instrument Serif; destaque-italico: a mesma, itálica.
+export type FonteDoMolde = 'titulo' | 'destaque' | 'destaque-italico';
 
-// Texto fixo, centralizado em x, com a base da linha em "base" e a largura dada.
+// Giro de uma camada, em graus (positivo: sentido horário), em volta de um ponto.
+export type Giro = { graus: number; x: number; y: number };
+
+// Texto fixo, com a base da linha em "base".
+// Sem "altura", o texto é esticado até ocupar a "largura" (o jeito do Fã-Clube).
+// Com "altura" (a altura da maiúscula), o tamanho é esse e a "largura" vira o
+// máximo: texto mais largo que ela é estreitado.
+// O texto pode levar {ano} (o ano do pedido) e o valor de um campo ({nome},
+// {desde}), e ★ vira uma estrela desenhada. "espaco" abre as letras (em frações
+// do tamanho da letra). "vazado" faz o texto furar o que está embaixo (a faixa),
+// deixando aparecer o tecido. Tudo isso é opcional.
 export type CamadaTexto = {
   tipo: 'texto';
   texto: string;
@@ -18,6 +29,24 @@ export type CamadaTexto = {
   x: number;
   base: number;
   largura: number;
+  altura?: number;
+  espaco?: number;
+  alinhar?: 'centro' | 'esquerda' | 'direita';
+  vazado?: boolean;
+  giro?: Giro;
+};
+
+// Retângulo de tinta, com centro em x e y: cheio (uma faixa) ou, com "contorno",
+// só a linha (uma moldura, um selo). "raio" arredonda os cantos.
+export type CamadaForma = {
+  tipo: 'forma';
+  x: number;
+  y: number;
+  largura: number;
+  altura: number;
+  raio?: number;
+  contorno?: number;
+  giro?: Giro;
 };
 
 // Anel em volta da foto.
@@ -34,6 +63,10 @@ export type CamadaAnel = {
 // fica mais alta que uma no meio). Nome curto fica no meio e quase não desce.
 // Nomes longos primeiro estreitam as letras (até "compressao_maxima") e só
 // depois diminuem.
+//
+// "curva" faz o nome inteiro subir no meio, como um arco (quantas unidades as pontas
+// da largura máxima ficam abaixo do meio). "folga" abre um respiro em volta das
+// letras, apagando o que estiver embaixo (para o nome passar por cima da foto).
 export type CamadaNome = {
   tipo: 'nome';
   campo: string;
@@ -44,6 +77,8 @@ export type CamadaNome = {
   altura_no_centro: number;
   arco: number;
   compressao_maxima: number;
+  curva?: number;
+  folga?: number;
 };
 
 // A foto do cliente, recortada pelo círculo. Na metade de cima, ela pode passar do
@@ -53,7 +88,7 @@ export type CamadaNome = {
 // "janela" ajusta o quadro onde a foto entra: "escala" encolhe o quadro (1 é o
 // diâmetro do círculo) e "desce" baixa o centro dele. É o que decide onde a cabeça
 // fica quando a foto chega: encostando na base do nome, sem esconder as letras.
-export type CamadaFoto = {
+export type CamadaFotoCirculo = {
   tipo: 'foto';
   formato: 'circulo';
   x: number;
@@ -62,6 +97,30 @@ export type CamadaFoto = {
   vaza_acima: number;
   janela?: { escala?: number; desce?: number };
 };
+
+// A foto do cliente solta, sem círculo: o recorte aparece inteiro, e um retângulo
+// (centro em x, de "topo" até topo + altura) corta o que passar dele: é o que
+// esconde a base do recorte atrás de uma faixa.
+//
+// "janela" é o quadro onde quem está na foto se encaixa (ocupando 90% dele): a
+// largura, a altura e o centro na vertical. Sem ela, é o próprio retângulo. É ela
+// que diz o tamanho com que a foto chega: do nome até a faixa, por exemplo.
+//
+// Com "fundo", a foto entra com o fundo original (o pôster de cinema) e sempre
+// cobre o retângulo inteiro. Sem a foto com fundo guardada no aparelho, entra o
+// recorte sobre um painel de tinta.
+export type CamadaFotoQuadro = {
+  tipo: 'foto';
+  formato: 'quadro';
+  x: number;
+  topo: number;
+  largura: number;
+  altura: number;
+  janela?: { largura?: number; altura?: number; y?: number };
+  fundo?: boolean;
+};
+
+export type CamadaFoto = CamadaFotoCirculo | CamadaFotoQuadro;
 
 // Arte fixa em SVG de uma tinta só (a cor vem de currentColor). "folga" abre um
 // respiro em volta dela, apagando o que estiver embaixo (foto, anel, nome).
@@ -74,13 +133,15 @@ export type CamadaArte = {
   folga: number;
 };
 
-export type Camada = CamadaTexto | CamadaAnel | CamadaNome | CamadaFoto | CamadaArte;
+export type Camada = CamadaTexto | CamadaAnel | CamadaNome | CamadaFoto | CamadaArte | CamadaForma;
 
+// "exemplo" é o que aparece na arte enquanto o campo está vazio (sem ele, o rótulo).
 export type Campo = {
   chave: string;
   rotulo: string;
   max: number;
   caixa: 'alta' | 'livre';
+  exemplo?: string;
 };
 
 export type ConfigDoMolde = {

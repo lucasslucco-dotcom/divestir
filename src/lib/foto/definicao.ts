@@ -32,10 +32,12 @@ export function definicaoDaEstampa(
   // Largura do quadro da foto dentro da arte, em fração da largura da arte.
   quadroNaArte: number,
   larguraDaEstampaCm: number = LARGURA_PADRAO_DA_ESTAMPA_CM,
+  // Largura ÷ altura do quadro da foto no design (sem isso, 4:5).
+  proporcaoDoQuadro?: number,
 ): Definicao | null {
   if (!foto.escalaDaOriginal || quadroNaArte <= 0 || larguraDaEstampaCm <= 0) return null;
   // Largura do recorte inteiro, em frações do quadro; daí, em centímetros impressos.
-  const larguraNoQuadro = posicaoNoQuadro(foto.geometria, foto.enquadramento).largura / 100;
+  const larguraNoQuadro = posicaoNoQuadro(foto.geometria, foto.enquadramento, proporcaoDoQuadro).largura / 100;
   const centimetros = larguraNoQuadro * quadroNaArte * larguraDaEstampaCm;
   if (centimetros <= 0) return null;
   const dpi = (foto.geometria.largura * foto.escalaDaOriginal) / (centimetros / 2.54);

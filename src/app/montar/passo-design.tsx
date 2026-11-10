@@ -2,7 +2,7 @@
 
 import { useId, useSyncExternalStore } from 'react';
 import type { Cor, Peca } from '@/lib/catalogo';
-import type { Design, Lado } from '@/lib/molde/tipos';
+import { tirarSimbolosDaEstampa, type Design, type Lado } from '@/lib/molde/tipos';
 import { TelaDaPrevia, type FotoDaPrevia } from './tela-da-previa';
 
 // Passo 4: o design. Cada miniatura já vem com a foto e o nome do cliente, não com
@@ -138,14 +138,35 @@ export function PassoDesign({
             id={`${id}-${campo.chave}`}
             type="text"
             value={valores[campo.chave] ?? ''}
-            onChange={(evento) => aoMudarCampo(campo.chave, evento.target.value.slice(0, campo.max))}
+            // Como no nome: emoji e símbolos não saem na estampa e nem entram aqui.
+            onChange={(evento) =>
+              aoMudarCampo(
+                campo.chave,
+                (evento.nativeEvent as InputEvent).isComposing
+                  ? evento.target.value.slice(0, campo.max)
+                  : tirarSimbolosDaEstampa(evento.target.value).slice(0, campo.max),
+              )
+            }
+            onBlur={(evento) =>
+              aoMudarCampo(campo.chave, tirarSimbolosDaEstampa(evento.target.value).slice(0, campo.max))
+            }
+            onKeyDown={(evento) => {
+              if (evento.key === 'Enter') evento.currentTarget.blur();
+            }}
             maxLength={campo.max}
+            inputMode={campo.exemplo && /^\d+$/.test(campo.exemplo) ? 'numeric' : undefined}
             autoComplete="off"
             enterKeyHint="done"
+            aria-describedby={campo.exemplo ? `${id}-${campo.chave}-ajuda` : undefined}
             className={`mt-2 h-12 w-full max-w-[22rem] rounded-md border border-verde bg-creme px-4 text-lg leading-none font-semibold outline-offset-2 focus-visible:outline-2 focus-visible:outline-verde ${
               campo.caixa === 'alta' ? 'tracking-[0.04em] uppercase' : ''
             }`}
           />
+          {campo.exemplo ? (
+            <p id={`${id}-${campo.chave}-ajuda`} className="mt-2 text-[0.9375rem] leading-snug">
+              Vai na estampa. Por exemplo: {campo.exemplo}.
+            </p>
+          ) : null}
         </div>
       ))}
 

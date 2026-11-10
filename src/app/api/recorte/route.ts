@@ -71,7 +71,9 @@ export async function POST(request: Request) {
   envio.append('image_file', foto, ehHeic(foto) ? 'foto.heic' : 'foto.jpg');
   envio.append('format', 'webp'); // mantém a transparência com arquivo leve
   envio.append('size', 'hd'); // até 4 megapixels, de sobra para a prévia
-  envio.append('crop', 'true'); // corta a sobra transparente em volta do protagonista
+  // Sem cortar a sobra em volta: o recorte fica no mesmo quadro da foto enviada, e os
+  // designs que usam a foto com o fundo (o pôster de cinema) encaixam uma na outra.
+  envio.append('crop', 'false');
 
   let resposta: Response;
   try {
@@ -104,6 +106,7 @@ export async function POST(request: Request) {
       'Content-Type': tipo,
       'Cache-Control': 'no-store',
       'X-Recorte-Modo': teste ? 'teste' : 'producao',
+      'X-Recorte-Quadro': 'inteiro',
       'X-Recorte-Guardado': guardado ? 'sim' : 'nao',
     },
   });

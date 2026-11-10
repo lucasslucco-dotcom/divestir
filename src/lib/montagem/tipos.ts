@@ -18,6 +18,9 @@ export type FotoDaMontagem = {
   aprovada: boolean;
   // Recorte feito no modo de teste do Photoroom (sai com marca d'água).
   teste: boolean;
+  // A foto com o fundo original também está guardada no aparelho, no mesmo quadro do
+  // recorte (para os designs que usam a foto inteira, como o pôster de cinema).
+  inteira: boolean;
   // Como ficou o envio da foto original para o espaço privado.
   original: 'enviando' | 'enviada' | 'falhou' | 'sem-vaga';
   criadaEm: string;
@@ -158,6 +161,7 @@ export function lerFoto(valor: unknown): FotoDaMontagem | null {
     enquadramento: enquadramento(f.enquadramento),
     aprovada: f.aprovada === true,
     teste: f.teste === true,
+    inteira: f.inteira === true,
     // "enviando" só vale enquanto o envio está acontecendo nesta aba: quem lê o que
     // está guardado confere isso (guardar.ts).
     original:

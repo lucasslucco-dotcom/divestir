@@ -11,6 +11,7 @@ import { pedirRecorte, prepararParaRecorte } from '@/lib/foto/recorte';
 import {
   acompanharEnvio,
   apagarRecortesFora,
+  chaveDaInteira,
   guardarCarrinho,
   guardarMontagem,
   guardarRecorte,
@@ -37,6 +38,8 @@ import type { ArteDaPrevia, FotoDaPrevia, MudarEnquadramento } from './tela-da-p
 // navegador; se ela fechar a aba, volta de onde parou, com a foto.
 
 type VagaEmAndamento = Promise<{ vaga: Vaga; envio: Promise<boolean> } | null>;
+// O recorte em uso e, se houver, a mesma foto com o fundo (endereços temporários).
+type RecorteEmUso = { chave: string; url: string; inteira: string | null };
 type Processo = { id: number; arquivo: File; url: string; vaga: VagaEmAndamento; largura?: number; altura?: number };
 
 const suave = (): ScrollBehavior => (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
@@ -50,13 +53,13 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   // Peças de pedidos feitos neste navegador: as fotos delas também podem ser reaproveitadas.
   const [jaPedidas, setJaPedidas] = useState<ItemDoCarrinho[]>([]);
   const [restaurada, setRestaurada] = useState(false);
-  const [recorte, setRecorte] = useState<{ chave: string; url: string } | null>(null);
+  const [recorte, setRecorte] = useState<RecorteEmUso | null>(null);
   const [envio, setEnvio] = useState<EnvioDaFoto | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [vista, setVista] = useState<Vista | null>(null);
   const [compacta, setCompacta] = useState(false);
   const processo = useRef<Processo | null>(null);
-  const recorteAtual = useRef<{ chave: string; url: string } | null>(null);
+  const recorteAtual = useRef<RecorteEmUso | null>(null);
   const raiz = useRef<HTMLDivElement>(null);
   const doca = useRef<HTMLDivElement>(null);
   const idDaDica = useId();
@@ -87,11 +90,12 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   }, [montagem, restaurada]);
 
   // O recorte em uso: um endereço temporário do navegador, liberado quando sai de cena.
-  const trocarRecorte = useCallback((novo: { chave: string; url: string } | null) => {
+  const trocarRecorte = useCallback((novo: RecorteEmUso | null) => {
     const antigo = recorteAtual.current;
-    if (antigo && antigo.url !== novo?.url) {
-      URL.revokeObjectURL(antigo.url);
-      esquecerImagem(antigo.url);
+    for (const url of [antigo?.url, antigo?.inteira]) {
+      if (!url || url === novo?.url || url === novo?.inteira) continue;
+      URL.revokeObjectURL(url);
+      esquecerImagem(url);
     }
     recorteAtual.current = novo;
     setRecorte(novo);
@@ -99,22 +103,29 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
 
   // Foto guardada de uma visita anterior: o recorte volta do armazenamento do navegador.
   const chaveDaFoto = montagem.foto?.chave ?? null;
+  const temInteira = montagem.foto?.inteira ?? false;
   useEffect(() => {
     if (!chaveDaFoto || recorteAtual.current?.chave === chaveDaFoto) return;
     let ativo = true;
-    void lerRecorte(chaveDaFoto).then((arquivo) => {
-      if (!ativo) return;
-      if (!arquivo) {
-        despachar({ tipo: 'sem-foto' });
-        setAviso('A foto que você tinha mandado não ficou guardada neste aparelho. Manda de novo?');
-        return;
-      }
-      trocarRecorte({ chave: chaveDaFoto, url: URL.createObjectURL(arquivo) });
-    });
+    void Promise.all([lerRecorte(chaveDaFoto), temInteira ? lerRecorte(chaveDaInteira(chaveDaFoto)) : null]).then(
+      ([arquivo, inteira]) => {
+        if (!ativo) return;
+        if (!arquivo) {
+          despachar({ tipo: 'sem-foto' });
+          setAviso('A foto que você tinha mandado não ficou guardada neste aparelho. Manda de novo?');
+          return;
+        }
+        trocarRecorte({
+          chave: chaveDaFoto,
+          url: URL.createObjectURL(arquivo),
+          inteira: inteira ? URL.createObjectURL(inteira) : null,
+        });
+      },
+    );
     return () => {
       ativo = false;
     };
-  }, [chaveDaFoto, trocarRecorte]);
+  }, [chaveDaFoto, temInteira, trocarRecorte]);
 
   // Recortes que nenhuma montagem, peça do carrinho ou pedido usa mais saem do navegador.
   const chavesEmUso = [montagem.foto?.chave, ...carrinho.itens.map((item) => item.foto.chave)]
@@ -125,7 +136,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
     if (!restaurada) return;
     const espera = setTimeout(() => {
       const emUso = recortesEmUso(null, lerCarrinhoGuardado());
-      for (const chave of chavesEmUso.split('|')) if (chave) emUso.add(chave);
+      for (const chave of chavesEmUso.split('|')) if (chave) emUso.add(chave).add(chaveDaInteira(chave));
       void apagarRecortesFora(emUso);
     }, 3000);
     return () => clearTimeout(espera);
@@ -165,7 +176,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
     if (processo.current?.id !== id) return;
     if (!reduzida) return falhar('Não consegui preparar essa foto. Tenta mandar em JPG?');
     try {
-      const { url, recorte: arquivoDoRecorte, teste } = await pedirRecorte(reduzida, vaga?.vaga);
+      const { url, recorte: arquivoDoRecorte, teste, inteiro } = await pedirRecorte(reduzida, vaga?.vaga);
       const geometria = await medirRecorte(url).catch(() => null);
       if (processo.current?.id !== id || !geometria) {
         URL.revokeObjectURL(url);
@@ -174,7 +185,16 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
       }
       const chave = vaga?.vaga.id ?? codigoNovo();
       void guardarRecorte(chave, arquivoDoRecorte);
-      trocarRecorte({ chave, url });
+      // A foto com o fundo fica guardada junto quando o recorte veio no mesmo quadro
+      // dela (a proporção confere): é o que o design do pôster de cinema usa.
+      const proporcaoDaFoto = atual.largura && atual.altura ? atual.largura / atual.altura : 0;
+      const mesmoQuadro =
+        inteiro &&
+        reduzida.nome.endsWith('.jpg') &&
+        proporcaoDaFoto > 0 &&
+        Math.abs(geometria.largura / geometria.altura / proporcaoDaFoto - 1) < 0.02;
+      if (mesmoQuadro) void guardarRecorte(chaveDaInteira(chave), reduzida.foto);
+      trocarRecorte({ chave, url, inteira: mesmoQuadro ? URL.createObjectURL(reduzida.foto) : null });
       despachar({
         tipo: 'foto',
         foto: {
@@ -186,6 +206,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
           enquadramento: ENQUADRAMENTO_INICIAL,
           aprovada: false,
           teste,
+          inteira: mesmoQuadro,
           original: vaga ? 'enviando' : 'sem-vaga',
           criadaEm: new Date().toISOString(),
         },
@@ -250,13 +271,20 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   }
 
   async function reaproveitar(item: FotoReaproveitavel) {
-    const arquivo = await lerRecorte(item.foto.chave);
+    const [arquivo, inteira] = await Promise.all([
+      lerRecorte(item.foto.chave),
+      item.foto.inteira ? lerRecorte(chaveDaInteira(item.foto.chave)) : null,
+    ]);
     if (!arquivo) {
       setAviso('Essa foto não está mais guardada neste aparelho. Manda de novo?');
       return;
     }
     setAviso(null);
-    trocarRecorte({ chave: item.foto.chave, url: URL.createObjectURL(arquivo) });
+    trocarRecorte({
+      chave: item.foto.chave,
+      url: URL.createObjectURL(arquivo),
+      inteira: inteira ? URL.createObjectURL(inteira) : null,
+    });
     despachar({ tipo: 'foto', foto: { ...item.foto, aprovada: true }, campos: item.campos });
     setVista('perto');
   }
@@ -267,7 +295,12 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   const fotoDaPrevia = useMemo<FotoDaPrevia | null>(
     () =>
       montagem.foto && recorte && recorte.chave === montagem.foto.chave
-        ? { url: recorte.url, geometria: montagem.foto.geometria, enquadramento: montagem.foto.enquadramento }
+        ? {
+            url: recorte.url,
+            geometria: montagem.foto.geometria,
+            enquadramento: montagem.foto.enquadramento,
+            inteira: recorte.inteira,
+          }
         : null,
     [montagem.foto, recorte],
   );
@@ -443,12 +476,14 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   // A definição da estampa com este enquadramento: quem aparece pequeno na foto, ou
   // com muito zoom, sai com poucos pontos na peça impressa.
   const camadaDaFoto = r.design?.config.camadas.find((c): c is CamadaFoto => c.tipo === 'foto');
+  const quadroDaFoto = camadaDaFoto ? janelaDaFoto(camadaDaFoto) : null;
   const definicao =
-    montagem.foto && camadaDaFoto
+    montagem.foto && quadroDaFoto
       ? definicaoDaEstampa(
           montagem.foto,
-          janelaDaFoto(camadaDaFoto).largura / LARGURA_DA_ARTE,
+          quadroDaFoto.largura / LARGURA_DA_ARTE,
           r.peca.areas[r.lado]?.largura_cm ?? LARGURA_PADRAO_DA_ESTAMPA_CM,
+          quadroDaFoto.largura / quadroDaFoto.altura,
         )
       : null;
   const vistaGrande: Vista = ajustando

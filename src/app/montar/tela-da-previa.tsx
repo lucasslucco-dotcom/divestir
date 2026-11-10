@@ -29,7 +29,13 @@ import { IconeCarregando } from './icones';
 // nome do cliente (ou a marca no peito). Serve para a prévia grande, as vistas
 // pequenas, as miniaturas dos designs, as cores e o resumo.
 
-export type FotoDaPrevia = { url: string; geometria: Geometria; enquadramento: Enquadramento };
+// "inteira": a mesma foto com o fundo original (para os designs que usam a foto toda).
+export type FotoDaPrevia = {
+  url: string;
+  geometria: Geometria;
+  enquadramento: Enquadramento;
+  inteira?: string | null;
+};
 
 export type ArteDaPrevia =
   | { tipo: 'design'; design: Design; valores: Record<string, string>; foto: FotoDaPrevia | null }
@@ -60,6 +66,7 @@ type Preparo = {
   arte: ArtePreparada | null;
   marca: Tela | null;
   foto: HTMLImageElement | null;
+  fotoInteira: HTMLImageElement | null;
   telaDaArte: Tela | null;
   // Janela da foto na tela, em frações da tela (para arrastar e dar zoom).
   janelaDaFoto: { x: number; y: number; largura: number; altura: number } | null;
@@ -150,6 +157,7 @@ export function TelaDaPrevia({
     arte ? arte.design.slug : '-',
     arte?.tipo === 'design' ? JSON.stringify(arte.valores) : '',
     foto?.url ?? '-',
+    foto?.inteira ?? '-',
   ].join('|');
 
   // Ao sair da tela, a prévia devolve a memória das telas que preparou.
@@ -209,15 +217,23 @@ export function TelaDaPrevia({
       let artePreparada: ArtePreparada | null = null;
       let marca: Tela | null = null;
       let imagemDaFoto: HTMLImageElement | null = null;
+      let imagemInteira: HTMLImageElement | null = null;
       if (arte && area) {
         const fontes = await fontesDaPagina();
         if (arte.tipo === 'design') {
-          [artePreparada, imagemDaFoto] = await Promise.all([
+          // A foto com fundo só é aberta para o design que usa (o pôster de cinema).
+          const comFundo = arte.design.config.camadas.some(
+            (c) => c.tipo === 'foto' && c.formato === 'quadro' && c.fundo,
+          );
+          [artePreparada, imagemDaFoto, imagemInteira] = await Promise.all([
             prepararArte(
               { config: arte.design.config, corDaPeca, valores: arte.valores, fontes, carregarArte },
               larguraDaEstampa / LARGURA_DA_ARTE,
             ),
             arte.foto ? carregarImagem(arte.foto.url) : Promise.resolve(null),
+            arte.foto?.inteira && comFundo
+              ? carregarImagem(arte.foto.inteira).catch(() => null)
+              : Promise.resolve(null),
           ]);
         } else {
           const tinta = tintaDaCor(arte.design.config, corDaPeca);
@@ -236,6 +252,7 @@ export function TelaDaPrevia({
         arte: artePreparada,
         marca,
         foto: imagemDaFoto,
+        fotoInteira: imagemInteira,
         telaDaArte: null,
         janelaDaFoto:
           arte?.tipo === 'design' && area ? janelaDaFotoNaTela(arte.design.config, area, tamanhoDaFoto, janela) : null,
@@ -272,7 +289,9 @@ export function TelaDaPrevia({
         let arteNaTela: Tela | null = p.marca;
         if (p.arte) {
           const fotoNoMolde =
-            p.foto && geometria && enquadramento ? { imagem: p.foto, geometria, enquadramento } : null;
+            p.foto && geometria && enquadramento
+              ? { imagem: p.foto, geometria, enquadramento, inteira: p.fotoInteira }
+              : null;
           arteNaTela = p.arte.desenhar(fotoNoMolde, p.telaDaArte ?? undefined);
           p.telaDaArte = arteNaTela;
         }

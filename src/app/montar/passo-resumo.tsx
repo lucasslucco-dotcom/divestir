@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { limparTextoDaEstampa } from '@/lib/molde/tipos';
 import type { Falta, Resolvida } from './estado';
 import { IconeSim } from './icones';
 import { linkDeTexto } from './passo-foto';
@@ -87,6 +88,13 @@ export function PassoResumo({
     ['Cor', r.cor.nome],
     ['Design', r.design?.nome ?? '—'],
     ['Nome', nome ? nome.toLocaleUpperCase('pt-BR') : '—'],
+    // Os outros textos que o design pede (o ano do "Em Cartaz").
+    ...(r.design?.config.campos ?? [])
+      .filter((campo) => campo.chave !== 'nome')
+      .map((campo): [string, string] => [
+        campo.rotulo.replace(/\?$/, ''),
+        limparTextoDaEstampa(valores[campo.chave] ?? '').toLocaleUpperCase('pt-BR') || '—',
+      ]),
     [
       'Estampa',
       r.lado === 'costas' ? (r.marcaNoPeito ? 'Nas costas, com DIVESTIR no peito' : 'Nas costas') : 'Na frente',

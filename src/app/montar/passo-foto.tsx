@@ -199,13 +199,21 @@ function FotoGuardada({ item, aoUsar }: { item: FotoReaproveitavel; aoUsar: () =
     };
   }, [item.foto.chave]);
   const nome = item.campos.nome?.trim();
+  // O recorte guarda o quadro da foto inteira: a miniatura mostra só quem aparece.
+  const { largura, caixa } = item.foto.geometria;
+  const k = Math.min(1 / caixa.largura, 1.25 / caixa.altura);
+  const lugar = {
+    width: `${largura * k * 100}%`,
+    left: `${((1 - caixa.largura * k) / 2 - caixa.x * k) * 100}%`,
+    top: `${(((1.25 - caixa.altura * k) / 2 - caixa.y * k) / 1.25) * 100}%`,
+  };
   return (
     <li className="w-24 shrink-0">
       <button type="button" onClick={aoUsar} className="group block w-full cursor-pointer text-left">
-        <span className="block aspect-[4/5] overflow-hidden rounded-xl bg-estudio outline-offset-2 group-hover:outline-1 group-hover:outline-verde group-focus-visible:outline-2 group-focus-visible:outline-verde">
+        <span className="relative block aspect-[4/5] overflow-hidden rounded-xl bg-estudio outline-offset-2 group-hover:outline-1 group-hover:outline-verde group-focus-visible:outline-2 group-focus-visible:outline-verde">
           {url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={url} alt="" className="size-full object-contain" />
+            <img src={url} alt="" style={lugar} className="absolute h-auto max-w-none" />
           ) : null}
         </span>
         <span className="mt-1.5 block truncate text-sm leading-5 font-semibold">

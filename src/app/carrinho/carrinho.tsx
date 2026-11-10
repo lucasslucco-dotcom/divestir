@@ -12,6 +12,8 @@ import {
   acompanharCarrinho,
   guardarCarrinho,
   lerCarrinhoGuardado,
+  chaveDaInteira,
+  chavesDasFotos,
   lerRecorte,
   prepararEdicao,
   prepararNovaMontagem,
@@ -105,10 +107,13 @@ export function useRecortes(chaves: string[]) {
 export function MiniaturaDaPeca({
   linha,
   recorte,
+  inteira,
   className = 'w-24 sm:w-28',
 }: {
   linha: LinhaDoCarrinho;
   recorte: string | null | undefined;
+  // A foto com fundo, para o design que usa (vem do mesmo useRecortes).
+  inteira?: string | null;
   className?: string;
 }) {
   const { item, previa } = linha;
@@ -124,7 +129,7 @@ export function MiniaturaDaPeca({
             tipo: 'design',
             design: previa.design,
             valores: item.campos,
-            foto: { url: recorte, geometria: item.foto.geometria, enquadramento: item.foto.enquadramento },
+            foto: { url: recorte, geometria: item.foto.geometria, enquadramento: item.foto.enquadramento, inteira },
           }}
           perto
           rotulo={`Prévia ilustrativa: ${previa.design.nome} com o nome ${nomeNaArte}, ${minusculo(linha.nome)}`}
@@ -315,7 +320,7 @@ export function Carrinho({
   const [carrinho, setCarrinho] = useState<CarrinhoGuardado | null>(null);
   const [removida, setRemovida] = useState<{ item: ItemDoCarrinho; indice: number; nome: string } | null>(null);
   const [avisoDoBotao, setAvisoDoBotao] = useState<string | null>(null);
-  const recortes = useRecortes(carrinho?.itens.map((i) => i.foto.chave) ?? []);
+  const recortes = useRecortes(chavesDasFotos(carrinho?.itens.map((i) => i.foto) ?? []));
 
   // O carrinho mora no navegador: lido depois de a página abrir, e acompanhado se
   // outra aba mexer nele.
@@ -397,7 +402,11 @@ export function Carrinho({
                 className="scroll-mt-6 border-t border-verde py-6 first:border-t-0 first:pt-2"
               >
                 <div className="flex gap-4">
-                  <MiniaturaDaPeca linha={linha} recorte={recortes[item.foto.chave]} />
+                  <MiniaturaDaPeca
+                    linha={linha}
+                    recorte={recortes[item.foto.chave]}
+                    inteira={recortes[chaveDaInteira(item.foto.chave)]}
+                  />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-x-4">
                       <h2 className="min-w-0 text-lg leading-snug font-semibold">{linha.nome}</h2>

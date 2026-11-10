@@ -6,7 +6,13 @@ import type { Catalogo } from '@/lib/catalogo';
 import type { SituacaoDoPedido } from '@/lib/checkout';
 import { codigoNovo } from '@/lib/foto/guardar';
 import { MINUTOS_DO_PIX, PRAZO_DE_PERSONALIZACAO, reais } from '@/lib/loja';
-import { lerPedidoGuardado, prepararNovaMontagem, tirarDoCarrinho } from '@/lib/montagem/guardar';
+import {
+  chaveDaInteira,
+  chavesDasFotos,
+  lerPedidoGuardado,
+  prepararNovaMontagem,
+  tirarDoCarrinho,
+} from '@/lib/montagem/guardar';
 import type { PedidoGuardado } from '@/lib/montagem/tipos';
 import type { Design } from '@/lib/molde/tipos';
 import { AvisoDeTeste, linhasDoCarrinho, MiniaturaDaPeca, useRecortes } from '../../carrinho/carrinho';
@@ -115,7 +121,7 @@ export function Pedido({
   const [email, setEmail] = useState<string | null>(null);
   const agora = useAgora();
   const atual = useRef<Situacao | null>(null);
-  const recortes = useRecortes(guardado?.itens.map((i) => i.foto.chave) ?? []);
+  const recortes = useRecortes(chavesDasFotos(guardado?.itens.map((i) => i.foto) ?? []));
 
   const carregar = useCallback(
     async (pergunta = '?pix=1') => {
@@ -279,6 +285,7 @@ export function Pedido({
             <MiniaturaDaPeca
               linha={linha}
               recorte={recortes[linha.item.foto.chave]}
+              inteira={recortes[chaveDaInteira(linha.item.foto.chave)]}
               className={forma === 'grade' ? 'w-full' : 'w-14'}
             />
             <div className="min-w-0">

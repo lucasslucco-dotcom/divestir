@@ -171,13 +171,20 @@ export function guardarPedido(pedido: PedidoGuardado) {
   gravar(CHAVE_DOS_PEDIDOS, { versao: 1, pedidos: [pedido, ...outros].slice(0, 20) });
 }
 
-// Os recortes que ainda servem: o da montagem, os do carrinho e os dos pedidos.
+// A foto com o fundo original fica guardada ao lado do recorte, com esta chave.
+export const chaveDaInteira = (chave: string) => `${chave}:inteira`;
+
+// As chaves do que cada foto tem guardado: o recorte e, se houver, a foto com fundo.
+export const chavesDasFotos = (fotos: { chave: string; inteira: boolean }[]) =>
+  fotos.flatMap((foto) => (foto.inteira ? [foto.chave, chaveDaInteira(foto.chave)] : [foto.chave]));
+
+// Os recortes que ainda servem: o da montagem, os do carrinho e os dos pedidos (e a
+// foto com fundo de cada um).
 export function recortesEmUso(montagem: Montagem | null, carrinho: Carrinho): Set<string> {
-  const chaves = new Set<string>();
-  if (montagem?.foto) chaves.add(montagem.foto.chave);
-  for (const item of carrinho.itens) chaves.add(item.foto.chave);
-  for (const pedido of lerPedidosGuardados()) for (const item of pedido.itens) chaves.add(item.foto.chave);
-  return chaves;
+  const fotos = carrinho.itens.map((item) => item.foto);
+  if (montagem?.foto) fotos.push(montagem.foto);
+  for (const pedido of lerPedidosGuardados()) for (const item of pedido.itens) fotos.push(item.foto);
+  return new Set(fotos.flatMap((foto) => [foto.chave, chaveDaInteira(foto.chave)]));
 }
 
 // Os recortes, no IndexedDB do navegador.

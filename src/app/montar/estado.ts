@@ -138,7 +138,10 @@ export function oQueFalta(m: Montagem, r: Resolvida | null): Falta[] {
     falta.push(
       campo.chave === 'nome'
         ? { texto: 'dar o nome', passo: 'nome' }
-        : { texto: `preencher ${campo.rotulo.toLocaleLowerCase('pt-BR')}`, passo: 'design' },
+        : // "Desde que ano?" vira "dizer desde que ano".
+          campo.rotulo.trim().endsWith('?')
+          ? { texto: `dizer ${campo.rotulo.trim().slice(0, -1).toLocaleLowerCase('pt-BR')}`, passo: 'design' }
+          : { texto: `preencher ${campo.rotulo.toLocaleLowerCase('pt-BR')}`, passo: 'design' },
     );
   }
   if (!r?.design) falta.push({ texto: 'escolher um design', passo: 'design' });

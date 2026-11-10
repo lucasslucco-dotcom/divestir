@@ -46,9 +46,11 @@ export function ehInicial(e: Enquadramento) {
   return Math.abs(e.x) < 0.001 && Math.abs(e.y) < 0.001 && Math.abs(e.zoom - 1) < 0.001;
 }
 
-// Posição do recorte dentro do quadro, em % do quadro (para o CSS).
-export function posicaoNoQuadro(g: Geometria, e: Enquadramento) {
-  const alturaDoQuadro = 1 / PROPORCAO_DO_QUADRO; // em larguras do quadro
+// Posição do recorte dentro do quadro, em % do quadro (para o CSS). O quadro é de
+// 4:5, a não ser que o design tenha um lugar de outra proporção para a foto
+// ("proporcao": largura ÷ altura).
+export function posicaoNoQuadro(g: Geometria, e: Enquadramento, proporcao = PROPORCAO_DO_QUADRO) {
+  const alturaDoQuadro = 1 / proporcao; // em larguras do quadro
   const base = Math.min(OCUPACAO / g.caixa.largura, (OCUPACAO * alturaDoQuadro) / g.caixa.altura);
   const escala = base * e.zoom;
   const centroX = g.caixa.x + g.caixa.largura / 2;

@@ -13,7 +13,14 @@ import {
 } from '@/lib/checkout';
 import { codigoNovo } from '@/lib/foto/guardar';
 import { MAX_PARCELAS, PRAZO_DE_PERSONALIZACAO, precoDoPresente, reais, somar } from '@/lib/loja';
-import { esperarEnvios, guardarCarrinho, guardarPedido, lerCarrinhoGuardado } from '@/lib/montagem/guardar';
+import {
+  chaveDaInteira,
+  chavesDasFotos,
+  esperarEnvios,
+  guardarCarrinho,
+  guardarPedido,
+  lerCarrinhoGuardado,
+} from '@/lib/montagem/guardar';
 import type { Carrinho } from '@/lib/montagem/tipos';
 import type { Design } from '@/lib/molde/tipos';
 import {
@@ -252,7 +259,12 @@ function Resumo({
       <ul className="mt-4 space-y-3">
         {linhas.map((linha) => (
           <li key={linha.item.id} className="flex items-start gap-3">
-            <MiniaturaDaPeca linha={linha} recorte={recortes[linha.item.foto.chave]} className="w-14" />
+            <MiniaturaDaPeca
+              linha={linha}
+              recorte={recortes[linha.item.foto.chave]}
+              inteira={recortes[chaveDaInteira(linha.item.foto.chave)]}
+              className="w-14"
+            />
             <div className="min-w-0 flex-1 text-[0.9375rem] leading-snug">
               <p className="font-semibold">{(linha.item.campos.nome ?? '').toLocaleUpperCase('pt-BR') || linha.nome}</p>
               <p>
@@ -331,7 +343,7 @@ export function Checkout({
   const [esperandoFoto, setEsperandoFoto] = useState(false);
   const [falha, setFalha] = useState<{ mensagem: string; carrinho?: boolean } | null>(null);
   const cotacao = useRef<AbortController | null>(null);
-  const recortes = useRecortes(carrinho?.itens.map((i) => i.foto.chave) ?? []);
+  const recortes = useRecortes(chavesDasFotos(carrinho?.itens.map((i) => i.foto) ?? []));
 
   const presente = precoDoPresente(modoDeTeste);
   const temPresente = !!carrinho?.itens.some((i) => i.presente);
