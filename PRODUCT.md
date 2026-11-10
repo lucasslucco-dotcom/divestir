@@ -50,7 +50,7 @@ A foto de quem você ama vira ídolo, numa peça com cara de merch oficial (fã-
 - Nome: Divestir (divertir + vestir). Marca própria e independente, sem ligação visível com outras marcas do Lucas (decisão do Lucas, 07/11/2026).
 - Cores oficiais, paleta fechada (decisão do Lucas, 07/11/2026): verde garrafa `#0D2B17` como cor principal (o verde exato do fundo da foto de referência do Fã-Clube), creme `#FAF5EB` e rosa elétrico `#FF4FA8` como acento. Substituem o azul e o amarelo da primeira versão.
 - Fontes oficiais (decisão do Lucas, 07/11/2026): Anton nos títulos, Instrument Serif no destaque e Inter no texto.
-- Frase de topo atual, "Merch oficial de quem você ama.", é provisória. A definitiva vem depois.
+- Frase de topo (decisão do Lucas, 10/11/2026): "Aquela foto merece virar roupa.", com a linha "Uma foto DIVESTIR." embaixo (lê-se "de vestir"). Fora de uso: "merch", que pouca gente entende, e a ideia de "fã/ídolo" como frase da marca.
 - O logo definitivo ainda está em produção pelo Lucas; até lá, a marca é o nome escrito em Anton.
 - Voz: português do Brasil, próxima, leve e calorosa.
 

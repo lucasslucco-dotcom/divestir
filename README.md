@@ -1,6 +1,6 @@
 # Divestir
 
-Merch oficial de quem você ama. Site da Divestir: o cliente envia a foto de quem ama, escolhe a peça, o design, a cor e o tamanho, e recebe a peça em casa.
+Aquela foto merece virar roupa. Site da Divestir: o cliente envia a foto de quem ama, escolhe a peça, o design, a cor e o tamanho, e recebe a peça em casa.
 
 Site no ar: https://divestir.vercel.app
 

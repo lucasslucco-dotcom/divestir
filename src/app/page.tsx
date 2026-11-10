@@ -40,10 +40,10 @@ export default function Home() {
         <section className="bg-verde pb-16 text-creme sm:pb-24">
           <div className="mx-auto flex max-w-5xl flex-col items-center px-4 pt-14 text-center sm:pt-24">
             <h1 className="font-titulo text-[clamp(3.4rem,12vw,6rem)] leading-[1.12] text-balance uppercase">
-              Merch oficial de quem você ama.
+              Aquela foto merece virar roupa.
             </h1>
             <p className="mt-6 max-w-[22ch] font-destaque text-[clamp(1.5rem,5.6vw,2.4rem)] leading-tight text-balance italic">
-              Manda a foto. A gente transforma em ídolo.
+              Uma foto <span className="font-titulo tracking-[0.02em] not-italic">DIVESTIR</span>.
             </p>
             <div className="mt-10">
               <BotaoCriar sobreVerde />
