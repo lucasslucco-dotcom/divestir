@@ -12,7 +12,14 @@ import {
   type SituacaoDoPagamento,
 } from './mercadopago';
 import { LIMITE_DO_CARTAO } from './montagem/tipos';
-import { ehConfigDoMolde, ladosDaPeca, limparTextoDaEstampa, type AreasDaPeca, type Lado } from './molde/tipos';
+import {
+  ehConfigDoMolde,
+  ladosDaPeca,
+  limparTextoDaEstampa,
+  valorDoCampo,
+  type AreasDaPeca,
+  type Lado,
+} from './molde/tipos';
 import { criarClienteAdmin } from './supabase/admin';
 import {
   cepValido,
@@ -254,7 +261,10 @@ export async function criarPedido(pedido: PedidoDoCheckout): Promise<PedidoCriad
     const campos: Record<string, string> = {};
     for (const campo of config.campos) {
       // Só o que sai na estampa: emoji e símbolos ficam de fora, como no montador.
-      const valor = limparTextoDaEstampa(p.campos[campo.chave] ?? '');
+      // No campo de opções, só vale uma das opções do design (sem escolha, a primeira).
+      const valor = campo.opcoes?.length
+        ? valorDoCampo(campo, p.campos)
+        : limparTextoDaEstampa(p.campos[campo.chave] ?? '');
       if (!valor || valor.length > campo.max) throw new PedidoRecusado('Confere o nome que vai na estampa.', 409);
       campos[campo.chave] = valor;
     }

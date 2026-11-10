@@ -59,6 +59,8 @@ export function fontesDaPagina(): Promise<Fontes> {
     const cinema = estilo.getPropertyValue('--font-bodoni-moda').trim() || 'Georgia, serif';
     const vintage = estilo.getPropertyValue('--font-shrikhand').trim() || 'Georgia, serif';
     const show = estilo.getPropertyValue('--font-passion-one').trim() || 'Impact, sans-serif';
+    const bloco = estilo.getPropertyValue('--font-alfa-slab-one').trim() || 'Georgia, serif';
+    const colegial = estilo.getPropertyValue('--font-graduate').trim() || 'Georgia, serif';
     await Promise.all([
       document.fonts.load(`400 100px ${titulo}`),
       document.fonts.load(`400 100px ${destaque}`),
@@ -67,6 +69,8 @@ export function fontesDaPagina(): Promise<Fontes> {
       document.fonts.load(`700 100px ${cinema}`),
       document.fonts.load(`400 100px ${vintage}`),
       document.fonts.load(`900 100px ${show}`),
+      document.fonts.load(`400 100px ${bloco}`),
+      document.fonts.load(`400 100px ${colegial}`),
     ]).catch(() => undefined);
     return {
       titulo: { familia: titulo, estilo: 'normal' },
@@ -76,6 +80,8 @@ export function fontesDaPagina(): Promise<Fontes> {
       'cinema-forte': { familia: cinema, estilo: 'normal', peso: 700 },
       vintage: { familia: vintage, estilo: 'normal' },
       show: { familia: show, estilo: 'normal', peso: 900 },
+      bloco: { familia: bloco, estilo: 'normal' },
+      colegial: { familia: colegial, estilo: 'normal' },
     } satisfies Fontes;
   })();
   return fontes;

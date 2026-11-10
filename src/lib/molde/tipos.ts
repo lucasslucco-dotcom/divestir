@@ -11,8 +11,19 @@ export type Lado = 'frente' | 'costas';
 // titulo: Anton; destaque: Instrument Serif; destaque-italico: a mesma, itálica;
 // cinema e cinema-forte: Bodoni Moda (só nas estampas de cinema); vintage: Shrikhand
 // (a letra gorda e inclinada de camiseta de turnê antiga); show: Passion One (a letra
-// grossa de pôster de show). As três só existem nas estampas.
-export type FonteDoMolde = 'titulo' | 'destaque' | 'destaque-italico' | 'cinema' | 'cinema-forte' | 'vintage' | 'show';
+// grossa de pôster de show); bloco: Alfa Slab One (a letra de bloco com serifa, de
+// placa de bar); colegial: Graduate (a letra de camisa de time, com os cantos
+// cortados). Essas só existem nas estampas.
+export type FonteDoMolde =
+  | 'titulo'
+  | 'destaque'
+  | 'destaque-italico'
+  | 'cinema'
+  | 'cinema-forte'
+  | 'vintage'
+  | 'show'
+  | 'bloco'
+  | 'colegial';
 
 // Giro de uma camada, em graus (positivo: sentido horário), em volta de um ponto.
 export type Giro = { graus: number; x: number; y: number };
@@ -163,12 +174,17 @@ export type CamadaArte = {
 export type Camada = CamadaTexto | CamadaAnel | CamadaNome | CamadaFoto | CamadaArte | CamadaForma;
 
 // "exemplo" é o que aparece na arte enquanto o campo está vazio (sem ele, o rótulo).
+// Com "opcoes", o cliente escolhe uma das opções em vez de digitar (PAI, AVÔ, TIO...);
+// enquanto não escolhe, vale a primeira. "resumo" é o nome curto do campo, para o
+// resumo da peça (sem ele, o rótulo).
 export type Campo = {
   chave: string;
   rotulo: string;
+  resumo?: string;
   max: number;
   caixa: 'alta' | 'livre';
   exemplo?: string;
+  opcoes?: string[];
 };
 
 export type ConfigDoMolde = {
@@ -246,6 +262,16 @@ export function tirarSimbolosDaEstampa(valor: string) {
 
 export function limparTextoDaEstampa(valor: string) {
   return tirarSimbolosDaEstampa(valor).replace(/ {2,}/g, ' ').trim();
+}
+
+// O valor de um campo como vai para a estampa: limpo e no tamanho do campo; no campo
+// de opções, a opção escolhida ou, sem escolha, a primeira.
+export function valorDoCampo(campo: Campo, valores: Record<string, string>) {
+  const valor = limparTextoDaEstampa(valores[campo.chave] ?? '')
+    .slice(0, campo.max)
+    .trim();
+  if (campo.opcoes?.length) return campo.opcoes.includes(valor) ? valor : campo.opcoes[0];
+  return valor;
 }
 
 // As tintas da estampa: as cores da marca e o creme quente das estampas de turnê e

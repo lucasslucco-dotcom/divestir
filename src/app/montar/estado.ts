@@ -3,7 +3,7 @@
 import type { Catalogo, Cor, Peca } from '@/lib/catalogo';
 import type { Enquadramento } from '@/lib/foto/enquadramento';
 import { MONTAGEM_VAZIA, type FotoDaMontagem, type Montagem } from '@/lib/montagem/tipos';
-import { ladosDaPeca, limparTextoDaEstampa, type Campo, type Design, type Lado } from '@/lib/molde/tipos';
+import { ladosDaPeca, valorDoCampo, type Campo, type Design, type Lado } from '@/lib/molde/tipos';
 
 export type Acao =
   | { tipo: 'restaurar'; montagem: Montagem }
@@ -134,7 +134,7 @@ export function oQueFalta(m: Montagem, r: Resolvida | null): Falta[] {
   else if (!m.foto.aprovada) falta.push({ texto: 'aprovar a foto', passo: 'foto' });
   const campos: Campo[] = r?.design?.config.campos ?? [];
   for (const campo of campos) {
-    if (limparTextoDaEstampa(m.campos[campo.chave] ?? '')) continue;
+    if (valorDoCampo(campo, m.campos)) continue;
     falta.push(
       campo.chave === 'nome'
         ? { texto: 'dar o nome', passo: 'nome' }

@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import { limparTextoDaEstampa } from '@/lib/molde/tipos';
+import { valorDoCampo } from '@/lib/molde/tipos';
 import type { Falta, Resolvida } from './estado';
 import { IconeSim } from './icones';
 import { linkDeTexto } from './passo-foto';
@@ -92,8 +92,8 @@ export function PassoResumo({
     ...(r.design?.config.campos ?? [])
       .filter((campo) => campo.chave !== 'nome')
       .map((campo): [string, string] => [
-        campo.rotulo.replace(/\?$/, ''),
-        limparTextoDaEstampa(valores[campo.chave] ?? '').toLocaleUpperCase('pt-BR') || '—',
+        campo.resumo ?? campo.rotulo.replace(/\?$/, ''),
+        valorDoCampo(campo, valores).toLocaleUpperCase('pt-BR') || '—',
       ]),
     [
       'Estampa',

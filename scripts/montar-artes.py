@@ -213,7 +213,72 @@ def em_cartaz():
     print('  fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
 
 
+def torcida():
+    print('Torcida Organizada')
+    itens = ler('torcida')
+    corte = (40, 110, 1280)
+    topo = [i for i in itens if i['caixa'][3] < 300]
+    linha = [i for i in itens if i['caixa'][1] > 1825]
+    meio = [i for i in itens if i not in topo and i not in linha]
+    # A faixa "Campeão do meu coração" é a forma larga de baixo; ela e o que está na
+    # altura dela vão na frente da foto. O escudo e as estrelas ficam atrás.
+    faixa = max((i for i in meio if i['tipo'] == 'W'), key=lambda i: (i['caixa'][2] - i['caixa'][0]) * (i['caixa'][3] - i['caixa'][1] < 300))
+    frente = [i for i in meio if centro(i)[1] > faixa['caixa'][1]]
+    atras = [i for i in meio if i not in frente]
+    estrelas = [i for i in atras if i['caixa'][3] < 680]
+    escudo = [i for i in atras if i not in estrelas]
+    gravar('torcida', 'topo', topo, corte, 'A linha "Torcida Organizada".')
+    gravar('torcida', 'estrelas', estrelas, corte, 'As três estrelas em cima do escudo.')
+    gravar('torcida', 'escudo', escudo, corte, 'Escudo de listras (atrás da foto).')
+    gravar('torcida', 'frente', frente, corte, 'Faixa "Campeão do meu coração" (na frente da foto).', base=True)
+    gravar('torcida', 'linha', linha, corte, 'A linha de baixo.')
+    print('  faixa: de', na_arte(corte, y=faixa['caixa'][1]), 'a', na_arte(corte, y=faixa['caixa'][3]), ' fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
+
+
+def bar_do():
+    print('Bar do')
+    itens = ler('bar-do')
+    corte = (38, 92, 1284)
+    topo = [i for i in itens if i['caixa'][3] < 300]
+    selo = [i for i in itens if i['caixa'][1] > 1675]
+    linha = [i for i in itens if 1590 < i['caixa'][1] <= 1675]
+    meio = [i for i in itens if i not in topo and i not in selo and i not in linha]
+    # A fita "Aberto todo dia" começa em 1284; o oval e as espigas ficam acima dela.
+    frente = [i for i in meio if i['caixa'][1] >= 1280]
+    atras = [i for i in meio if i not in frente]
+    gravar('bar-do', 'topo', topo, corte, 'A letra "Bar do".')
+    gravar('bar-do', 'oval', atras, corte, 'Placa oval e espigas (atrás da foto).')
+    gravar('bar-do', 'frente', frente, corte, 'Fita "Aberto todo dia" (na frente da foto).', base=True)
+    gravar('bar-do', 'linha', linha, corte, 'A linha "Cerveja gelada · Petisco · Resenha".')
+    gravar('bar-do', 'selo', selo, corte, 'O carimbo "Fiado só amanhã".')
+    print('  fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
+
+
+def o_lendario():
+    print('O Lendário')
+    itens = ler('o-lendario')
+    corte = (55, 180, 1250)
+    topo = [i for i in itens if i['caixa'][3] < 460]
+    barra = [i for i in itens if i['caixa'][1] > 1700]
+    meio = [i for i in itens if i not in topo and i not in barra]
+    # No meio ficam as estrelas e os quatro traços dos blocos de texto dos lados (o
+    # texto dos blocos é do site, por causa do ano e de "pai", "avô", "tio"...).
+    tracos = [i for i in meio if i['caixa'][3] - i['caixa'][1] < 20]
+    estrelas = [i for i in meio if i not in tracos]
+    gravar('o-lendario', 'topo', topo, corte, 'As linhas "Uma noite só · Todo domingo" e "O Lendário".')
+    gravar('o-lendario', 'estrelas', estrelas, corte, 'O arco de estrelas (atrás da foto).')
+    gravar('o-lendario', 'tracos', tracos, corte, 'Os traços dos blocos de texto dos lados.', folga=2)
+    gravar('o-lendario', 'frente', barra, corte, 'A barra "Churrasco ★ Conselhos ★ Piada ruim" (na frente da foto).', base=True)
+    for t in sorted(tracos, key=lambda i: (i['caixa'][1], i['caixa'][0])):
+        c = t['caixa']
+        print('  traço: x', na_arte(corte, x=c[0]), 'a', na_arte(corte, x=c[2]), ' y', na_arte(corte, y=c[1]), 'a', na_arte(corte, y=c[3]))
+    print('  fim de "O Lendário":', na_arte(corte, y=max(i['caixa'][3] for i in topo)), ' fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
+
+
 if __name__ == '__main__':
     turne_mundial()
     ao_vivo()
     em_cartaz()
+    torcida()
+    bar_do()
+    o_lendario()

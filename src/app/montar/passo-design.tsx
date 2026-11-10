@@ -2,7 +2,7 @@
 
 import { useId, useState, useSyncExternalStore } from 'react';
 import type { Cor, Peca } from '@/lib/catalogo';
-import { TEMAS, designsDoTema, tirarSimbolosDaEstampa, type Design, type Lado } from '@/lib/molde/tipos';
+import { TEMAS, designsDoTema, tirarSimbolosDaEstampa, valorDoCampo, type Design, type Lado } from '@/lib/molde/tipos';
 import { TelaDaPrevia, type FotoDaPrevia } from './tela-da-previa';
 
 // Passo 4: o design. Cada miniatura já vem com a foto e o nome do cliente, não com
@@ -86,16 +86,21 @@ export function PassoDesign({
   const lista = designsDoTema(designs, temaAtual);
   const escolherTema = (slug: string | null) => {
     setTema(slug);
-    // O design escolhido continua valendo se também for desse tema; senão, entra o
-    // primeiro do tema, para a prévia grande mostrar o que está na fila.
+    // Quem toca num tema quer ver os designs feitos para ele: o primeiro da fila entra
+    // na prévia grande, a não ser que o design escolhido já seja desse tema. Tema que
+    // só tem os designs de todo mundo deixa a escolha como está.
     const novos = designsDoTema(designs, slug);
-    if (novos.length && !novos.some((d) => d.slug === design?.slug)) aoEscolherDesign(novos[0].slug);
+    const doTema = slug ? novos.filter((d) => d.config.temas?.includes(slug)) : [];
+    const serve = doTema.length ? doTema : novos;
+    if (serve.length && !serve.some((d) => d.slug === design?.slug)) aoEscolherDesign(serve[0].slug);
   };
 
   return (
     <>
       {temas.length ? (
-        <fieldset className="mb-5">
+        // min-w-0: sem ele, o fieldset fica da largura da fila inteira e a página
+        // passa da tela do celular.
+        <fieldset className="mb-5 min-w-0">
           <legend className="text-base leading-snug font-semibold">Para quem é?</legend>
           <div className="vitrine -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
             {[{ slug: null, nome: 'Todos' }, ...temas].map((opcao) => (
@@ -163,46 +168,70 @@ export function PassoDesign({
       </div>
       <p className="mt-2 text-xs leading-relaxed">Prévias ilustrativas, com a sua foto e o nome.</p>
 
-      {extras.map((campo) => (
-        <div key={campo.chave} className="mt-6">
-          <label htmlFor={`${id}-${campo.chave}`} className="block text-base leading-snug font-semibold">
-            {campo.rotulo}
-          </label>
-          <input
-            id={`${id}-${campo.chave}`}
-            type="text"
-            value={valores[campo.chave] ?? ''}
-            // Como no nome: emoji e símbolos não saem na estampa e nem entram aqui.
-            onChange={(evento) =>
-              aoMudarCampo(
-                campo.chave,
-                (evento.nativeEvent as InputEvent).isComposing
-                  ? evento.target.value.slice(0, campo.max)
-                  : tirarSimbolosDaEstampa(evento.target.value).slice(0, campo.max),
-              )
-            }
-            onBlur={(evento) =>
-              aoMudarCampo(campo.chave, tirarSimbolosDaEstampa(evento.target.value).slice(0, campo.max))
-            }
-            onKeyDown={(evento) => {
-              if (evento.key === 'Enter') evento.currentTarget.blur();
-            }}
-            maxLength={campo.max}
-            inputMode={campo.exemplo && /^\d+$/.test(campo.exemplo) ? 'numeric' : undefined}
-            autoComplete="off"
-            enterKeyHint="done"
-            aria-describedby={campo.exemplo ? `${id}-${campo.chave}-ajuda` : undefined}
-            className={`mt-2 h-12 w-full max-w-[22rem] rounded-md border border-verde bg-creme px-4 text-lg leading-none font-semibold outline-offset-2 focus-visible:outline-2 focus-visible:outline-verde ${
-              campo.caixa === 'alta' ? 'tracking-[0.04em] uppercase' : ''
-            }`}
-          />
-          {campo.exemplo ? (
-            <p id={`${id}-${campo.chave}-ajuda`} className="mt-2 text-[0.9375rem] leading-snug">
-              Vai na estampa. Por exemplo: {campo.exemplo}.
-            </p>
-          ) : null}
-        </div>
-      ))}
+      {extras.map((campo) =>
+        campo.opcoes?.length ? (
+          // Campo de opções: a pessoa escolhe uma (PAI, AVÔ, TIO...) em vez de digitar.
+          <fieldset key={campo.chave} className="mt-6">
+            <legend className="text-base leading-snug font-semibold">{campo.rotulo}</legend>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {campo.opcoes.map((opcao) => (
+                <label key={opcao} className="relative">
+                  <input
+                    type="radio"
+                    name={`${id}-${campo.chave}`}
+                    value={opcao}
+                    checked={valorDoCampo(campo, valores) === opcao}
+                    onChange={() => aoMudarCampo(campo.chave, opcao)}
+                    className="peer sr-only"
+                  />
+                  <span className={`${opcaoDaPilula} border border-verde whitespace-nowrap`}>
+                    {opcao.charAt(0) + opcao.slice(1).toLocaleLowerCase('pt-BR')}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ) : (
+          <div key={campo.chave} className="mt-6">
+            <label htmlFor={`${id}-${campo.chave}`} className="block text-base leading-snug font-semibold">
+              {campo.rotulo}
+            </label>
+            <input
+              id={`${id}-${campo.chave}`}
+              type="text"
+              value={valores[campo.chave] ?? ''}
+              // Como no nome: emoji e símbolos não saem na estampa e nem entram aqui.
+              onChange={(evento) =>
+                aoMudarCampo(
+                  campo.chave,
+                  (evento.nativeEvent as InputEvent).isComposing
+                    ? evento.target.value.slice(0, campo.max)
+                    : tirarSimbolosDaEstampa(evento.target.value).slice(0, campo.max),
+                )
+              }
+              onBlur={(evento) =>
+                aoMudarCampo(campo.chave, tirarSimbolosDaEstampa(evento.target.value).slice(0, campo.max))
+              }
+              onKeyDown={(evento) => {
+                if (evento.key === 'Enter') evento.currentTarget.blur();
+              }}
+              maxLength={campo.max}
+              inputMode={campo.exemplo && /^\d+$/.test(campo.exemplo) ? 'numeric' : undefined}
+              autoComplete="off"
+              enterKeyHint="done"
+              aria-describedby={campo.exemplo ? `${id}-${campo.chave}-ajuda` : undefined}
+              className={`mt-2 h-12 w-full max-w-[22rem] rounded-md border border-verde bg-creme px-4 text-lg leading-none font-semibold outline-offset-2 focus-visible:outline-2 focus-visible:outline-verde ${
+                campo.caixa === 'alta' ? 'tracking-[0.04em] uppercase' : ''
+              }`}
+            />
+            {campo.exemplo ? (
+              <p id={`${id}-${campo.chave}-ajuda`} className="mt-2 text-[0.9375rem] leading-snug">
+                Vai na estampa. Por exemplo: {campo.exemplo}.
+              </p>
+            ) : null}
+          </div>
+        ),
+      )}
 
       <fieldset className="mt-7">
         <legend className="text-base leading-snug font-semibold">Onde vai a estampa?</legend>

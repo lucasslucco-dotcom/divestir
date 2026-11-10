@@ -96,7 +96,8 @@ on conflict (slug) do update set
 -- A arte fixa de cada um nasce no Higgsfield (imagem chapada a partir do mockup aprovado,
 -- vetorizada pelo Ideogram Vector) e é montada pelo scripts/montar-artes.py, que também
 -- mostra onde cada parte entra (x, topo e largura abaixo). A tinta na peça preta é o
--- creme quente dos mockups.
+-- creme quente dos mockups. "temas" diz para quem o design foi feito (sem temas, serve
+-- para todo mundo).
 -- "drop_entrada" liga o selo "Novo" nas duas primeiras semanas; rodar de novo não mexe nas datas.
 
 -- Design Turnê Mundial: camiseta de turnê antiga, estampa grande. A arte vem do Higgsfield:
@@ -174,9 +175,107 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
       {"tipo": "texto", "texto": "EM CARTAZ DESDE {desde}", "fonte": "cinema-forte", "x": 500, "base": 1167, "largura": 880, "altura": 29, "espaco": 0.34},
       {"tipo": "arte", "arquivo": "/designs/em-cartaz/creditos.svg", "x": 502.1, "topo": 1200.9, "largura": 982.4, "folga": 0}
     ],
-    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 16, "caixa": "alta"}, {"chave": "desde", "rotulo": "Desde que ano?", "max": 4, "caixa": "alta", "exemplo": "2019"}],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 16, "caixa": "alta"}, {"chave": "desde", "rotulo": "Desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["casal"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Torcida ("Torcida Organizada"): camisa de torcida, estampa grande, para pais, avôs e amigos. A
+-- arte vem do Higgsfield (a linha de cima, as estrelas, o escudo de listras, a faixa
+-- "Campeão do meu coração" e a linha de baixo); o site põe o nome na letra de camisa de
+-- time (Graduate, engrossada), com a base em arco, e a foto solta na frente do escudo.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('torcida', 'Torcida', 'ativo', 5, '2026-11-10', '{
+    "versao": 1,
+    "proporcao": 0.7143,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/torcida/topo.svg", "x": 497.0, "topo": 4.5, "largura": 699.1, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/torcida/estrelas.svg", "x": 499.9, "topo": 344.9, "largura": 293.3, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/torcida/escudo.svg", "x": 498.6, "topo": 433.1, "largura": 768.4, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "colegial", "x": 500, "topo": 116, "largura_maxima": 900, "altura_no_centro": 225, "arco": 1.55, "compressao_maxima": 0.6, "expansao_maxima": 1.5, "curva": 0, "folga": 10, "acento_dentro": true, "engrossa": 18},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 380, "largura": 960, "altura": 880, "janela": {"largura": 960, "altura": 900, "y": 870}},
+      {"tipo": "arte", "arquivo": "/designs/torcida/frente.svg", "x": 499.9, "topo": 1177.9, "largura": 986.2, "folga": 6, "base": "/designs/torcida/frente-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/torcida/linha.svg", "x": 501.6, "topo": 1340.4, "largura": 941.6, "folga": 0}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["pais", "avos-ele", "amigos"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Boteco ("Bar do"): placa de boteco, estampa grande, para amigos, pais e avôs. A arte vem do
+-- Higgsfield (a letra "Bar do", a placa oval com as espigas, a fita "Aberto todo dia", a
+-- linha e o carimbo "Fiado só amanhã"); o site põe o nome na letra de placa (Alfa Slab One)
+-- e a foto solta dentro da placa.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('bar-do', 'Boteco', 'ativo', 6, '2026-11-10', '{
+    "versao": 1,
+    "proporcao": 0.6964,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/bar-do/topo.svg", "x": 499.5, "topo": 3.7, "largura": 685.4, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/bar-do/oval.svg", "x": 499.1, "topo": 358.1, "largura": 930.1, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "bloco", "x": 500, "topo": 170, "largura_maxima": 900, "altura_no_centro": 215, "arco": 1.42, "compressao_maxima": 0.6, "expansao_maxima": 1.2, "curva": 0, "folga": 10, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 372, "largura": 940, "altura": 650, "janela": {"largura": 940, "altura": 800, "y": 770}},
+      {"tipo": "arte", "arquivo": "/designs/bar-do/frente.svg", "x": 499.6, "topo": 923.9, "largura": 992.3, "folga": 6, "base": "/designs/bar-do/frente-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/bar-do/linha.svg", "x": 499.6, "topo": 1165.8, "largura": 877.4, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/bar-do/selo.svg", "x": 502.4, "topo": 1234.0, "largura": 741.9, "folga": 0}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["amigos", "pais", "avos-ele"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design O Lendário: pôster de luta, estampa grande, para pais e avôs. A arte vem do Higgsfield
+-- (as linhas de cima, "O Lendário", as estrelas, os traços dos blocos e a barra de baixo); o
+-- site põe o nome enorme (Passion One), a foto e os dois blocos de texto: "Invicto desde
+-- {ano}" e "Campeão mundial de {pai, avô, tio...}", que o cliente escolhe.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('o-lendario', 'O Lendário', 'ativo', 7, '2026-11-10', '{
+    "versao": 1,
+    "proporcao": 0.7508,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/o-lendario/topo.svg", "x": 507.3, "topo": 4.9, "largura": 939.8, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/o-lendario/estrelas.svg", "x": 499.9, "topo": 574.0, "largura": 466.7, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "show", "x": 500, "topo": 232, "largura_maxima": 940, "altura_no_centro": 310, "arco": 1.36, "compressao_maxima": 0.6, "expansao_maxima": 1.4, "folga": 9, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 520, "largura": 800, "altura": 740, "janela": {"largura": 780, "altura": 800, "y": 940}},
+      {"tipo": "arte", "arquivo": "/designs/o-lendario/tracos.svg", "x": 500.1, "topo": 669.1, "largura": 939.5, "folga": 0},
+      {"tipo": "texto", "texto": "INVICTO", "fonte": "titulo", "x": 133.3, "base": 765, "largura": 200, "altura": 64, "espaco": 0.02},
+      {"tipo": "texto", "texto": "DESDE", "fonte": "titulo", "x": 133.3, "base": 851, "largura": 200, "altura": 64, "espaco": 0.02},
+      {"tipo": "texto", "texto": "{desde}", "fonte": "titulo", "x": 133.3, "base": 937, "largura": 200, "altura": 64, "espaco": 0.02},
+      {"tipo": "texto", "texto": "CAMPEÃO", "fonte": "titulo", "x": 866.8, "base": 765, "largura": 200, "altura": 64, "espaco": 0.02},
+      {"tipo": "texto", "texto": "MUNDIAL", "fonte": "titulo", "x": 866.8, "base": 851, "largura": 200, "altura": 64, "espaco": 0.02},
+      {"tipo": "texto", "texto": "DE {papel}", "fonte": "titulo", "x": 866.8, "base": 937, "largura": 200, "altura": 64, "espaco": 0.02},
+      {"tipo": "arte", "arquivo": "/designs/o-lendario/frente.svg", "x": 500.3, "topo": 1220.6, "largura": 989.0, "folga": 0, "base": "/designs/o-lendario/frente-base.svg"}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}, {"chave": "desde", "rotulo": "Invicto desde que ano?", "resumo": "Invicto desde", "max": 4, "caixa": "alta", "exemplo": "1995"}, {"chave": "papel", "rotulo": "Campeão mundial de…", "resumo": "Campeão de", "max": 10, "caixa": "alta", "opcoes": ["PAI", "AVÔ", "TIO", "PADRINHO", "SOGRO", "PADRASTO"]}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["pais", "avos-ele"],
     "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
     "logo_peito": true
   }'::jsonb)

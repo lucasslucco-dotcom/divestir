@@ -49,6 +49,27 @@ export const shrikhand = localFont({
   preload: false,
 });
 
+// Graduate: a letra de camisa de time e de faculdade, com os cantos cortados (Torcida
+// Organizada).
+export const graduate = localFont({
+  src: './graduate-400.woff2',
+  weight: '400',
+  style: 'normal',
+  variable: '--font-graduate',
+  display: 'swap',
+  preload: false,
+});
+
+// Alfa Slab One: a letra de bloco com serifa, de placa de bar (Bar do).
+export const alfaSlabOne = localFont({
+  src: './alfa-slab-one-400.woff2',
+  weight: '400',
+  style: 'normal',
+  variable: '--font-alfa-slab-one',
+  display: 'swap',
+  preload: false,
+});
+
 export const passionOne = localFont({
   src: './passion-one-900.woff2',
   weight: '900',
@@ -67,4 +88,4 @@ export const inter = localFont({
   display: 'swap',
 });
 
-export const variaveisDeFonte = `${anton.variable} ${instrumentSerif.variable} ${inter.variable} ${bodoniModa.variable} ${shrikhand.variable} ${passionOne.variable}`;
+export const variaveisDeFonte = `${anton.variable} ${instrumentSerif.variable} ${inter.variable} ${bodoniModa.variable} ${shrikhand.variable} ${passionOne.variable} ${alfaSlabOne.variable} ${graduate.variable}`;

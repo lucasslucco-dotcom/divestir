@@ -28,6 +28,7 @@ import {
   LARGURA_DA_ARTE,
   areaDoDesign,
   limparTextoDaEstampa,
+  valorDoCampo,
   type CamadaFoto,
   type Design,
   type Lado,
@@ -327,14 +328,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
       cor: r.cor.slug,
       design: r.design.slug,
       lado: r.lado,
-      campos: Object.fromEntries(
-        r.design.config.campos.map((c) => [
-          c.chave,
-          limparTextoDaEstampa(montagem.campos[c.chave] ?? '')
-            .slice(0, c.max)
-            .trim(),
-        ]),
-      ),
+      campos: Object.fromEntries(r.design.config.campos.map((c) => [c.chave, valorDoCampo(c, montagem.campos)])),
       tamanho: r.tamanho,
       foto: montagem.foto,
     };

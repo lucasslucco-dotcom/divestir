@@ -13,6 +13,7 @@ import {
   TINTAS,
   alturaDaArte,
   limparTextoDaEstampa,
+  valorDoCampo,
   type AreaNaFoto,
   type CamadaAnel,
   type CamadaArte,
@@ -93,9 +94,11 @@ export function tintaDaCor(config: ConfigDoMolde, corDaPeca: string) {
 // O texto que vai no campo: o que a pessoa digitou ou, vazio, o rótulo do campo.
 export function textoDoCampo(config: ConfigDoMolde, chave: string, valores: Record<string, string>) {
   const campo = config.campos.find((c) => c.chave === chave);
-  const valor = limparTextoDaEstampa(valores[chave] ?? '')
-    .slice(0, campo?.max ?? 40)
-    .trim();
+  const valor = campo
+    ? valorDoCampo(campo, valores)
+    : limparTextoDaEstampa(valores[chave] ?? '')
+        .slice(0, 40)
+        .trim();
   const texto = valor || campo?.exemplo || campo?.rotulo || '';
   return campo?.caixa === 'alta' ? texto.toLocaleUpperCase('pt-BR') : texto;
 }
