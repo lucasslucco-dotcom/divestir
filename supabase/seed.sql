@@ -90,32 +90,23 @@ on conflict (slug) do update set
   config = excluded.config;
 
 -- Os designs de 10/11/2026 (escolhidos pelo Lucas entre os conceitos do Higgsfield).
--- As artes fixas deles são geometria pura, desenhada pelo scripts/desenhar-artes.py.
+-- A arte fixa de cada um nasce no Higgsfield (imagem chapada a partir do mockup aprovado,
+-- vetorizada pelo Ideogram Vector) e é montada pelo scripts/montar-artes.py, que também
+-- mostra onde cada parte entra (x, topo e largura abaixo).
 -- "drop_entrada" liga o selo "Novo" nas duas primeiras semanas; rodar de novo não mexe nas datas.
 
--- Design Turnê Mundial: camiseta de turnê. "NOME" em arco, a foto solta sobre os raios,
--- a fita "Turnê Mundial {ano}" (o ano entra sozinho), as "datas" e o selo.
+-- Design Turnê Mundial: camiseta de turnê. A arte (raios, fita "Turnê Mundial 2026", datas e
+-- selo) vem do Higgsfield; o site põe o nome em arco e a foto solta no meio dos raios.
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
   ('turne-mundial', 'Turnê Mundial', 'ativo', 2, '2026-11-10', '{
     "versao": 1,
-    "proporcao": 0.6369,
+    "proporcao": 0.7042,
     "posicao": "costas",
     "camadas": [
-      {"tipo": "arte", "arquivo": "/designs/turne-mundial/raios.svg", "x": 500, "topo": 312, "largura": 900, "folga": 0},
-      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 60, "largura_maxima": 940, "altura_no_centro": 232, "arco": 1, "compressao_maxima": 0.75, "curva": 60},
-      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 302, "largura": 940, "altura": 743, "janela": {"largura": 940, "altura": 790, "y": 697}},
-      {"tipo": "arte", "arquivo": "/designs/turne-mundial/fita.svg", "x": 500, "topo": 985, "largura": 940, "folga": 12},
-      {"tipo": "texto", "texto": "TURNÊ MUNDIAL {ano}", "fonte": "titulo", "x": 500, "base": 1066, "largura": 650, "altura": 60, "espaco": 0.04, "vazado": true},
-      {"tipo": "texto", "texto": "12 JAN · SALA DE ESTAR", "fonte": "titulo", "x": 105, "base": 1215, "largura": 410, "altura": 31, "espaco": 0.07, "alinhar": "esquerda"},
-      {"tipo": "texto", "texto": "08 FEV · ALMOÇO DE DOMINGO", "fonte": "titulo", "x": 105, "base": 1273, "largura": 410, "altura": 31, "espaco": 0.07, "alinhar": "esquerda"},
-      {"tipo": "texto", "texto": "21 MAR · CHURRASCO", "fonte": "titulo", "x": 105, "base": 1331, "largura": 410, "altura": 31, "espaco": 0.07, "alinhar": "esquerda"},
-      {"tipo": "texto", "texto": "30 ABR · SOFÁ", "fonte": "titulo", "x": 565, "base": 1215, "largura": 340, "altura": 31, "espaco": 0.07, "alinhar": "esquerda"},
-      {"tipo": "texto", "texto": "10 MAI · COZINHA", "fonte": "titulo", "x": 565, "base": 1273, "largura": 340, "altura": 31, "espaco": 0.07, "alinhar": "esquerda"},
-      {"tipo": "texto", "texto": "TODO DIA · MEU CORAÇÃO", "fonte": "titulo", "x": 565, "base": 1331, "largura": 340, "altura": 31, "espaco": 0.07, "alinhar": "esquerda"},
-      {"tipo": "forma", "x": 500, "y": 1478, "largura": 440, "altura": 134, "raio": 12, "contorno": 7, "giro": {"graus": -5, "x": 500, "y": 1478}},
-      {"tipo": "forma", "x": 500, "y": 1478, "largura": 410, "altura": 104, "raio": 6, "contorno": 2.5, "giro": {"graus": -5, "x": 500, "y": 1478}},
-      {"tipo": "texto", "texto": "INGRESSOS", "fonte": "titulo", "x": 500, "base": 1469, "largura": 360, "altura": 33, "espaco": 0.14, "giro": {"graus": -5, "x": 500, "y": 1478}},
-      {"tipo": "texto", "texto": "ESGOTADOS", "fonte": "titulo", "x": 500, "base": 1515, "largura": 360, "altura": 33, "espaco": 0.14, "giro": {"graus": -5, "x": 500, "y": 1478}}
+      {"tipo": "arte", "arquivo": "/designs/turne-mundial/raios.svg", "x": 498.2, "topo": 219, "largura": 826.2, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 8, "largura_maxima": 940, "altura_no_centro": 200, "arco": 1, "compressao_maxima": 0.75, "curva": 60},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 230, "largura": 900, "altura": 640, "janela": {"largura": 900, "altura": 720, "y": 600}},
+      {"tipo": "arte", "arquivo": "/designs/turne-mundial/frente.svg", "x": 499.9, "topo": 802.7, "largura": 972.4, "folga": 8, "base": "/designs/turne-mundial/frente-base.svg"}
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
     "tintas": {"preto": "creme", "branco": "verde-escuro", "creme": "verde-escuro"},
@@ -128,22 +119,19 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
--- Design Ao Vivo: pôster de show. "NOME" grande, a foto solta sobre o círculo de pontos
--- e a faixa inclinada "Turnê {ano}".
+-- Design Ao Vivo: pôster de show. A arte (etiqueta, círculo de pontos, faixa "Turnê 2026" e a
+-- linha de lugares) vem do Higgsfield; o site põe o nome grande e a foto solta.
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
   ('ao-vivo', 'Ao Vivo', 'ativo', 3, '2026-11-10', '{
     "versao": 1,
-    "proporcao": 0.6897,
+    "proporcao": 0.6601,
     "posicao": "costas",
     "camadas": [
-      {"tipo": "forma", "x": 150, "y": 62, "largura": 224, "altura": 70, "raio": 9, "contorno": 6},
-      {"tipo": "texto", "texto": "AO VIVO", "fonte": "titulo", "x": 150, "base": 79, "largura": 180, "altura": 34, "espaco": 0.08},
-      {"tipo": "arte", "arquivo": "/designs/ao-vivo/pontos.svg", "x": 500, "topo": 405, "largura": 850, "folga": 0},
-      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 122, "largura_maxima": 960, "altura_no_centro": 340, "arco": 1.35, "compressao_maxima": 0.8, "folga": 9},
-      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 398, "largura": 960, "altura": 787, "janela": {"largura": 960, "altura": 920, "y": 850}},
-      {"tipo": "forma", "x": 500, "y": 1185, "largura": 920, "altura": 132, "giro": {"graus": -4, "x": 500, "y": 1185}},
-      {"tipo": "texto", "texto": "TURNÊ {ano}", "fonte": "titulo", "x": 500, "base": 1228, "largura": 800, "altura": 86, "espaco": 0.03, "vazado": true, "giro": {"graus": -4, "x": 500, "y": 1185}},
-      {"tipo": "texto", "texto": "SALA ★ SOFÁ ★ QUINTAL ★ PRAIA ★ MEU CORAÇÃO", "fonte": "titulo", "x": 500, "base": 1400, "largura": 900, "altura": 30, "espaco": 0.1}
+      {"tipo": "arte", "arquivo": "/designs/ao-vivo/selo.svg", "x": 201.9, "topo": 13.9, "largura": 301.5, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/ao-vivo/pontos.svg", "x": 490.8, "topo": 411.7, "largura": 883.4, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 128, "largura_maxima": 960, "altura_no_centro": 330, "arco": 1.3, "compressao_maxima": 0.8, "folga": 9},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 400, "largura": 960, "altura": 865, "janela": {"largura": 940, "altura": 960, "y": 850}},
+      {"tipo": "arte", "arquivo": "/designs/ao-vivo/frente.svg", "x": 498.4, "topo": 1105.8, "largura": 971.1, "folga": 0, "base": "/designs/ao-vivo/frente-base.svg"}
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
     "tintas": {"preto": "creme", "branco": "verde-escuro", "creme": "verde-escuro"},
@@ -156,27 +144,21 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
--- Design Em Cartaz: pôster de cinema. A foto entra com o fundo original ("fundo"), o nome
--- passa por cima da borda dela e o cliente diz o ano ("desde").
+-- Design Em Cartaz: pôster de cinema. A foto entra com o fundo original e escurece na base,
+-- com o nome em creme por cima (Bodoni Moda); moldura, louros e créditos vêm do Higgsfield;
+-- o cliente diz o ano ("desde").
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
   ('em-cartaz', 'Em Cartaz', 'ativo', 4, '2026-11-10', '{
     "versao": 1,
-    "proporcao": 0.5814,
+    "proporcao": 0.641,
     "posicao": "costas",
     "camadas": [
-      {"tipo": "texto", "texto": "UMA HISTÓRIA DE AMOR", "fonte": "destaque", "x": 500, "base": 72, "largura": 840, "altura": 30, "espaco": 0.3},
-      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 110, "largura": 840, "altura": 1050, "fundo": true},
-      {"tipo": "forma", "x": 500, "y": 635, "largura": 840, "altura": 1050, "contorno": 6},
-      {"tipo": "nome", "campo": "nome", "fonte": "destaque", "x": 500, "topo": 1085, "largura_maxima": 780, "altura_no_centro": 150, "arco": 1, "compressao_maxima": 0.72, "folga": 14},
-      {"tipo": "texto", "texto": "EM CARTAZ DESDE {desde}", "fonte": "destaque", "x": 500, "base": 1324, "largura": 840, "altura": 30, "espaco": 0.3},
-      {"tipo": "arte", "arquivo": "/designs/em-cartaz/louros.svg", "x": 310, "topo": 1366, "largura": 300, "folga": 0},
-      {"tipo": "arte", "arquivo": "/designs/em-cartaz/louros.svg", "x": 690, "topo": 1366, "largura": 300, "folga": 0},
-      {"tipo": "texto", "texto": "SUCESSO", "fonte": "destaque", "x": 310, "base": 1464, "largura": 168, "altura": 21, "espaco": 0.08},
-      {"tipo": "texto", "texto": "DE PÚBLICO", "fonte": "destaque", "x": 310, "base": 1498, "largura": 168, "altura": 21, "espaco": 0.08},
-      {"tipo": "texto", "texto": "★★★★★", "fonte": "destaque", "x": 690, "base": 1464, "largura": 168, "altura": 21, "espaco": 0.2},
-      {"tipo": "texto", "texto": "5 ESTRELAS", "fonte": "destaque", "x": 690, "base": 1498, "largura": 168, "altura": 21, "espaco": 0.08},
-      {"tipo": "texto", "texto": "DIREÇÃO O DESTINO  ·  ROTEIRO A VIDA  ·  TRILHA SONORA MUITAS RISADAS", "fonte": "titulo", "x": 500, "base": 1652, "largura": 880, "altura": 23, "espaco": 0.1},
-      {"tipo": "texto", "texto": "PRODUÇÃO MUITO AMOR  ·  ELENCO {nome}", "fonte": "titulo", "x": 500, "base": 1696, "largura": 880, "altura": 23, "espaco": 0.1}
+      {"tipo": "texto", "texto": "UMA HISTÓRIA DE AMOR", "fonte": "cinema-forte", "x": 500, "base": 60, "largura": 860, "altura": 27, "espaco": 0.34},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 92, "largura": 881, "altura": 1005, "fundo": true, "sombra": 0.42},
+      {"tipo": "arte", "arquivo": "/designs/em-cartaz/moldura.svg", "x": 500, "topo": 83, "largura": 898.9, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "cinema", "x": 500, "topo": 935, "largura_maxima": 800, "altura_no_centro": 120, "arco": 1, "compressao_maxima": 0.7, "tinta": "creme"},
+      {"tipo": "texto", "texto": "EM CARTAZ DESDE {desde}", "fonte": "cinema-forte", "x": 500, "base": 1167, "largura": 880, "altura": 29, "espaco": 0.34},
+      {"tipo": "arte", "arquivo": "/designs/em-cartaz/creditos.svg", "x": 502.1, "topo": 1200.9, "largura": 982.4, "folga": 0}
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 16, "caixa": "alta"}, {"chave": "desde", "rotulo": "Desde que ano?", "max": 4, "caixa": "alta", "exemplo": "2019"}],
     "tintas": {"preto": "creme", "branco": "verde-escuro", "creme": "verde-escuro"},
@@ -189,18 +171,18 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
--- Design Letreiro: letreiro de cinema com o nome, a foto solta embaixo e o ano ("desde").
+-- Design Letreiro: o letreiro de cinema vem do Higgsfield; o nome entra vazado na faixa de
+-- baixo, a foto solta fica embaixo do letreiro e o cliente diz o ano ("desde").
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
   ('letreiro', 'Letreiro', 'ativo', 5, '2026-11-10', '{
     "versao": 1,
-    "proporcao": 0.6757,
+    "proporcao": 0.6431,
     "posicao": "costas",
     "camadas": [
-      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 470, "largura": 960, "altura": 850, "janela": {"largura": 960, "altura": 900, "y": 920}},
-      {"tipo": "arte", "arquivo": "/designs/letreiro/letreiro.svg", "x": 500, "topo": 30, "largura": 920, "folga": 0},
-      {"tipo": "texto", "texto": "EM CARTAZ", "fonte": "titulo", "x": 500, "base": 280, "largura": 600, "altura": 40, "espaco": 0.16},
-      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 322, "largura_maxima": 700, "altura_no_centro": 94, "arco": 1, "compressao_maxima": 0.72},
-      {"tipo": "texto", "texto": "★ ★   DESDE {desde}  ·  SESSÃO TODOS OS DIAS   ★ ★", "fonte": "titulo", "x": 500, "base": 1412, "largura": 900, "altura": 32, "espaco": 0.1}
+      {"tipo": "arte", "arquivo": "/designs/letreiro/letreiro.svg", "x": 500.1, "topo": 20.4, "largura": 964.8, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 436, "largura_maxima": 760, "altura_no_centro": 105, "arco": 1, "compressao_maxima": 0.7, "curva": 28, "vazado": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 650, "largura": 960, "altura": 790, "janela": {"largura": 960, "altura": 900, "y": 1085}},
+      {"tipo": "texto", "texto": "★ ★   DESDE {desde}  ·  SESSÃO TODOS OS DIAS   ★ ★", "fonte": "titulo", "x": 500, "base": 1525, "largura": 900, "altura": 32, "espaco": 0.1}
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 16, "caixa": "alta"}, {"chave": "desde", "rotulo": "Desde que ano?", "max": 4, "caixa": "alta", "exemplo": "2019"}],
     "tintas": {"preto": "creme", "branco": "verde-escuro", "creme": "verde-escuro"},

@@ -23,6 +23,19 @@ export const instrumentSerif = localFont({
   display: 'swap',
 });
 
+// Só nas estampas de cinema (Em Cartaz): Bodoni Moda, de licença aberta (OFL). Não é
+// fonte do site: o navegador só baixa quando um design usa (decisão a confirmar com o
+// Lucas, 10/11/2026).
+export const bodoniModa = localFont({
+  src: [
+    { path: './bodoni-moda-500.woff2', weight: '500', style: 'normal' },
+    { path: './bodoni-moda-700.woff2', weight: '700', style: 'normal' },
+  ],
+  variable: '--font-bodoni-moda',
+  display: 'swap',
+  preload: false,
+});
+
 // Textos e botões.
 export const inter = localFont({
   src: './inter-variavel.woff2',
@@ -32,4 +45,4 @@ export const inter = localFont({
   display: 'swap',
 });
 
-export const variaveisDeFonte = `${anton.variable} ${instrumentSerif.variable} ${inter.variable}`;
+export const variaveisDeFonte = `${anton.variable} ${instrumentSerif.variable} ${inter.variable} ${bodoniModa.variable}`;

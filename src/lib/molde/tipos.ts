@@ -8,8 +8,9 @@
 export type Lado = 'frente' | 'costas';
 
 // Papéis de fonte da marca: o site resolve cada um para a fonte carregada.
-// titulo: Anton; destaque: Instrument Serif; destaque-italico: a mesma, itálica.
-export type FonteDoMolde = 'titulo' | 'destaque' | 'destaque-italico';
+// titulo: Anton; destaque: Instrument Serif; destaque-italico: a mesma, itálica;
+// cinema e cinema-forte: Bodoni Moda (só nas estampas de cinema).
+export type FonteDoMolde = 'titulo' | 'destaque' | 'destaque-italico' | 'cinema' | 'cinema-forte';
 
 // Giro de uma camada, em graus (positivo: sentido horário), em volta de um ponto.
 export type Giro = { graus: number; x: number; y: number };
@@ -79,6 +80,11 @@ export type CamadaNome = {
   compressao_maxima: number;
   curva?: number;
   folga?: number;
+  // "vazado": o nome fura o que está embaixo (a faixa do letreiro) e aparece o tecido.
+  vazado?: boolean;
+  // "tinta": uma tinta fixa (de TINTAS) no lugar da tinta da peça: o nome em creme
+  // por cima da foto do pôster, em qualquer cor de peça.
+  tinta?: string;
 };
 
 // A foto do cliente, recortada pelo círculo. Na metade de cima, ela pode passar do
@@ -118,12 +124,18 @@ export type CamadaFotoQuadro = {
   altura: number;
   janela?: { largura?: number; altura?: number; y?: number };
   fundo?: boolean;
+  // Só com "fundo": escurece a base da foto (esta fração da altura), como em pôster
+  // de cinema, para o nome ser lido por cima dela.
+  sombra?: number;
 };
 
 export type CamadaFoto = CamadaFotoCirculo | CamadaFotoQuadro;
 
 // Arte fixa em SVG de uma tinta só (a cor vem de currentColor). "folga" abre um
 // respiro em volta dela, apagando o que estiver embaixo (foto, anel, nome).
+// "base" é a mesma arte sem os furos (a faixa inteira, sem as letras vazadas): com
+// ela, o que estiver embaixo da faixa é apagado antes, e as letras vazadas mostram o
+// tecido, não a foto.
 export type CamadaArte = {
   tipo: 'arte';
   arquivo: string;
@@ -131,6 +143,7 @@ export type CamadaArte = {
   topo: number;
   largura: number;
   folga: number;
+  base?: string;
 };
 
 export type Camada = CamadaTexto | CamadaAnel | CamadaNome | CamadaFoto | CamadaArte | CamadaForma;

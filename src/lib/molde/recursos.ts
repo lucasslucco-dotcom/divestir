@@ -54,15 +54,20 @@ export function fontesDaPagina(): Promise<Fontes> {
     const estilo = getComputedStyle(document.body);
     const titulo = estilo.getPropertyValue('--font-anton').trim() || 'Anton, sans-serif';
     const destaque = estilo.getPropertyValue('--font-instrument-serif').trim() || 'Georgia, serif';
+    const cinema = estilo.getPropertyValue('--font-bodoni-moda').trim() || 'Georgia, serif';
     await Promise.all([
       document.fonts.load(`400 100px ${titulo}`),
       document.fonts.load(`400 100px ${destaque}`),
       document.fonts.load(`italic 400 100px ${destaque}`),
+      document.fonts.load(`500 100px ${cinema}`),
+      document.fonts.load(`700 100px ${cinema}`),
     ]).catch(() => undefined);
     return {
       titulo: { familia: titulo, estilo: 'normal' },
       destaque: { familia: destaque, estilo: 'normal' },
       'destaque-italico': { familia: destaque, estilo: 'italic' },
+      cinema: { familia: cinema, estilo: 'normal', peso: 500 },
+      'cinema-forte': { familia: cinema, estilo: 'normal', peso: 700 },
     } satisfies Fontes;
   })();
   return fontes;

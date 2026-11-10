@@ -40,7 +40,7 @@ export type FotoNoMolde = {
 };
 
 // Fonte de cada papel: a família CSS já carregada na página e o estilo.
-export type Fontes = Record<FonteDoMolde, { familia: string; estilo: 'normal' | 'italic' }>;
+export type Fontes = Record<FonteDoMolde, { familia: string; estilo: 'normal' | 'italic'; peso?: number }>;
 
 export type ImagemDaArte = CanvasImageSource & { width: number; height: number };
 
@@ -82,7 +82,7 @@ function contexto(tela: Tela, opcoes?: CanvasRenderingContext2DSettings) {
 }
 
 const fonteCss = (fonte: Fontes[FonteDoMolde], px: number) =>
-  `${fonte.estilo === 'italic' ? 'italic ' : ''}400 ${px}px ${fonte.familia}`;
+  `${fonte.estilo === 'italic' ? 'italic ' : ''}${fonte.peso ?? 400} ${px}px ${fonte.familia}`;
 
 // A tinta da estampa para a cor da peça (ex.: peça preta → tinta creme).
 export function tintaDaCor(config: ConfigDoMolde, corDaPeca: string) {
@@ -457,6 +457,8 @@ function desenharFotoNoCirculo(ctx: CanvasRenderingContext2D, c: CamadaFotoCircu
 // A foto solta: o recorte inteiro, cortado só pelo retângulo do molde. Com "fundo",
 // entra a foto com o fundo original no mesmo lugar do recorte (as duas têm o mesmo
 // quadro), aumentada e encostada o quanto for preciso para cobrir o retângulo todo.
+const FUNDO_DO_POSTER = '#141414';
+
 function desenharFotoNoQuadro(ctx: CanvasRenderingContext2D, c: CamadaFotoQuadro, foto: FotoNoMolde, escala: number) {
   const lugar = lugarDaFoto(c, foto);
   const { janela } = lugar;
@@ -481,7 +483,24 @@ function desenharFotoNoQuadro(ctx: CanvasRenderingContext2D, c: CamadaFotoQuadro
     y = Math.min(corte.y, Math.max(y, corte.y + corte.h - h));
     ctx.drawImage(foto.inteira, x * escala, y * escala, w * escala, h * escala);
   } else {
+    // Sem a foto com fundo (foto antiga, HEIC), o pôster ganha um fundo escuro de
+    // estúdio atrás do recorte.
+    if (c.fundo) {
+      ctx.fillStyle = FUNDO_DO_POSTER;
+      ctx.fillRect(corte.x * escala, corte.y * escala, corte.w * escala, corte.h * escala);
+    }
     ctx.drawImage(foto.imagem, x * escala, y * escala, w * escala, h * escala);
+  }
+  if (c.fundo && (c.sombra ?? 0) > 0) {
+    // A base da foto escurece, como em pôster de cinema: o nome é lido por cima.
+    const base = (corte.y + corte.h) * escala;
+    const topo = base - Math.min(1, c.sombra ?? 0) * corte.h * escala;
+    const degrade = ctx.createLinearGradient(0, topo, 0, base);
+    degrade.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    degrade.addColorStop(0.55, 'rgba(0, 0, 0, 0.62)');
+    degrade.addColorStop(1, 'rgba(0, 0, 0, 0.88)');
+    ctx.fillStyle = degrade;
+    ctx.fillRect(corte.x * escala, topo, corte.w * escala, base - topo + 1);
   }
   ctx.restore();
 }
@@ -568,16 +587,23 @@ export async function prepararArte(pedido: Omit<Pedido, 'foto'>, escala: number)
     else if (camada.tipo === 'anel') desenharAnel(telaFixa(), camada, tinta, escala);
     else if (camada.tipo === 'nome') {
       const texto = textoDoCampo(config, camada.campo, pedido.valores);
-      if ((camada.folga ?? 0) > 0) {
+      const tintaDoNome = (camada.tinta && TINTAS[camada.tinta]) || tinta;
+      if (camada.vazado) {
+        // O nome fura o que está embaixo (a faixa do letreiro): aparece o tecido.
+        const mascara = criarTela(W, H);
+        desenharNome(contexto(mascara), camada, texto, '#000', escala, pedido.fontes, criarTela);
+        passos.push({ tipo: 'folga', mascara });
+        fixa = null;
+      } else if ((camada.folga ?? 0) > 0) {
         // Respiro em volta das letras: o nome passa por cima da foto sem se misturar.
         const tela = criarTela(W, H);
-        desenharNome(contexto(tela), camada, texto, tinta, escala, pedido.fontes, criarTela);
+        desenharNome(contexto(tela), camada, texto, tintaDoNome, escala, pedido.fontes, criarTela);
         const mascara = mascaraComFolga(tela, 0, 0, (camada.folga ?? 0) * escala, W, H, criarTela);
         passos.push({ tipo: 'folga', mascara });
         fixa = null;
         telaFixa().drawImage(tela, 0, 0);
         liberarTelas(tela);
-      } else desenharNome(telaFixa(), camada, texto, tinta, escala, pedido.fontes, criarTela);
+      } else desenharNome(telaFixa(), camada, texto, tintaDoNome, escala, pedido.fontes, criarTela);
     } else if (camada.tipo === 'arte') {
       const { tela, x, y } = rasterizarArte(
         await pedido.carregarArte(camada.arquivo, tinta),
@@ -585,7 +611,21 @@ export async function prepararArte(pedido: Omit<Pedido, 'foto'>, escala: number)
         escala,
         criarTela,
       );
-      if (camada.folga > 0) {
+      if (camada.base) {
+        // A arte tem letras vazadas (a faixa): o que estiver embaixo da faixa inteira
+        // é apagado antes, e pelas letras aparece o tecido, não a foto.
+        const base = rasterizarArte(await pedido.carregarArte(camada.base, '#000000'), camada, escala, criarTela);
+        let mascara: Tela;
+        if (camada.folga > 0)
+          mascara = mascaraComFolga(base.tela, base.x, base.y, camada.folga * escala, W, H, criarTela);
+        else {
+          mascara = criarTela(W, H);
+          contexto(mascara).drawImage(base.tela, base.x, base.y);
+        }
+        liberarTelas(base.tela);
+        passos.push({ tipo: 'folga', mascara });
+        fixa = null;
+      } else if (camada.folga > 0) {
         // Respiro em volta da arte: apaga o que estiver embaixo (foto, anel, nome).
         passos.push({ tipo: 'folga', mascara: mascaraComFolga(tela, x, y, camada.folga * escala, W, H, criarTela) });
         fixa = null;
