@@ -111,6 +111,17 @@ export async function cancelarPagamento(id: string) {
   }
 }
 
+// Devolve um pagamento inteiro a quem pagou (estorno). A chave é a do próprio
+// pagamento: pedir de novo não devolve duas vezes.
+export async function devolverPagamento(id: string) {
+  const { resposta } = await chamar(`/v1/payments/${encodeURIComponent(id)}/refunds`, {
+    method: 'POST',
+    body: '{}',
+    idempotencia: `devolucao-${id}`,
+  });
+  return resposta.ok;
+}
+
 export type SituacaoDoPagamento = {
   id: string;
   situacao: string;

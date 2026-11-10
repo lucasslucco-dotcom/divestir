@@ -1,9 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { useId, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import type { Catalogo, Cor, Peca } from '@/lib/catalogo';
-import { limparTextoDaEstampa, temSimboloForaDaEstampa, type Campo } from '@/lib/molde/tipos';
+import { temSimboloForaDaEstampa, tirarSimbolosDaEstampa, type Campo } from '@/lib/molde/tipos';
 import { IconeAlerta, IconeSim } from './icones';
 import { linkDeTexto } from './passo-foto';
 import { TelaDaPrevia, type ArteDaPrevia } from './tela-da-previa';
@@ -126,9 +126,18 @@ export function PassoNome({
 }) {
   const id = useId();
   const max = campo?.max ?? 10;
-  // Emoji e símbolos não existem na fonte da estampa: o que sobra é o que vai impresso.
-  const limpo = limparTextoDaEstampa(valor);
-  const sobrou = temSimboloForaDaEstampa(valor);
+  const [tirou, setTirou] = useState(false);
+
+  // Emoji e símbolos não existem na fonte da estampa (confirmado pelo Lucas,
+  // 10/11/2026): eles nem entram no campo, e um aviso explica. Enquanto o teclado
+  // ainda está montando uma letra (o acento antes da vogal), nada é mexido.
+  function mudar(bruto: string, montando: boolean) {
+    if (montando) return aoMudar(bruto.slice(0, max));
+    // O aviso fica até a pessoa voltar ao campo: sumir na letra seguinte seria rápido demais.
+    if (temSimboloForaDaEstampa(bruto)) setTirou(true);
+    aoMudar(tirarSimbolosDaEstampa(bruto).slice(0, max));
+  }
+
   return (
     <>
       <label htmlFor={`${id}-nome`} className="block text-base leading-snug font-semibold">
@@ -138,7 +147,12 @@ export function PassoNome({
         id={`${id}-nome`}
         type="text"
         value={valor}
-        onChange={(evento) => aoMudar(evento.target.value.slice(0, max))}
+        onChange={(evento) => mudar(evento.target.value, (evento.nativeEvent as InputEvent).isComposing === true)}
+        onCompositionEnd={(evento) => mudar(evento.currentTarget.value, false)}
+        onFocus={() => setTirou(false)}
+        onBlur={(evento) => {
+          if (temSimboloForaDaEstampa(evento.currentTarget.value)) mudar(evento.currentTarget.value, false);
+        }}
         onKeyDown={(evento) => {
           if (evento.key === 'Enter') evento.currentTarget.blur();
         }}
@@ -153,17 +167,14 @@ export function PassoNome({
       <p id={`${id}-ajuda`} className="mt-2 text-[0.9375rem] leading-snug">
         Até {max} letras, como Thor, Vó Cida ou Duda.
       </p>
-      {sobrou ? (
-        <p
-          role="status"
-          className="mt-2 flex max-w-[38ch] items-start gap-2 text-[0.9375rem] leading-snug font-semibold"
-        >
-          <IconeAlerta className="mt-[3px] shrink-0" />
-          {limpo
-            ? `Emoji e símbolos não saem na estampa. Na peça vai assim: ${limpo.toLocaleUpperCase('pt-BR')}`
-            : 'Emoji e símbolos não saem na estampa. Escreve o nome com letras?'}
-        </p>
-      ) : null}
+      <div aria-live="polite">
+        {tirou ? (
+          <p className="mt-2 flex max-w-[38ch] items-start gap-2 text-[0.9375rem] leading-snug font-semibold">
+            <IconeAlerta className="mt-[3px] shrink-0" />
+            Emoji e símbolos não saem na estampa: o nome vai só com letras e números.
+          </p>
+        ) : null}
+      </div>
     </>
   );
 }

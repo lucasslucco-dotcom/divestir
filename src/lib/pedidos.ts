@@ -4,7 +4,13 @@ import type { PecaDoCheckout, PedidoCriado, PedidoDoCheckout, SituacaoDoPedido }
 import { ESPACO_DAS_FOTOS, ehCodigo } from './foto/espaco';
 import { cotarFrete, FreteIndisponivel } from './frete';
 import { MAX_PECAS_POR_PEDIDO, PRAZO_EM_TEXTO, precoDaPeca, precoDoPresente, somar } from './loja';
-import { buscarPagamento, pagamentoEmTeste, situacaoDoPagamento, type SituacaoDoPagamento } from './mercadopago';
+import {
+  buscarPagamento,
+  devolverPagamento,
+  pagamentoEmTeste,
+  situacaoDoPagamento,
+  type SituacaoDoPagamento,
+} from './mercadopago';
 import { LIMITE_DO_CARTAO } from './montagem/tipos';
 import { ehConfigDoMolde, ladosDaPeca, limparTextoDaEstampa, type AreasDaPeca, type Lado } from './molde/tipos';
 import { criarClienteAdmin } from './supabase/admin';
@@ -398,13 +404,41 @@ export async function registrarPagamento(
     console.error('pedidos: a rotina registrar_pagamento falhou', error.message);
     throw new PedidoRecusado('Não consegui registrar o pagamento agora.', 502);
   }
-  if (data === 'pago_em_dobro') {
-    // O cliente pagou duas vezes o mesmo pedido: a equipe precisa devolver um dos dois.
+  if (data === 'pago_em_dobro') await devolverEmDobro(pedido.numero, situacao.id);
+  return String(data);
+}
+
+// O cliente pagou duas vezes o mesmo pedido (por exemplo, o Pix caiu depois de ele
+// já ter pago com o cartão): o segundo pagamento volta para ele na hora, sozinho
+// (decisão do Lucas, 10/11/2026). Antes de devolver, o site confere no Mercado Pago
+// que o pagamento que vale para o pedido continua aprovado; se não estiver, não
+// devolve nada e deixa o caso nos registros para a equipe olhar.
+async function devolverEmDobro(numero: number, pagamentoRepetido: string) {
+  try {
+    const pedido = await lerPedidoPorNumero(numero);
+    const queVale = pedido?.pagamento_id && pedido.pagamento_id !== pagamentoRepetido ? pedido.pagamento_id : null;
+    const aprovado = queVale ? (await buscarPagamento(queVale))?.status === 'approved' : false;
+    if (!aprovado) {
+      console.error(
+        `pedidos: COBRANÇA EM DOBRO no pedido ${numero} (pagamento ${pagamentoRepetido}), mas não consegui confirmar o pagamento que vale. NÃO devolvi: conferir no Mercado Pago.`,
+      );
+      return;
+    }
+    if (await devolverPagamento(pagamentoRepetido)) {
+      console.error(
+        `pedidos: cobrança em dobro no pedido ${numero}: o pagamento ${pagamentoRepetido} foi devolvido ao cliente (vale o ${queVale}).`,
+      );
+    } else {
+      console.error(
+        `pedidos: COBRANÇA EM DOBRO no pedido ${numero}: o Mercado Pago não aceitou devolver o pagamento ${pagamentoRepetido}. Devolver por lá.`,
+      );
+    }
+  } catch (motivo) {
     console.error(
-      `pedidos: COBRANÇA EM DOBRO no pedido ${pedido.numero} (pagamento ${situacao.id}). Devolver pelo Mercado Pago.`,
+      `pedidos: COBRANÇA EM DOBRO no pedido ${numero} (pagamento ${pagamentoRepetido}): a devolução falhou. Devolver pelo Mercado Pago.`,
+      motivo,
     );
   }
-  return String(data);
 }
 
 // Pergunta ao Mercado Pago como está o pagamento atual de um pedido ainda não pago

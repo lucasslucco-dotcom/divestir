@@ -115,13 +115,17 @@ export const LARGURA_DA_ARTE = 1000;
 export const temSimboloForaDaEstampa = (valor: string) =>
   /[^\p{Script=Latin}\p{Nd} .\-'&!\u2018\u2019]/u.test(valor.normalize('NFC'));
 
-export function limparTextoDaEstampa(valor: string) {
+// Tira só o que não sai na estampa, sem mexer nos espaços (para usar enquanto a
+// pessoa digita).
+export function tirarSimbolosDaEstampa(valor: string) {
   return valor
     .normalize('NFC')
     .replace(/[\u2018\u2019]/g, "'")
-    .replace(/[^\p{Script=Latin}\p{Nd} .\-'&!]/gu, '')
-    .replace(/ {2,}/g, ' ')
-    .trim();
+    .replace(/[^\p{Script=Latin}\p{Nd} .\-'&!]/gu, '');
+}
+
+export function limparTextoDaEstampa(valor: string) {
+  return tirarSimbolosDaEstampa(valor).replace(/ {2,}/g, ' ').trim();
 }
 
 // As tintas da estampa: as cores da marca.

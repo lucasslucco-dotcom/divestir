@@ -102,8 +102,9 @@ function ResultadoDaChecagem({ envio }: { envio: EnvioDaFoto }) {
 }
 
 // O aviso da definição: foto pequena, quem aparece pequeno nela ou muito zoom dão
-// poucos pontos para a peça impressa. Não trava: a equipe ainda revisa a arte.
-// Quando ele aparece, o selo da foto inteira ("Foto perfeita") sai de cena.
+// poucos pontos para a peça impressa. O tamanho e a qualidade da estampa são os da
+// Divestir: quem se adapta é a foto, então o aviso pede uma foto melhor (decisão do
+// Lucas, 09/11/2026). Quando ele aparece, o selo "Foto perfeita" sai de cena.
 function AvisoDaDefinicao({ nivel, zoom }: { nivel: Definicao['nivel']; zoom: number }) {
   if (nivel === 'boa') return null;
   const comZoom = zoom > 1.001;
@@ -112,11 +113,11 @@ function AvisoDaDefinicao({ nivel, zoom }: { nivel: Definicao['nivel']; zoom: nu
       <IconeAlerta className="mt-[3px] shrink-0" />
       {nivel === 'media'
         ? comZoom
-          ? 'Com esse zoom, a estampa pode perder um pouco de definição.'
-          : 'Do jeito que está, a estampa pode perder um pouco de definição. Uma foto maior ou mais de perto fica melhor.'
+          ? 'Com esse zoom, a foto fica no limite da qualidade da nossa estampa. Para aproximar assim, manda uma foto tirada mais de perto.'
+          : 'Essa foto está no limite da qualidade da nossa estampa. Se tiver uma maior ou tirada mais de perto, manda ela.'
         : comZoom
-          ? 'Com esse zoom, a estampa vai sair sem definição. Diminui o zoom ou manda uma foto mais de perto.'
-          : 'Essa foto tem pouca definição para o tamanho da estampa. Uma foto maior ou mais de perto resolve.'}
+          ? 'Com esse zoom, a foto não tem qualidade para a nossa estampa. Para aproximar assim, manda uma foto tirada mais de perto.'
+          : 'Essa foto não tem qualidade para a nossa estampa. Manda uma maior ou tirada mais de perto.'}
     </p>
   );
 }
@@ -358,14 +359,26 @@ export function PassoFoto({
             </div>
           ) : null}
           <ControlesDoAjuste foto={foto} definicao={definicao} aoEnquadrar={aoEnquadrar} idDaDica={idDaDica} />
-          <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-1">
-            <button type="button" onClick={aoAprovar} className="ingresso w-full sm:w-auto">
-              Ficou ótimo
-            </button>
-            <button type="button" onClick={escolher} className={linkDeTexto}>
-              Trocar a foto
-            </button>
-          </div>
+          {definicao === 'baixa' ? (
+            // Abaixo da qualidade da estampa, o caminho principal é mandar outra foto.
+            <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-1">
+              <button type="button" onClick={escolher} className="ingresso w-full cursor-pointer sm:w-auto">
+                Escolher outra foto
+              </button>
+              <button type="button" onClick={aoAprovar} className={linkDeTexto}>
+                Usar essa mesmo assim
+              </button>
+            </div>
+          ) : (
+            <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-1">
+              <button type="button" onClick={aoAprovar} className="ingresso w-full sm:w-auto">
+                Ficou ótimo
+              </button>
+              <button type="button" onClick={escolher} className={linkDeTexto}>
+                Trocar a foto
+              </button>
+            </div>
+          )}
           <p className="mt-1 max-w-[38ch] text-[0.9375rem] leading-snug">
             Confere se o recorte pegou tudo: orelhas, cabelo, rabo. Se cortou algo importante, é melhor trocar a foto.
           </p>

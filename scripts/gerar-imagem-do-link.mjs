@@ -13,7 +13,7 @@ import { createRequire } from 'node:module';
 
 const raiz = join(dirname(fileURLToPath(import.meta.url)), '..');
 const TITULO = process.env.TITULO ?? 'Crie sua Divestir';
-const LINHA = process.env.LINHA ?? 'Manda a foto. A gente transforma em ídolo.';
+const LINHA = process.env.LINHA ?? 'Com a foto de quem você ama.';
 const PECAS = ['exemplo-vo-cida', 'exemplo-thor', 'exemplo-duda'];
 const SAIDA = process.env.SAIDA ?? join(raiz, 'src', 'app', 'opengraph-image.jpg');
 
