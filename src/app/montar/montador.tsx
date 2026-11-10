@@ -34,7 +34,7 @@ import {
   type Lado,
 } from '@/lib/molde/tipos';
 import { Doca, type DescricaoDaVista, type Vista } from './doca';
-import { ID_DOS_PASSOS, nomeDaPeca, oQueFalta, reduzir, resolver, type Falta } from './estado';
+import { coresDaPeca, ID_DOS_PASSOS, nomeDaPeca, oQueFalta, reduzir, resolver, type Falta } from './estado';
 import { PassoDesign } from './passo-design';
 import { PassoFoto, type EnvioDaFoto, type FotoReaproveitavel } from './passo-foto';
 import { PassoResumo } from './passo-resumo';
@@ -534,7 +534,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
           vistas={vistas}
           grande={vistaGrande}
           aoVer={setVista}
-          cores={catalogo.cores}
+          cores={coresDaPeca(catalogo, r.peca)}
           cor={r.cor}
           aoEscolherCor={(slug) => despachar({ tipo: 'cor', slug })}
           ajuste={ajustando ? enquadrar : undefined}
@@ -618,7 +618,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
 
         <Passo id={ID_DOS_PASSOS.cor} numero={5} titulo="A cor" resumo={r.cor.nome}>
           <PassoCor
-            cores={catalogo.cores}
+            cores={coresDaPeca(catalogo, r.peca)}
             cor={r.cor}
             peca={r.peca}
             lado={r.lado}

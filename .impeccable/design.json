@@ -207,7 +207,7 @@
       "name": "Passo numerado",
       "kind": "custom",
       "description": "Item de lista com número vazado de camisa, título e texto em tinta única. No montador, cada um dos 7 passos usa a mesma forma, com um visto e o resumo da escolha quando o passo está resolvido.",
-      "html": "<div class=\"ds-passo\"><span class=\"ds-passo-numero\">1</span><div><p class=\"ds-passo-titulo\">Escolhe a peça</p><p class=\"ds-passo-texto\">Camiseta regular ou oversized, moletom com ou sem capuz, ou jaqueta college.</p></div></div>",
+      "html": "<div class=\"ds-passo\"><span class=\"ds-passo-numero\">1</span><div><p class=\"ds-passo-titulo\">Escolhe a peça</p><p class=\"ds-passo-texto\">Camiseta regular, oversized ou dry-fit, moletom com ou sem capuz, ou jaqueta bomber.</p></div></div>",
       "css": ".ds-passo{display:flex;gap:1.25rem;max-width:22rem;color:var(--color-verde);font-family:var(--font-inter),system-ui,sans-serif}.ds-passo p{margin:0}.ds-passo-numero{flex-shrink:0;width:1.75rem;font-family:var(--font-anton),'Arial Narrow',sans-serif;font-size:3rem;line-height:1;color:transparent;-webkit-text-stroke:1.5px var(--color-verde)}.ds-passo-titulo{font-size:1.125rem;line-height:1.75rem;font-weight:600}.ds-passo-texto{margin-top:.375rem!important;line-height:1.625}"
     },
     {

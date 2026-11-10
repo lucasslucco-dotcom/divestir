@@ -72,14 +72,6 @@ export const EXEMPLOS: Exemplo[] = [
     descricao:
       'Costas de um moletom com capuz preto com o design Procura-se: cartaz de velho oeste com a foto de uma gata, o nome NINA, “Por roubar meu coração” e “Recompensa: amor eterno”.',
   },
-  {
-    nome: 'Duda',
-    design: 'Fã-Clube',
-    peca: 'Jaqueta college',
-    foto: '/exemplos/exemplo-duda.jpg',
-    descricao:
-      'Costas de uma jaqueta college preta com mangas creme e o design Fã-Clube: “Membro Oficial”, o nome DUDA e a foto de uma amiga rindo dentro de um círculo.',
-  },
 ];
 
 // Só entram na vitrine os exemplos cuja foto já está em public/exemplos.
@@ -102,10 +94,7 @@ export function Vitrine({ exemplos = exemplosComFoto(EXEMPLOS) }: { exemplos?: E
         }
       >
         {exemplos.map((exemplo, i) => (
-          <li
-            key={exemplo.nome}
-            className={varios ? 'w-[78%] shrink-0 snap-start sm:w-[44%] lg:w-auto' : undefined}
-          >
+          <li key={exemplo.nome} className={varios ? 'w-[78%] shrink-0 snap-start sm:w-[44%] lg:w-auto' : undefined}>
             <Image
               src={exemplo.foto}
               alt={exemplo.descricao}

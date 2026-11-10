@@ -5,7 +5,7 @@ import { Vitrine } from './vitrine';
 const PASSOS = [
   {
     titulo: 'Escolhe a peça',
-    texto: 'Camiseta regular ou oversized, moletom com ou sem capuz, ou jaqueta college.',
+    texto: 'Camiseta regular, oversized ou dry-fit, moletom com ou sem capuz, ou jaqueta bomber.',
   },
   {
     titulo: 'Manda a foto',

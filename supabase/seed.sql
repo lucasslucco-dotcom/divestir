@@ -1,5 +1,5 @@
--- Catálogo inicial da Divestir: 5 peças, 3 cores, as 30 fotos de base, a área de
--- impressão de cada lado e o primeiro design (Fã-Clube).
+-- Catálogo da Divestir: 6 peças, 3 cores, as fotos de base, a área de impressão de
+-- cada lado e os designs.
 -- São dados, não estrutura: rodar de novo é seguro (atualiza o que já existe).
 -- As fotos ficam em public/catalogo/ com o nome peca-cor-lado.jpg.
 -- Preço ainda está em aberto no briefing, então fica vazio. Da área de impressão,
@@ -9,13 +9,19 @@
 insert into public.pecas (slug, nome, caimento, ordem) values
   ('camiseta-regular', 'Camiseta', 'Regular', 1),
   ('camiseta-oversized', 'Camiseta', 'Oversized', 2),
-  ('moletom', 'Moletom', 'Sem capuz', 3),
-  ('moletom-capuz', 'Moletom', 'Com capuz', 4),
-  ('jaqueta-college', 'Jaqueta college', 'Mangas contrastantes', 5)
+  ('camiseta-dry-fit', 'Camiseta', 'Dry-fit', 3),
+  ('moletom', 'Moletom', 'Sem capuz', 4),
+  ('moletom-capuz', 'Moletom', 'Com capuz', 5),
+  ('jaqueta-bomber', 'Jaqueta bomber', 'Só na cor preta', 6)
 on conflict (slug) do update set
   nome = excluded.nome,
   caimento = excluded.caimento,
   ordem = excluded.ordem;
+
+-- A jaqueta college saiu do catálogo e deu lugar à bomber (decisão do Lucas,
+-- 10/11/2026). Num banco que já tinha a college, ela fica guardada, fora da loja, por
+-- causa dos pedidos de teste feitos com ela.
+update public.pecas set ativo = false where slug = 'jaqueta-college';
 
 insert into public.cores (slug, nome, hex, ordem) values
   ('preto', 'Preto', '#141414', 1),
@@ -31,13 +37,17 @@ select p.id, c.id, l.lado, format('/catalogo/%s-%s-%s.jpg', p.slug, c.slug, l.la
 from public.pecas p
 cross join public.cores c
 cross join (values ('frente'), ('costas')) as l (lado)
-where p.slug in ('camiseta-regular', 'camiseta-oversized', 'moletom', 'moletom-capuz', 'jaqueta-college')
-  and c.slug in ('preto', 'branco', 'creme')
+where (
+    p.slug in ('camiseta-regular', 'camiseta-oversized', 'camiseta-dry-fit', 'moletom', 'moletom-capuz')
+    and c.slug in ('preto', 'branco', 'creme')
+  )
+  -- A bomber só existe em preto: a cor que não tem foto não aparece para a peça.
+  or (p.slug = 'jaqueta-bomber' and c.slug = 'preto')
 on conflict (peca_id, cor_id, lado) do update set url = excluded.url;
 
 -- Área de impressão de cada lado, em frações da foto de base: centro (x), topo e
 -- largura (a altura sai da proporção do molde). O cliente escolhe frente ou costas;
--- a jaqueta college só tem costas (decisão do Lucas, 08/11/2026). "peito" é o lugar
+-- a jaqueta bomber só tem costas, por causa do zíper (decisão do Lucas, 10/11/2026). "peito" é o lugar
 -- da marca no peito, na foto da frente, do lado esquerdo de quem veste: com a
 -- estampa nas costas, a frente leva DIVESTIR em Anton até o logo ficar pronto
 -- (decisão do Lucas, 08/11/2026).
@@ -50,7 +60,8 @@ from (values
   ('camiseta-oversized', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.218, "largura": 0.326}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.177, "largura": 0.326, "grande": {"largura": 0.42, "topo": 0.165}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.225, "largura": 0.11}}}'::jsonb),
   ('moletom', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.2, "largura": 0.31}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.32, "grande": {"largura": 0.4, "topo": 0.175}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.225, "largura": 0.11}}}'::jsonb),
   ('moletom-capuz', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.305, "largura": 0.2}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.325, "largura": 0.36, "grande": {"largura": 0.42}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.655, "topo": 0.275, "largura": 0.1}}}'::jsonb),
-  ('jaqueta-college', '{"costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.17, "largura": 0.3, "grande": {"largura": 0.38, "topo": 0.16}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.64, "topo": 0.23, "largura": 0.1}}}'::jsonb)
+  ('camiseta-dry-fit', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.205, "largura": 0.3}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.31, "grande": {"largura": 0.4, "topo": 0.175}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.215, "largura": 0.11}}}'::jsonb),
+  ('jaqueta-bomber', '{"costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.2, "largura": 0.3, "grande": {"largura": 0.38, "topo": 0.185}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.645, "topo": 0.255, "largura": 0.1}}}'::jsonb)
 ) as a (slug, area)
 where p.slug = a.slug;
 
@@ -62,7 +73,8 @@ from (values
   ('camiseta-oversized', '{"peso_kg": 0.35, "largura_cm": 25, "altura_cm": 5, "comprimento_cm": 30}'::jsonb),
   ('moletom', '{"peso_kg": 0.7, "largura_cm": 30, "altura_cm": 8, "comprimento_cm": 35}'::jsonb),
   ('moletom-capuz', '{"peso_kg": 0.8, "largura_cm": 30, "altura_cm": 10, "comprimento_cm": 35}'::jsonb),
-  ('jaqueta-college', '{"peso_kg": 1.0, "largura_cm": 35, "altura_cm": 10, "comprimento_cm": 40}'::jsonb)
+  ('camiseta-dry-fit', '{"peso_kg": 0.2, "largura_cm": 25, "altura_cm": 4, "comprimento_cm": 30}'::jsonb),
+  ('jaqueta-bomber', '{"peso_kg": 0.8, "largura_cm": 35, "altura_cm": 10, "comprimento_cm": 40}'::jsonb)
 ) as e (slug, envio)
 where p.slug = e.slug;
 
@@ -83,7 +95,7 @@ insert into public.designs (slug, nome, status, ordem, config) values
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
     "tintas": {"preto": "creme", "branco": "verde-escuro", "creme": "verde-escuro"},
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -122,7 +134,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -150,7 +162,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -178,7 +190,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 16, "caixa": "alta"}, {"chave": "desde", "rotulo": "Desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["casal"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -209,7 +221,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["pais", "avos-ele", "amigos"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -240,7 +252,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["amigos", "pais", "avos-ele"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -276,7 +288,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}, {"chave": "desde", "rotulo": "Invicto desde que ano?", "resumo": "Invicto desde", "max": 4, "caixa": "alta", "exemplo": "1995"}, {"chave": "papel", "rotulo": "Campeão mundial de…", "resumo": "Campeão de", "max": 10, "caixa": "alta", "opcoes": ["PAI", "AVÔ", "TIO", "PADRINHO", "SOGRO", "PADRASTO"]}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["pais", "avos-ele"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set

@@ -11,7 +11,7 @@ A Divestir vende roupa sob demanda com a foto de quem a pessoa ama estampada, de
 **O que entra na v1**
 
 - Site institucional + montador + carrinho + checkout com pagamento
-- Todas as peças de uma vez: camiseta regular, camiseta oversized, moletom sem capuz, moletom com capuz, jaqueta college
+- Todas as peças de uma vez: camiseta regular, camiseta oversized, camiseta dry-fit, moletom sem capuz, moletom com capuz, jaqueta bomber
 - Cores preto, branco e creme; tamanhos PP ao GGG
 - Linha inicial de designs, com estrutura de drops (entrada, selo de novo, saída)
 - Opção de presente no carrinho
@@ -24,7 +24,7 @@ A Divestir vende roupa sob demanda com a foto de quem a pessoa ama estampada, de
 
 O montador é uma página só: a prévia da peça fica fixa (no topo no celular, à esquerda no desktop) e os passos rolam ao lado. Cada escolha atualiza a prévia na hora, sem recarregar. O cliente sempre vê frente e costas e pode voltar a qualquer passo sem perder o que já fez.
 
-1. **Escolher a peça.** Cards com foto de cada modelo: camiseta regular, camiseta oversized, moletom, moletom com capuz, jaqueta college. Preço "a partir de" em cada card. A prévia já aparece em preto, a cor padrão.
+1. **Escolher a peça.** Cards com foto de cada modelo: camiseta regular, camiseta oversized, camiseta dry-fit, moletom, moletom com capuz, jaqueta bomber. Preço "a partir de" em cada card. A prévia já aparece em preto, a cor padrão.
 2. **Enviar a foto.** Upload por arquivo ou câmera do celular. Antes do botão, o guia da foto perfeita em formato visual. Ao subir, o sistema confere resolução e nitidez, remove o fundo automaticamente e mostra o recorte. O cliente pode ajustar o enquadramento (arrastar e dar zoom) e, se o recorte falhar, trocar a foto.
 3. **Dar nome.** Um campo: "Como ele(a) se chama?" (THOR, VÓ CIDA, DUDA). Limite de caracteres definido por template; o texto entra na prévia enquanto a pessoa digita.
 4. **Escolher o design.** Carrossel de miniaturas, cada uma já renderizada com a foto e o nome do cliente, não com um exemplo genérico. É aqui que a pessoa se apaixona. Selo "Novo" ou "Últimos dias" nos designs de drop.
@@ -99,7 +99,7 @@ Cada design é um template configurável, não uma imagem pronta: ele define ond
     "branco": "verde-escuro",
     "creme": "verde-escuro"
   },
-  "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"]
+  "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"]
 }
 ```
 
@@ -128,13 +128,16 @@ A v1 entra com 5 modelos, 3 cores e 6 tamanhos, todos cadastrados pelo painel pa
 | --- | --- | --- | --- |
 | Camiseta manga curta | Regular | a definir com a estamparia | a definir |
 | Camiseta manga curta | Oversized | a definir com a estamparia | a definir |
+| Camiseta manga curta | Dry-fit | a definir com a estamparia | a definir |
 | Moletom | Sem capuz | a definir com a estamparia | a definir |
 | Moletom | Com capuz | a definir com a estamparia | a definir |
-| Jaqueta college | Regular, mangas contrastantes | a definir com a estamparia | a definir |
+| Jaqueta bomber | Só na cor preta | a definir com a estamparia | a definir |
 
-**Cores:** preto, branco, creme. **Tamanhos:** PP, P, M, G, GG, GGG, com tabela de medidas própria por modelo.
+**Cores:** preto, branco, creme (a jaqueta bomber só em preto). **Tamanhos:** PP, P, M, G, GG, GGG, com tabela de medidas própria por modelo.
 
-**Jaqueta college:** a cor escolhida vale para o corpo, e as mangas são contrastantes: corpo preto com mangas creme, corpo branco ou creme com mangas pretas. A estampa vai nas costas, como nas outras peças.
+**Jaqueta bomber** (decisão do Lucas, 10/11/2026, no lugar da jaqueta college): só na cor preta, com gola, punhos e barra canelados e zíper na frente. A estampa vai só nas costas, e a frente leva a marca no peito.
+
+**Camiseta dry-fit** (decisão do Lucas, 10/11/2026): nas três cores. O tecido é poliéster: confirmar com a estamparia a técnica de estampa em cada cor.
 
 **Fotos de base para a prévia:** cada combinação de peça e cor precisa de uma foto de frente e uma de costas, no mesmo ângulo e luz. São 30 fotos (5 peças × 3 cores × 2 lados), geradas no Higgsfield no estilo manequim invisível, todas no mesmo canvas (1792 × 2240 px, 4:5) e no mesmo fundo cinza claro (#E9E9E7). Método: a versão preta de frente de cada peça é a matriz, e as costas e as cores branca e creme saem dela, para a silhueta não mudar quando o cliente troca de cor. Essas fotos são a base de toda prévia, então a qualidade delas define a percepção de valor do site.
 

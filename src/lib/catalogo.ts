@@ -30,7 +30,7 @@ export type Peca = {
   envio: PacoteDeEnvio | null;
   // Fotos de base por cor e por lado, por exemplo fotos.preto.frente.
   fotos: Record<string, Partial<Record<Lado, string>>>;
-  // Onde a estampa pode ir em cada lado (a jaqueta college só tem costas).
+  // Onde a estampa pode ir em cada lado (a jaqueta bomber só tem costas).
   areas: AreasDaPeca;
 };
 

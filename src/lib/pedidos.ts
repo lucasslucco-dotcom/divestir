@@ -241,6 +241,21 @@ export async function criarPedido(pedido: PedidoDoCheckout): Promise<PedidoCriad
   }
   const pecaPorSlug = new Map((pecas.data as LinhaDaPeca[]).map((p) => [p.slug, p]));
   const corPorSlug = new Map((cores.data as LinhaDaCor[]).map((c) => [c.slug, c]));
+  // As cores em que cada peça existe são as que têm foto de base (a bomber só vem em preto).
+  const imagens = await cliente
+    .from('peca_imagens')
+    .select('peca_id, cor_id')
+    .in(
+      'peca_id',
+      (pecas.data as LinhaDaPeca[]).map((p) => p.id),
+    );
+  if (imagens.error) {
+    console.error('pedidos: não consegui ler as cores das peças', imagens.error.message);
+    throw new PedidoRecusado('Não consegui fechar o pedido agora. Tenta de novo em instantes?', 502);
+  }
+  const existe = new Set(
+    (imagens.data as { peca_id: number; cor_id: number }[]).map((i) => `${i.peca_id}:${i.cor_id}`),
+  );
   const designPorSlug = new Map((designs.data as LinhaDoDesign[]).map((d) => [d.slug, d]));
 
   const presente = precoDoPresente(teste);
@@ -250,6 +265,9 @@ export async function criarPedido(pedido: PedidoDoCheckout): Promise<PedidoCriad
     const design = designPorSlug.get(p.design);
     if (!peca?.ativo || !cor?.ativo || !design || design.status !== 'ativo' || !ehConfigDoMolde(design.config)) {
       throw new PedidoRecusado('Uma das peças do carrinho saiu de linha. Confere o carrinho?', 409);
+    }
+    if (!existe.has(`${peca.id}:${cor.id}`)) {
+      throw new PedidoRecusado('Uma das peças do carrinho não vem mais nessa cor. Confere o carrinho?', 409);
     }
     const config = design.config;
     const areas = peca.area_impressao_cm ?? {};

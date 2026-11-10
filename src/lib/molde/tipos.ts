@@ -300,7 +300,7 @@ export function areaDoDesign(area: AreaNaFoto | null, config: ConfigDoMolde): Ar
 }
 
 // Área de impressão de cada lado da peça (coluna area_impressao_cm de pecas).
-// Lado que não aparece aqui não recebe estampa (a jaqueta college só tem costas).
+// Lado que não aparece aqui não recebe estampa (a jaqueta bomber só tem costas).
 // "peito" é o lugar da marca no peito, na foto da frente (do lado esquerdo de quem
 // veste). As medidas em centímetros chegam quando a estamparia confirmar.
 export type AreaDeImpressao = {

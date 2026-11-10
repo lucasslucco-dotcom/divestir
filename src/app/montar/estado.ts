@@ -80,13 +80,22 @@ export type Resolvida = {
   marcaNoPeito: boolean;
 };
 
-// Junta as escolhas com o que existe: a peça e a cor ativas, um design que aceita a
-// peça, um lado que a peça tem e um tamanho que ela vende.
+// As cores em que uma peça existe: as que têm foto de base (a jaqueta bomber só vem
+// em preto).
+export function coresDaPeca(catalogo: Catalogo, peca: Peca): Cor[] {
+  return catalogo.cores.filter((cor) => peca.fotos[cor.slug]);
+}
+
+// Junta as escolhas com o que existe: a peça ativa, uma cor em que ela existe, um
+// design que aceita a peça, um lado que a peça tem e um tamanho que ela vende.
 export function resolver(catalogo: Catalogo, designs: Design[], m: Montagem): Resolvida | null {
   const peca = catalogo.pecas.find((p) => p.slug === m.peca) ?? catalogo.pecas[0];
-  const cor =
-    catalogo.cores.find((c) => c.slug === m.cor) ?? catalogo.cores.find((c) => c.slug === 'preto') ?? catalogo.cores[0];
-  if (!peca || !cor) return null;
+  if (!peca) return null;
+  // Só as cores em que a peça existe: quem estava na creme e troca para a bomber vai
+  // para a preta.
+  const cores = coresDaPeca(catalogo, peca);
+  const cor = cores.find((c) => c.slug === m.cor) ?? cores.find((c) => c.slug === 'preto') ?? cores[0];
+  if (!cor) return null;
   const permitidos = designs.filter((d) => !d.config.pecas_permitidas || d.config.pecas_permitidas.includes(peca.slug));
   const design = permitidos.find((d) => d.slug === m.design) ?? permitidos[0] ?? null;
   const lados = ladosDaPeca(peca.areas);

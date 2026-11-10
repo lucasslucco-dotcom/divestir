@@ -242,7 +242,12 @@ export function PassoCor({
           );
         })}
       </div>
-      {arte ? (
+      {cores.length === 1 ? (
+        <p className="mt-3 text-[0.9375rem] leading-snug">
+          Essa peça só vem em {cores[0].nome.toLocaleLowerCase('pt-BR')}.
+          {arte ? <span className="mt-1 block text-xs leading-relaxed">Prévia ilustrativa.</span> : null}
+        </p>
+      ) : arte ? (
         <p className="mt-3 text-[0.9375rem] leading-snug">
           A tinta da estampa muda junto com a cor da peça.
           <span className="mt-1 block text-xs leading-relaxed">Prévias ilustrativas.</span>

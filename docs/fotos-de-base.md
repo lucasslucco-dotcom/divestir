@@ -35,3 +35,16 @@ Os códigos abaixo são dos trabalhos no Higgsfield. As gerações feitas pelo c
 | Moletom | `399edbd4-15c7-4d16-ac4a-aff494994130` | `416b95f1-ebfd-428e-8982-4d75945258ae` |
 | Moletom com capuz | `f602f79a-8f7e-4427-9d1c-5a594a492022` | `56e75bd1-c12a-4861-a41d-bb92b9b7c53c` |
 | Jaqueta college | `bb8d9591-3772-4932-a922-8b4002cb6a57` | `39507275-b5ce-46f0-ba73-d480b85aef22` |
+
+## Jaqueta bomber e camiseta dry-fit, geradas em 10/11/2026
+
+A jaqueta bomber entrou no lugar da jaqueta college, só na cor preta, e a camiseta dry-fit entrou nas três cores (decisão do Lucas, 10/11/2026). As matrizes usaram como referência a foto da college (bomber) e a da camiseta regular (dry-fit), para o enquadramento e a luz baterem com o resto do catálogo. As fotos da college continuam em `public/catalogo/`, fora de uso.
+
+| Peça | Preto, frente (matriz) | Preto, costas | Branco, frente | Branco, costas | Creme, frente | Creme, costas |
+| --- | --- | --- | --- | --- | --- | --- |
+| Jaqueta bomber | `5ded1478-6696-417f-b5cd-bc3ab3535c60` | `a310e958-7c31-4d84-b400-2c16330c8150` | não existe | não existe | não existe | não existe |
+| Camiseta dry-fit | `b7ea4f90-7caf-469c-8d58-ca2e4d1642ae` | `12b11903-07f9-4bdf-af3e-d777031abb07` | `c27c34b1-da74-4cd8-a0fb-22f33d80ffb8` | `48a410db-3056-41c4-bcec-d96664f2982a` | `643a6b48-a371-4821-a4e4-e3eabeb6b1c5` | `a73e204f-17f3-424f-be4e-d1079ee29cf4` |
+
+O creme da dry-fit saiu mais amarelo que o das outras peças e foi acertado depois do `preparar-fotos.py` (um pouco mais de azul só no tecido), para bater com a camiseta regular creme.
+
+Como as fotos chegaram ao projeto: o ambiente de trabalho do Claude não alcança o endereço das imagens do Higgsfield, então cada foto foi aberta no navegador do aplicativo, fotografada em quatro partes e emendada (1600 × 2000), antes do `preparar-fotos.py` reduzir para 1440 × 1800. As emendas foram conferidas e não aparecem.

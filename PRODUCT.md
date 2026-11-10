@@ -37,9 +37,9 @@ A foto de quem você ama vira ídolo, numa peça com cara de merch oficial (fã-
 
 ## Capabilities and Constraints
 
-- Peças da v1: camiseta regular, camiseta oversized, moletom sem capuz, moletom com capuz e jaqueta college (mangas contrastantes). Cores de peça: preto, branco e creme. Tamanhos: PP ao GGG.
+- Peças da v1: camiseta regular, camiseta oversized, camiseta dry-fit, moletom sem capuz, moletom com capuz e jaqueta bomber (decisão do Lucas, 10/11/2026: a bomber no lugar da college, e a dry-fit a mais). Cores de peça: preto, branco e creme; a bomber só em preto. Tamanhos: PP ao GGG.
 - Designs são templates configuráveis (área da foto, campo do nome, tinta por cor de peça), nunca imagens fixas. A arte fixa de cada design sai dos modelos de vetor do Higgsfield e o resto é montado no navegador (decisão do Lucas, 08/11/2026).
-- O cliente escolhe se a estampa vai na frente ou nas costas; a jaqueta college só aceita costas (decisão do Lucas, 08/11/2026). Com a estampa nas costas, a frente leva DIVESTIR pequeno no peito, no lugar do logo até ele ficar pronto (decisão do Lucas, 08/11/2026). Linha inicial: Fã-Clube, Turnê, Futebol Clube, Capa de Revista, Procura-se e Maison.
+- O cliente escolhe se a estampa vai na frente ou nas costas; a jaqueta bomber só aceita costas, por causa do zíper (decisão do Lucas, 10/11/2026). Com a estampa nas costas, a frente leva DIVESTIR pequeno no peito, no lugar do logo até ele ficar pronto (decisão do Lucas, 08/11/2026). Linha inicial: Fã-Clube, Turnê, Futebol Clube, Capa de Revista, Procura-se e Maison.
 - Fora da v1: programa de indicação, conta do cliente com histórico e app nativo.
 - Fotos de terceiros: o cliente declara ter autorização para usar a imagem, e as fotos são apagadas depois do prazo definido nos termos (LGPD).
 - Designs autorais: sem logos, nomes ou símbolos de marcas, bandas, times ou revistas reais.
