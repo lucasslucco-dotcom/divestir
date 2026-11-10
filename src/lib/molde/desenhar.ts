@@ -600,8 +600,22 @@ export async function prepararArte(pedido: Omit<Pedido, 'foto'>, escala: number)
     ctx.restore();
   };
 
+  // Textos seguidos com respiro (os blocos do O Lendário) dividem uma máscara só: o
+  // respiro de todos apaga o que está embaixo de uma vez, e uma tela a menos por
+  // texto pesa menos na memória do celular.
+  let grupo: { tela: Tela; folga: number } | null = null;
+  const fecharGrupo = () => {
+    if (!grupo) return;
+    passos.push({ tipo: 'folga', mascara: mascaraComFolga(grupo.tela, 0, 0, grupo.folga * escala, W, H, criarTela) });
+    fixa = null;
+    telaFixa().drawImage(grupo.tela, 0, 0);
+    liberarTelas(grupo.tela);
+    grupo = null;
+  };
+
   const ano = pedido.ano ?? new Date().getFullYear();
   for (const [indice, camada] of config.camadas.entries()) {
+    if (!(camada.tipo === 'texto' && !camada.vazado && (camada.folga ?? 0) > 0)) fecharGrupo();
     if (camada.tipo === 'foto') {
       passos.push({ tipo: 'foto', camada });
       fixa = null;
@@ -625,6 +639,11 @@ export async function prepararArte(pedido: Omit<Pedido, 'foto'>, escala: number)
         desenharTexto(contexto(mascara), camada, texto, '#000', escala, pedido.fontes);
         passos.push({ tipo: 'folga', mascara });
         fixa = null;
+      } else if ((camada.folga ?? 0) > 0) {
+        // Respiro em volta das letras: o texto passa por cima da foto sem se misturar.
+        grupo ??= { tela: criarTela(W, H), folga: 0 };
+        grupo.folga = Math.max(grupo.folga, camada.folga ?? 0);
+        desenharTexto(contexto(grupo.tela), camada, texto, tinta, escala, pedido.fontes);
       } else desenharTexto(telaFixa(), camada, texto, tinta, escala, pedido.fontes);
     } else if (camada.tipo === 'forma') desenharForma(telaFixa(), camada, tinta, escala);
     else if (camada.tipo === 'anel') desenharAnel(telaFixa(), camada, tinta, escala);
@@ -682,6 +701,7 @@ export async function prepararArte(pedido: Omit<Pedido, 'foto'>, escala: number)
       liberarTelas(tela);
     }
   }
+  fecharGrupo();
 
   return {
     largura: W,

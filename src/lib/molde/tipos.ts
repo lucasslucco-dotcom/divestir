@@ -35,7 +35,8 @@ export type Giro = { graus: number; x: number; y: number };
 // O texto pode levar {ano} (o ano do pedido) e o valor de um campo ({nome},
 // {desde}), e ★ vira uma estrela desenhada. "espaco" abre as letras (em frações
 // do tamanho da letra). "vazado" faz o texto furar o que está embaixo (a faixa),
-// deixando aparecer o tecido. Tudo isso é opcional.
+// deixando aparecer o tecido. "folga" abre um respiro em volta das letras, para o
+// texto passar por cima da foto sem se misturar. Tudo isso é opcional.
 export type CamadaTexto = {
   tipo: 'texto';
   texto: string;
@@ -47,6 +48,7 @@ export type CamadaTexto = {
   espaco?: number;
   alinhar?: 'centro' | 'esquerda' | 'direita';
   vazado?: boolean;
+  folga?: number;
   giro?: Giro;
 };
 

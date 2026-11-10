@@ -250,9 +250,10 @@ on conflict (slug) do update set
   config = excluded.config;
 
 -- Design O Lendário: pôster de luta, estampa grande, para pais e avôs. A arte vem do Higgsfield
--- (as linhas de cima, "O Lendário", as estrelas, os traços dos blocos e a barra de baixo); o
--- site põe o nome enorme (Passion One), a foto e os dois blocos de texto: "Invicto desde
--- {ano}" e "Campeão mundial de {pai, avô, tio...}", que o cliente escolhe.
+-- (as linhas de cima, "O Lendário", os traços dos blocos e a barra de baixo); o site põe o
+-- nome enorme (Passion One), a foto grande, que passa por trás dos blocos, e os dois blocos
+-- de texto: "Invicto desde {ano}" e "Campeão mundial de {pai, avô, tio...}", que o cliente
+-- escolhe.
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
   ('o-lendario', 'O Lendário', 'ativo', 7, '2026-11-10', '{
     "versao": 1,
@@ -261,16 +262,15 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "tamanho": "grande",
     "camadas": [
       {"tipo": "arte", "arquivo": "/designs/o-lendario/topo.svg", "x": 507.3, "topo": 4.9, "largura": 939.8, "folga": 0},
-      {"tipo": "arte", "arquivo": "/designs/o-lendario/estrelas.svg", "x": 499.9, "topo": 574.0, "largura": 466.7, "folga": 0},
       {"tipo": "nome", "campo": "nome", "fonte": "show", "x": 500, "topo": 232, "largura_maxima": 940, "altura_no_centro": 310, "arco": 1.36, "compressao_maxima": 0.6, "expansao_maxima": 1.4, "folga": 9, "acento_dentro": true},
-      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 520, "largura": 800, "altura": 740, "janela": {"largura": 780, "altura": 800, "y": 940}},
-      {"tipo": "arte", "arquivo": "/designs/o-lendario/tracos.svg", "x": 500.1, "topo": 669.1, "largura": 939.5, "folga": 0},
-      {"tipo": "texto", "texto": "INVICTO", "fonte": "titulo", "x": 133.3, "base": 765, "largura": 200, "altura": 64, "espaco": 0.02},
-      {"tipo": "texto", "texto": "DESDE", "fonte": "titulo", "x": 133.3, "base": 851, "largura": 200, "altura": 64, "espaco": 0.02},
-      {"tipo": "texto", "texto": "{desde}", "fonte": "titulo", "x": 133.3, "base": 937, "largura": 200, "altura": 64, "espaco": 0.02},
-      {"tipo": "texto", "texto": "CAMPEÃO", "fonte": "titulo", "x": 866.8, "base": 765, "largura": 200, "altura": 64, "espaco": 0.02},
-      {"tipo": "texto", "texto": "MUNDIAL", "fonte": "titulo", "x": 866.8, "base": 851, "largura": 200, "altura": 64, "espaco": 0.02},
-      {"tipo": "texto", "texto": "DE {papel}", "fonte": "titulo", "x": 866.8, "base": 937, "largura": 200, "altura": 64, "espaco": 0.02},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 440, "largura": 960, "altura": 820, "janela": {"largura": 1160, "altura": 1200, "y": 1070}},
+      {"tipo": "arte", "arquivo": "/designs/o-lendario/tracos.svg", "x": 500.1, "topo": 669.1, "largura": 939.5, "folga": 7},
+      {"tipo": "texto", "texto": "INVICTO", "fonte": "titulo", "x": 133.3, "base": 765, "largura": 200, "altura": 64, "espaco": 0.02, "folga": 7},
+      {"tipo": "texto", "texto": "DESDE", "fonte": "titulo", "x": 133.3, "base": 851, "largura": 200, "altura": 64, "espaco": 0.02, "folga": 7},
+      {"tipo": "texto", "texto": "{desde}", "fonte": "titulo", "x": 133.3, "base": 937, "largura": 200, "altura": 64, "espaco": 0.02, "folga": 7},
+      {"tipo": "texto", "texto": "CAMPEÃO", "fonte": "titulo", "x": 866.8, "base": 765, "largura": 200, "altura": 64, "espaco": 0.02, "folga": 7},
+      {"tipo": "texto", "texto": "MUNDIAL", "fonte": "titulo", "x": 866.8, "base": 851, "largura": 200, "altura": 64, "espaco": 0.02, "folga": 7},
+      {"tipo": "texto", "texto": "DE {papel}", "fonte": "titulo", "x": 866.8, "base": 937, "largura": 200, "altura": 64, "espaco": 0.02, "folga": 7},
       {"tipo": "arte", "arquivo": "/designs/o-lendario/frente.svg", "x": 500.3, "topo": 1220.6, "largura": 989.0, "folga": 0, "base": "/designs/o-lendario/frente-base.svg"}
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}, {"chave": "desde", "rotulo": "Invicto desde que ano?", "resumo": "Invicto desde", "max": 4, "caixa": "alta", "exemplo": "1995"}, {"chave": "papel", "rotulo": "Campeão mundial de…", "resumo": "Campeão de", "max": 10, "caixa": "alta", "opcoes": ["PAI", "AVÔ", "TIO", "PADRINHO", "SOGRO", "PADRASTO"]}],

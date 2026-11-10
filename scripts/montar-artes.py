@@ -261,12 +261,11 @@ def o_lendario():
     topo = [i for i in itens if i['caixa'][3] < 460]
     barra = [i for i in itens if i['caixa'][1] > 1700]
     meio = [i for i in itens if i not in topo and i not in barra]
-    # No meio ficam as estrelas e os quatro traços dos blocos de texto dos lados (o
-    # texto dos blocos é do site, por causa do ano e de "pai", "avô", "tio"...).
+    # No meio ficam os quatro traços dos blocos de texto dos lados (o texto dos blocos
+    # é do site, por causa do ano e de "pai", "avô", "tio"...) e o arco de estrelas da
+    # arte, que ficou de fora: o Lucas preferiu a foto maior, sem elas (10/11/2026).
     tracos = [i for i in meio if i['caixa'][3] - i['caixa'][1] < 20]
-    estrelas = [i for i in meio if i not in tracos]
     gravar('o-lendario', 'topo', topo, corte, 'As linhas "Uma noite só · Todo domingo" e "O Lendário".')
-    gravar('o-lendario', 'estrelas', estrelas, corte, 'O arco de estrelas (atrás da foto).')
     gravar('o-lendario', 'tracos', tracos, corte, 'Os traços dos blocos de texto dos lados.', folga=2)
     gravar('o-lendario', 'frente', barra, corte, 'A barra "Churrasco ★ Conselhos ★ Piada ruim" (na frente da foto).', base=True)
     for t in sorted(tracos, key=lambda i: (i['caixa'][1], i['caixa'][0])):
