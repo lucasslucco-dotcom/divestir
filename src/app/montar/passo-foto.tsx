@@ -36,6 +36,10 @@ const porcentagem = new Intl.NumberFormat('pt-BR', { style: 'percent', maximumFr
 export const linkDeTexto =
   'inline-block cursor-pointer py-3 text-[0.9375rem] leading-5 underline decoration-1 underline-offset-[0.3em] hover:decoration-2';
 
+// O segundo botão de uma dupla (ao lado do ingresso): contorno verde, mesma altura.
+const botaoDeContorno =
+  'inline-flex min-h-14 min-w-0 flex-1 cursor-pointer items-center justify-center rounded-lg border-2 border-verde px-4 text-[1.0625rem] leading-tight font-bold outline-offset-2 transition-colors duration-200 ease-saida hover:bg-verde hover:text-creme focus-visible:outline-2 focus-visible:outline-verde sm:flex-none sm:px-8';
+
 const botaoDeZoom =
   'inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-verde hover:bg-verde hover:text-creme disabled:cursor-default disabled:border-dashed disabled:hover:bg-transparent disabled:hover:text-verde';
 
@@ -378,16 +382,22 @@ export function PassoFoto({
               </button>
             </div>
           ) : (
-            <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-1">
-              <button type="button" onClick={aoAprovar} className="ingresso w-full sm:w-auto">
-                Ficou ótimo
-              </button>
-              <button type="button" onClick={escolher} className={linkDeTexto}>
+            // Os dois caminhos lado a lado, logo abaixo da prévia: quem não gostou de como
+            // a foto ficou troca na hora (pedido do Lucas, 10/11/2026).
+            <div className="mt-5 flex items-stretch gap-3">
+              <button type="button" onClick={escolher} className={botaoDeContorno}>
                 Trocar a foto
+              </button>
+              <button
+                type="button"
+                onClick={aoAprovar}
+                className="ingresso min-w-0 flex-1 px-4! sm:flex-none sm:px-10!"
+              >
+                Ficou ótimo
               </button>
             </div>
           )}
-          <p className="mt-1 max-w-[38ch] text-[0.9375rem] leading-snug">
+          <p className="mt-3 max-w-[38ch] text-[0.9375rem] leading-snug">
             Confere se o recorte pegou tudo: orelhas, cabelo, rabo. Se cortou algo importante, é melhor trocar a foto.
           </p>
         </div>

@@ -10,6 +10,8 @@ import { TelaDaPrevia, type FotoDaPrevia } from './tela-da-previa';
 // escolhe onde vai a estampa (decisão do Lucas, 08/11/2026).
 
 const DIA = 24 * 60 * 60 * 1000;
+// O "tema" de quem quer ver todos os designs.
+const TODOS = 'todos';
 
 // A hora de agora vem do relógio do aparelho; no servidor, ainda não há selo.
 const semAssinatura = () => () => {};
@@ -60,7 +62,8 @@ export function PassoDesign({
 }) {
   const id = useId();
   const hoje = useSyncExternalStore(semAssinatura, agora, () => null);
-  // O tema escolhido ("Para quem é?"): null é "Todos".
+  // O tema escolhido ("Para quem é?"): um dos temas, "todos" ou, antes de a pessoa
+  // tocar em algum, nada (a fila mostra todos os designs e nenhum tema fica marcado).
   const [tema, setTema] = useState<string | null>(null);
 
   if (!designs.length) {
@@ -85,7 +88,7 @@ export function PassoDesign({
   const temaAtual = temas.some((t) => t.slug === tema) ? tema : null;
   const lista = designsDoTema(designs, temaAtual);
   const escolherTema = (slug: string | null) => {
-    setTema(slug);
+    setTema(slug ?? TODOS);
     // Quem toca num tema quer ver os designs feitos para ele: o primeiro da fila entra
     // na prévia grande, a não ser que o design escolhido já seja desse tema. Tema que
     // só tem os designs de todo mundo deixa a escolha como está.
@@ -103,13 +106,14 @@ export function PassoDesign({
         <fieldset className="mb-5 min-w-0">
           <legend className="text-base leading-snug font-semibold">Para quem é?</legend>
           <div className="vitrine -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
-            {[{ slug: null, nome: 'Todos' }, ...temas].map((opcao) => (
-              <label key={opcao.slug ?? 'todos'} className="relative shrink-0">
+            {/* "Todos" fica por último (pedido do Lucas, 10/11/2026). */}
+            {[...temas, { slug: null, nome: 'Todos' }].map((opcao) => (
+              <label key={opcao.slug ?? TODOS} className="relative shrink-0">
                 <input
                   type="radio"
                   name={`${id}-tema`}
-                  value={opcao.slug ?? ''}
-                  checked={opcao.slug === temaAtual}
+                  value={opcao.slug ?? TODOS}
+                  checked={opcao.slug ? opcao.slug === temaAtual : tema === TODOS}
                   onChange={() => escolherTema(opcao.slug)}
                   className="peer sr-only"
                 />

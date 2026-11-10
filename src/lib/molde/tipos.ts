@@ -238,17 +238,19 @@ export const LARGURA_DA_ARTE = 1000;
 // Os temas do passo do design: para quem é a peça (pedido do Lucas, 10/11/2026). O
 // cliente escolhe um e vê primeiro os designs feitos para ele; os designs sem tema
 // servem para todo mundo e aparecem em todos.
+// A ordem é a da fila no montador (pedido do Lucas, 10/11/2026): a família primeiro,
+// começando pelas mães; "Todos" entra por último, no passo do design.
 export const TEMAS = [
-  { slug: 'pets', nome: 'Pets' },
-  { slug: 'pais', nome: 'Pais' },
   { slug: 'maes', nome: 'Mães' },
-  // Para pais e mães homenagearem os filhos (pedido do Lucas, 10/11/2026).
-  { slug: 'filhos', nome: 'Filhos' },
+  { slug: 'pais', nome: 'Pais' },
   { slug: 'avos-ele', nome: 'Avôs' },
   { slug: 'avos-ela', nome: 'Avós' },
-  { slug: 'amigos', nome: 'Amigos' },
-  { slug: 'amigas', nome: 'Amigas' },
+  // Para pais e mães homenagearem os filhos (pedido do Lucas, 10/11/2026).
+  { slug: 'filhos', nome: 'Filhos' },
   { slug: 'casal', nome: 'Casal' },
+  { slug: 'amigas', nome: 'Amigas' },
+  { slug: 'amigos', nome: 'Amigos' },
+  { slug: 'pets', nome: 'Pets' },
 ] as const;
 
 // Os designs de um tema: primeiro os feitos para ele, depois os que servem para todo
