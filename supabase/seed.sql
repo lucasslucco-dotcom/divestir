@@ -297,6 +297,101 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
+-- Design Sua Majestade: retrato de realeza, estampa grande, para pets. A arte vem do Higgsfield
+-- (a coroa, "Sua Majestade", a moldura oval com louros, a fita lisa com o ornamento e a linha de
+-- baixo); o site põe o nome na letra de inscrição (Cinzel), a foto dentro do oval, com a cabeça
+-- passando por cima da moldura, e o texto da fita, que o cliente escolhe: "Rainha da casa" ou
+-- "Rei da casa".
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('sua-majestade', 'Sua Majestade', 'ativo', 8, '2026-11-10', '{
+    "versao": 1,
+    "proporcao": 0.662,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/sua-majestade/coroa.svg", "x": 501.6, "topo": 1.6, "largura": 284.7, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/sua-majestade/titulo.svg", "x": 503.1, "topo": 197.8, "largura": 752.3, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/sua-majestade/moldura.svg", "x": 501.2, "topo": 478.0, "largura": 943.1, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "realeza", "x": 500, "topo": 258, "largura_maxima": 900, "altura_no_centro": 242, "arco": 1, "compressao_maxima": 0.5, "expansao_maxima": 1, "folga": 9, "acento_dentro": true},
+      {"tipo": "foto", "formato": "circulo", "x": 496.5, "y": 836, "raio": 305, "raio_y": 319, "vaza_acima": 120, "janela": {"escala": 1.22, "desce": -6}},
+      {"tipo": "arte", "arquivo": "/designs/sua-majestade/frente.svg", "x": 500.0, "topo": 1150.9, "largura": 996.9, "folga": 0, "base": "/designs/sua-majestade/frente-base.svg"},
+      {"tipo": "nome", "campo": "titulo", "fonte": "cinema-forte", "x": 500, "topo": 1198, "largura_maxima": 640, "altura_no_centro": 56, "arco": 1, "compressao_maxima": 0.72, "curva": 41, "vazado": true},
+      {"tipo": "arte", "arquivo": "/designs/sua-majestade/linha.svg", "x": 500.8, "topo": 1465.6, "largura": 956.4, "folga": 0}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}, {"chave": "titulo", "rotulo": "Rainha ou rei?", "resumo": "Na fita", "max": 14, "caixa": "alta", "opcoes": ["RAINHA DA CASA", "REI DA CASA"]}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["pets"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Mapa Astral: carta celeste, estampa grande, para pets. A arte vem do Higgsfield (o arco
+-- "O mapa astral de", a roda do zodíaco com a lua, o sol e as estrelas, e as três linhas de baixo);
+-- o site põe o nome na letra com floreios (Cinzel Decorative) e a foto por cima da roda, cortada
+-- embaixo pelo círculo de fora.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('mapa-astral', 'Mapa Astral', 'ativo', 9, '2026-11-10', '{
+    "versao": 1,
+    "proporcao": 0.664,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/mapa-astral/topo.svg", "x": 496.2, "topo": 4.2, "largura": 804.7, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/mapa-astral/roda.svg", "x": 499.8, "topo": 383.6, "largura": 996.6, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "astral", "x": 500, "topo": 116, "largura_maxima": 900, "altura_no_centro": 238, "arco": 1, "compressao_maxima": 0.5, "expansao_maxima": 1, "folga": 9, "acento_dentro": true},
+      {"tipo": "foto", "formato": "circulo", "x": 492, "y": 852, "raio": 396, "vaza_acima": 120, "janela": {"escala": 0.9, "desce": 6}},
+      {"tipo": "arte", "arquivo": "/designs/mapa-astral/linhas.svg", "x": 496.7, "topo": 1333.1, "largura": 882.5, "folga": 0}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["pets"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design O Brabo: camiseta de rua, estampa grande, para pets. A arte vem do Higgsfield (os traços
+-- dos blocos, a fita "Late mas não morde" e a corrente); o site põe o nome enorme na letra gótica
+-- (Grenze Gotisch), em arco, a foto e os dois blocos de texto: "O brabo da rua" ou "A braba da
+-- rua", que o cliente escolhe, e "Desde {ano}".
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('o-brabo', 'O Brabo', 'ativo', 10, '2026-11-10', '{
+    "versao": 1,
+    "proporcao": 0.732,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "nome", "campo": "nome", "fonte": "gotica", "x": 500, "topo": 8, "largura_maxima": 960, "altura_no_centro": 415, "arco": 1, "compressao_maxima": 0.55, "expansao_maxima": 1.25, "curva": 70, "folga": 10, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 250, "largura": 780, "altura": 900, "janela": {"largura": 800, "altura": 900, "y": 730}},
+      {"tipo": "arte", "arquivo": "/designs/o-brabo/tracos.svg", "x": 500.2, "topo": 725.8, "largura": 815.8, "folga": 7},
+      {"tipo": "texto", "texto": "{papel}", "fonte": "titulo", "x": 168, "base": 832, "largura": 250, "altura": 68, "espaco": 0.02, "folga": 7},
+      {"tipo": "texto", "texto": "DA RUA", "fonte": "titulo", "x": 168, "base": 922, "largura": 250, "altura": 68, "espaco": 0.02, "folga": 7},
+      {"tipo": "texto", "texto": "DESDE", "fonte": "titulo", "x": 832.7, "base": 832, "largura": 250, "altura": 68, "espaco": 0.02, "folga": 7},
+      {"tipo": "texto", "texto": "{desde}", "fonte": "titulo", "x": 832.7, "base": 922, "largura": 250, "altura": 68, "espaco": 0.02, "folga": 7},
+      {"tipo": "arte", "arquivo": "/designs/o-brabo/frente.svg", "x": 500.3, "topo": 1049.1, "largura": 997.0, "folga": 0, "base": "/designs/o-brabo/frente-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/o-brabo/corrente.svg", "x": 499.9, "topo": 1305.9, "largura": 964.9, "folga": 0}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 8, "caixa": "alta"}, {"chave": "papel", "rotulo": "O brabo ou a braba?", "resumo": "Apelido", "max": 8, "caixa": "alta", "opcoes": ["O BRABO", "A BRABA"]}, {"chave": "desde", "rotulo": "Desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["pets"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
 -- O Letreiro (letreiro de cinema, conceito Bia & Caio) saiu da linha por decisão do Lucas
 -- (10/11/2026). Onde ele já existir no banco, fica encerrado.
 update public.designs set status = 'encerrado' where slug = 'letreiro';

@@ -457,11 +457,14 @@ function desenharFotoNoCirculo(ctx: CanvasRenderingContext2D, c: CamadaFotoCircu
   const cx = c.x * escala;
   const cy = c.y * escala;
   const raio = c.raio * escala;
+  // Com "raio_y", um oval.
+  const raioY = (c.raio_y ?? c.raio) * escala;
+  const oval = (folga: number) => ctx.ellipse(cx, cy, raio + folga, raioY + folga, 0, 0, Math.PI * 2);
 
   // Dentro do círculo.
   ctx.save();
   ctx.beginPath();
-  ctx.arc(cx, cy, raio, 0, Math.PI * 2);
+  oval(0);
   ctx.clip();
   desenhar();
   ctx.restore();
@@ -474,8 +477,8 @@ function desenharFotoNoCirculo(ctx: CanvasRenderingContext2D, c: CamadaFotoCircu
     ctx.rect(0, 0, LARGURA_DA_ARTE * escala, cy);
     ctx.clip();
     ctx.beginPath();
-    ctx.arc(cx, cy, raio + c.vaza_acima * escala, 0, Math.PI * 2);
-    ctx.arc(cx, cy, raio, 0, Math.PI * 2);
+    oval(c.vaza_acima * escala);
+    oval(0);
     ctx.clip('evenodd');
     desenhar();
     ctx.restore();

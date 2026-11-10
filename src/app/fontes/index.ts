@@ -70,6 +70,37 @@ export const alfaSlabOne = localFont({
   preload: false,
 });
 
+// Cinzel: a letra de inscrição romana, de brasão (o nome do Sua Majestade).
+export const cinzel = localFont({
+  src: './cinzel-900.woff2',
+  weight: '900',
+  style: 'normal',
+  variable: '--font-cinzel',
+  display: 'swap',
+  preload: false,
+});
+
+// Cinzel Decorative: a mesma letra com floreios, de carta de tarô (o nome do Mapa Astral).
+export const cinzelDecorative = localFont({
+  src: './cinzel-decorative-900.woff2',
+  weight: '900',
+  style: 'normal',
+  variable: '--font-cinzel-decorative',
+  display: 'swap',
+  preload: false,
+});
+
+// Grenze Gotisch: a letra gótica de camiseta de rua, que ainda se lê bem em maiúsculas
+// (o nome do O Brabo).
+export const grenzeGotisch = localFont({
+  src: './grenze-gotisch-900.woff2',
+  weight: '900',
+  style: 'normal',
+  variable: '--font-grenze-gotisch',
+  display: 'swap',
+  preload: false,
+});
+
 export const passionOne = localFont({
   src: './passion-one-900.woff2',
   weight: '900',
@@ -88,4 +119,4 @@ export const inter = localFont({
   display: 'swap',
 });
 
-export const variaveisDeFonte = `${anton.variable} ${instrumentSerif.variable} ${inter.variable} ${bodoniModa.variable} ${shrikhand.variable} ${passionOne.variable} ${alfaSlabOne.variable} ${graduate.variable}`;
+export const variaveisDeFonte = `${anton.variable} ${instrumentSerif.variable} ${inter.variable} ${bodoniModa.variable} ${shrikhand.variable} ${passionOne.variable} ${alfaSlabOne.variable} ${graduate.variable} ${cinzel.variable} ${cinzelDecorative.variable} ${grenzeGotisch.variable}`;

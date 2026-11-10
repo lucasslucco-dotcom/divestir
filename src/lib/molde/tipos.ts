@@ -13,7 +13,9 @@ export type Lado = 'frente' | 'costas';
 // (a letra gorda e inclinada de camiseta de turnê antiga); show: Passion One (a letra
 // grossa de pôster de show); bloco: Alfa Slab One (a letra de bloco com serifa, de
 // placa de bar); colegial: Graduate (a letra de camisa de time, com os cantos
-// cortados). Essas só existem nas estampas.
+// cortados); realeza: Cinzel (a letra de inscrição, de brasão); astral: Cinzel
+// Decorative (a mesma, com floreios); gotica: Grenze Gotisch (a letra gótica de
+// camiseta de rua). Essas só existem nas estampas.
 export type FonteDoMolde =
   | 'titulo'
   | 'destaque'
@@ -23,7 +25,10 @@ export type FonteDoMolde =
   | 'vintage'
   | 'show'
   | 'bloco'
-  | 'colegial';
+  | 'colegial'
+  | 'realeza'
+  | 'astral'
+  | 'gotica';
 
 // Giro de uma camada, em graus (positivo: sentido horário), em volta de um ponto.
 export type Giro = { graus: number; x: number; y: number };
@@ -119,12 +124,16 @@ export type CamadaNome = {
 // "janela" ajusta o quadro onde a foto entra: "escala" encolhe o quadro (1 é o
 // diâmetro do círculo) e "desce" baixa o centro dele. É o que decide onde a cabeça
 // fica quando a foto chega: encostando na base do nome, sem esconder as letras.
+//
+// Com "raio_y", o círculo vira um oval (a moldura do Sua Majestade): "raio" é a
+// metade da largura e "raio_y", a metade da altura.
 export type CamadaFotoCirculo = {
   tipo: 'foto';
   formato: 'circulo';
   x: number;
   y: number;
   raio: number;
+  raio_y?: number;
   vaza_acima: number;
   janela?: { escala?: number; desce?: number };
 };

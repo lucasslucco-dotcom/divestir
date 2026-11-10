@@ -62,11 +62,14 @@ def n(valor: float) -> str:
     return f'{valor:.1f}'.rstrip('0').rstrip('.')
 
 
-def gravar(design: str, parte: str, itens, corte, descricao: str, folga: float = 6, base: bool = False, ate_y=None):
+def gravar(design: str, parte: str, itens, corte, descricao: str, folga: float = 6, base: bool = False, ate_y=None, caixa=None):
     """Grava a parte e devolve onde ela entra na arte (x do centro, topo e largura).
 
     Com "ate_y" (em medidas do vetor), a parte é cortada reta nessa altura: o que
     passar dali para baixo não entra.
+
+    Com "caixa" (x0, y0, x1, y1, em medidas do vetor), só aparece o que cai dentro
+    dela: serve para tirar um pedaço de uma forma que veio inteira.
 
     Com "base", grava também <parte>-base.svg: a mesma parte sem os furos (a faixa
     inteira, sem as letras vazadas). O molde apaga a foto embaixo dessa base antes
@@ -78,6 +81,8 @@ def gravar(design: str, parte: str, itens, corte, descricao: str, folga: float =
     y1 = max(i['caixa'][3] for i in itens) + folga
     if ate_y is not None:
         y1 = min(y1, ate_y)
+    if caixa is not None:
+        x0, y0, x1, y1 = caixa
     formas = []
     for i in itens:
         if i['tipo'] == 'C':
@@ -85,15 +90,15 @@ def gravar(design: str, parte: str, itens, corte, descricao: str, folga: float =
             formas.append(f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="#fff"/>')
         else:
             formas.append(f'<path d="{i["texto"][1:]}" fill="{"#fff" if i["tipo"] == "W" else "#000"}"/>')
-    caixa = f'x="{n(x0)}" y="{n(y0)}" width="{n(x1 - x0)}" height="{n(y1 - y0)}"'
+    retangulo = f'x="{n(x0)}" y="{n(y0)}" width="{n(x1 - x0)}" height="{n(y1 - y0)}"'
     destino = SAIDA / design / f'{parte}.svg'
     destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_text(
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{n(x0)} {n(y0)} {n(x1 - x0)} {n(y1 - y0)}" '
         f'width="{n(x1 - x0)}" height="{n(y1 - y0)}"><!-- {descricao} Arte do Higgsfield, vetorizada pelo Ideogram '
         f'Vector e montada pelo scripts/montar-artes.py. A cor vem de "color" (currentColor); o preto da máscara é furo. -->'
-        f'<defs><mask id="m" maskUnits="userSpaceOnUse" {caixa} style="mask-type:luminance">{"".join(formas)}</mask></defs>'
-        f'<rect {caixa} fill="currentColor" mask="url(#m)"/></svg>\n',
+        f'<defs><mask id="m" maskUnits="userSpaceOnUse" {retangulo} style="mask-type:luminance">{"".join(formas)}</mask></defs>'
+        f'<rect {retangulo} fill="currentColor" mask="url(#m)"/></svg>\n',
         encoding='utf-8',
     )
     if base:
@@ -274,6 +279,60 @@ def o_lendario():
     print('  fim de "O Lendário":', na_arte(corte, y=max(i['caixa'][3] for i in topo)), ' fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
 
 
+def sua_majestade():
+    print('Sua Majestade')
+    itens = ler('sua-majestade')
+    corte = (36, 50, 1284)
+    coroa = [i for i in itens if i['caixa'][3] < 300]
+    titulo = [i for i in itens if 300 <= i['caixa'][1] and i['caixa'][3] < 380]
+    linha = [i for i in itens if i['caixa'][1] > 1860]
+    meio = [i for i in itens if i not in coroa and i not in titulo and i not in linha]
+    # A fita (com as pontas e o ornamento de baixo) fica na frente da foto; a moldura
+    # oval e os louros, atrás. A fita é a forma grande que começa em 1467: o que tem o
+    # centro dentro dela, ou abaixo dela, é da fita.
+    fita = next(i for i in meio if i['tipo'] == 'W' and i['caixa'][2] - i['caixa'][0] > 1000 and i['caixa'][1] > 1400 and i['caixa'][3] < 1750)
+    def da_fita(i):
+        x, y = centro(i)
+        return i is fita or y > 1600 or (i['caixa'][1] >= fita['caixa'][1] - 12 and dentro((x, y), fita['pontos']))
+    frente = [i for i in meio if da_fita(i)]
+    moldura = [i for i in meio if i not in frente]
+    gravar('sua-majestade', 'coroa', coroa, corte, 'A coroa.')
+    gravar('sua-majestade', 'titulo', titulo, corte, 'A linha "Sua Majestade".')
+    gravar('sua-majestade', 'moldura', moldura, corte, 'Moldura oval e louros (atrás da foto).')
+    gravar('sua-majestade', 'frente', frente, corte, 'A fita, lisa, com o ornamento (na frente da foto; o texto da fita é do site).', base=True)
+    gravar('sua-majestade', 'linha', linha, corte, 'A linha "Trono: o sofá · Reinado absoluto · Súditos fiéis".')
+    print('  fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
+
+
+def mapa_astral():
+    print('Mapa Astral')
+    itens = ler('mapa-astral')
+    corte = (32, 100, 1306)
+    topo = [i for i in itens if i['caixa'][3] < 300]
+    linhas = [i for i in itens if i['caixa'][1] > 1615]
+    roda = [i for i in itens if i not in topo and i not in linhas]
+    gravar('mapa-astral', 'topo', topo, corte, 'O arco "O mapa astral de".')
+    gravar('mapa-astral', 'roda', roda, corte, 'A roda do zodíaco, a lua, o sol e as estrelas (atrás da foto).')
+    gravar('mapa-astral', 'linhas', linhas, corte, 'As linhas "Sol em preguiça", "Lua em petisco" e "Ascendente em bagunça".')
+    print('  fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
+
+
+def o_brabo():
+    print('O Brabo')
+    itens = ler('o-brabo')
+    corte = (69, 125, 1221)
+    tracos = [i for i in itens if i['caixa'][3] < 1300]
+    corrente = [i for i in itens if i['caixa'][1] > 1722]
+    fita = [i for i in itens if i not in tracos and i not in corrente]
+    gravar('o-brabo', 'tracos', tracos, corte, 'Os traços dos blocos de texto dos lados.', folga=2)
+    gravar('o-brabo', 'frente', fita, corte, 'A fita "Late mas não morde" (na frente da foto).', base=True)
+    gravar('o-brabo', 'corrente', corrente, corte, 'A corrente de baixo.')
+    for t in sorted(tracos, key=lambda i: (i['caixa'][1], i['caixa'][0])):
+        c = t['caixa']
+        print('  traço: x', na_arte(corte, x=c[0]), 'a', na_arte(corte, x=c[2]), ' y', na_arte(corte, y=c[1]), 'a', na_arte(corte, y=c[3]))
+    print('  fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
+
+
 if __name__ == '__main__':
     turne_mundial()
     ao_vivo()
@@ -281,3 +340,6 @@ if __name__ == '__main__':
     torcida()
     bar_do()
     o_lendario()
+    sua_majestade()
+    mapa_astral()
+    o_brabo()

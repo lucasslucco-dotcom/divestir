@@ -61,6 +61,9 @@ export function fontesDaPagina(): Promise<Fontes> {
     const show = estilo.getPropertyValue('--font-passion-one').trim() || 'Impact, sans-serif';
     const bloco = estilo.getPropertyValue('--font-alfa-slab-one').trim() || 'Georgia, serif';
     const colegial = estilo.getPropertyValue('--font-graduate').trim() || 'Georgia, serif';
+    const realeza = estilo.getPropertyValue('--font-cinzel').trim() || 'Georgia, serif';
+    const astral = estilo.getPropertyValue('--font-cinzel-decorative').trim() || 'Georgia, serif';
+    const gotica = estilo.getPropertyValue('--font-grenze-gotisch').trim() || 'Georgia, serif';
     await Promise.all([
       document.fonts.load(`400 100px ${titulo}`),
       document.fonts.load(`400 100px ${destaque}`),
@@ -71,6 +74,9 @@ export function fontesDaPagina(): Promise<Fontes> {
       document.fonts.load(`900 100px ${show}`),
       document.fonts.load(`400 100px ${bloco}`),
       document.fonts.load(`400 100px ${colegial}`),
+      document.fonts.load(`900 100px ${realeza}`),
+      document.fonts.load(`900 100px ${astral}`),
+      document.fonts.load(`900 100px ${gotica}`),
     ]).catch(() => undefined);
     return {
       titulo: { familia: titulo, estilo: 'normal' },
@@ -82,6 +88,9 @@ export function fontesDaPagina(): Promise<Fontes> {
       show: { familia: show, estilo: 'normal', peso: 900 },
       bloco: { familia: bloco, estilo: 'normal' },
       colegial: { familia: colegial, estilo: 'normal' },
+      realeza: { familia: realeza, estilo: 'normal', peso: 900 },
+      astral: { familia: astral, estilo: 'normal', peso: 900 },
+      gotica: { familia: gotica, estilo: 'normal', peso: 900 },
     } satisfies Fontes;
   })();
   return fontes;
