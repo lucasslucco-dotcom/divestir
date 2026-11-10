@@ -250,6 +250,7 @@ function rascunharNome(
   const subida = comAcento ? Math.max(capa, medida.measureText(texto).actualBoundingBoxAscent / 100) : capa;
   const altura = (c.altura_no_centro * capa) / subida;
   let px = (altura * escala) / capa;
+  const pxCheio = (c.altura_no_centro * escala) / capa;
   medida.font = fonteCss(fonte, px);
   let largura = medida.measureText(texto).width;
   const maxima = c.largura_maxima * escala;
@@ -264,7 +265,13 @@ function rascunharNome(
   const alturaDaCapa = px * capa;
   const acima = Math.ceil(px * 0.5);
   const abaixo = Math.ceil(px * 0.35);
-  const w = Math.max(1, Math.ceil(largura * estreita) + 2);
+  // "engrossa": a letra é pintada de novo um pouco para cada lado (e um quinto disso
+  // para cima e para baixo), e as hastes ficam mais grossas sem a letra crescer.
+  // A medida vale para o nome no tamanho cheio e sem estreitar; nome longo, que sai
+  // menor e mais estreito, engrossa na mesma proporção (senão as letras se fecham).
+  const grossura = Math.max(0, (c.engrossa ?? 0) * escala * (px / pxCheio) * Math.min(1, estreita));
+  const margem = Math.ceil(grossura);
+  const w = Math.max(1, Math.ceil(largura * estreita) + 2 + 2 * margem);
   const h = Math.ceil(acima + alturaDaCapa + abaixo);
   const tela = criarTela(w, h);
   const r = contexto(tela, { willReadFrequently: true });
@@ -272,7 +279,14 @@ function rascunharNome(
   r.fillStyle = tinta;
   r.textBaseline = 'alphabetic';
   r.scale(estreita, 1);
-  r.fillText(texto, 1 / estreita, acima + alturaDaCapa);
+  const passos = Math.max(1, Math.ceil(grossura));
+  for (let i = -passos; i <= passos; i++) {
+    const dx = grossura > 0 ? (i / passos) * grossura : 0;
+    for (const dy of grossura > 0 ? [-grossura / 5, 0, grossura / 5] : [0]) {
+      r.fillText(texto, (1 + margem + dx) / estreita, acima + alturaDaCapa + dy);
+    }
+    if (grossura === 0) break;
+  }
   // Com o acento dentro, o topo da maiúscula desce o tamanho do acento.
   const topo = c.topo * escala + px * (subida - capa);
   return { tela, w, h, acima, alturaDaCapa, x0: Math.round(c.x * escala - w / 2), topo };

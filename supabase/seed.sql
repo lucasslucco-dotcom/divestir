@@ -102,8 +102,7 @@ on conflict (slug) do update set
 -- Design Turnê Mundial: camiseta de turnê antiga, estampa grande. A arte vem do Higgsfield:
 -- os raios (que saem do meio e passam por trás da foto), a estrela, a fita "Turnê Mundial
 -- 2026", as datas e o selo. O site põe o nome em arco, na letra gorda de turnê (Shrikhand),
--- e a foto solta no meio dos raios. O nome, a fita e o selo saem rachados (desgaste); as
--- datas ficam inteiras, para ler.
+-- engrossada, e a foto solta no meio dos raios. Tudo liso, sem desgaste (pedido do Lucas).
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
   ('turne-mundial', 'Turnê Mundial', 'ativo', 2, '2026-11-10', '{
     "versao": 1,
@@ -114,15 +113,14 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
       {"tipo": "arte", "arquivo": "/designs/turne-mundial/raios.svg", "x": 500.3, "topo": 135.2, "largura": 816.8, "folga": 0},
       {"tipo": "arte", "arquivo": "/designs/turne-mundial/estrela.svg", "x": 152, "topo": 548, "largura": 54, "folga": 0},
       {"tipo": "arte", "arquivo": "/designs/turne-mundial/estrela.svg", "x": 848, "topo": 548, "largura": 54, "folga": 0},
-      {"tipo": "nome", "campo": "nome", "fonte": "vintage", "x": 500, "topo": 12, "largura_maxima": 880, "altura_no_centro": 180, "arco": 1.8, "compressao_maxima": 0.5, "expansao_maxima": 1, "curva": 36, "folga": 10, "desgaste": true, "acento_dentro": true},
+      {"tipo": "nome", "campo": "nome", "fonte": "vintage", "x": 500, "topo": 12, "largura_maxima": 900, "altura_no_centro": 192, "arco": 1.85, "compressao_maxima": 0.5, "expansao_maxima": 1, "curva": 40, "folga": 10, "acento_dentro": true, "engrossa": 9},
       {"tipo": "arte", "arquivo": "/designs/turne-mundial/estrela.svg", "x": 500, "topo": 206, "largura": 54, "folga": 0},
-      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 215, "largura": 900, "altura": 661, "janela": {"largura": 920, "altura": 760, "y": 600}},
-      {"tipo": "arte", "arquivo": "/designs/turne-mundial/frente.svg", "x": 499.9, "topo": 808.7, "largura": 972.4, "folga": 8, "base": "/designs/turne-mundial/frente-base.svg", "desgaste": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 215, "largura": 960, "altura": 661, "janela": {"largura": 980, "altura": 940, "y": 702}},
+      {"tipo": "arte", "arquivo": "/designs/turne-mundial/frente.svg", "x": 499.9, "topo": 808.7, "largura": 972.4, "folga": 8, "base": "/designs/turne-mundial/frente-base.svg"},
       {"tipo": "arte", "arquivo": "/designs/turne-mundial/datas.svg", "x": 517.5, "topo": 1002.1, "largura": 923.4, "folga": 0}
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
-    "desgaste": {"arquivo": "/designs/texturas/craquelado.png"},
     "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
     "logo_peito": true
   }'::jsonb)

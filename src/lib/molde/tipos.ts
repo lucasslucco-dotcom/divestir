@@ -82,6 +82,9 @@ export type CamadaNome = {
   arco: number;
   compressao_maxima: number;
   expansao_maxima?: number;
+  // Engrossa a letra: quantas unidades de tinta a mais de cada lado das hastes, com o
+  // nome no tamanho cheio e sem estreitar (nome longo engrossa na mesma proporção).
+  engrossa?: number;
   // O acento de cima (Â, É, Ã) cabe dentro da altura do nome, em vez de subir além
   // do topo: a letra diminui um pouco e a base fica onde está.
   acento_dentro?: boolean;
