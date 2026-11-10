@@ -231,6 +231,8 @@ export const TEMAS = [
   { slug: 'pets', nome: 'Pets' },
   { slug: 'pais', nome: 'Pais' },
   { slug: 'maes', nome: 'Mães' },
+  // Para pais e mães homenagearem os filhos (pedido do Lucas, 10/11/2026).
+  { slug: 'filhos', nome: 'Filhos' },
   { slug: 'avos-ele', nome: 'Avôs' },
   { slug: 'avos-ela', nome: 'Avós' },
   { slug: 'amigos', nome: 'Amigos' },
