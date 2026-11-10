@@ -55,6 +55,7 @@ export function fontesDaPagina(): Promise<Fontes> {
   fontes ??= (async () => {
     const estilo = getComputedStyle(document.body);
     const titulo = estilo.getPropertyValue('--font-anton').trim() || 'Anton, sans-serif';
+    const texto = estilo.getPropertyValue('--font-inter').trim() || 'Inter, sans-serif';
     const destaque = estilo.getPropertyValue('--font-instrument-serif').trim() || 'Georgia, serif';
     const cinema = estilo.getPropertyValue('--font-bodoni-moda').trim() || 'Georgia, serif';
     const vintage = estilo.getPropertyValue('--font-shrikhand').trim() || 'Georgia, serif';
@@ -64,8 +65,10 @@ export function fontesDaPagina(): Promise<Fontes> {
     const realeza = estilo.getPropertyValue('--font-cinzel').trim() || 'Georgia, serif';
     const astral = estilo.getPropertyValue('--font-cinzel-decorative').trim() || 'Georgia, serif';
     const gotica = estilo.getPropertyValue('--font-grenze-gotisch').trim() || 'Georgia, serif';
+    const geometrica = estilo.getPropertyValue('--font-poppins').trim() || 'Arial Black, sans-serif';
     await Promise.all([
       document.fonts.load(`400 100px ${titulo}`),
+      document.fonts.load(`700 100px ${texto}`),
       document.fonts.load(`400 100px ${destaque}`),
       document.fonts.load(`italic 400 100px ${destaque}`),
       document.fonts.load(`500 100px ${cinema}`),
@@ -78,9 +81,11 @@ export function fontesDaPagina(): Promise<Fontes> {
       document.fonts.load(`900 100px ${realeza}`),
       document.fonts.load(`900 100px ${astral}`),
       document.fonts.load(`900 100px ${gotica}`),
+      document.fonts.load(`900 100px ${geometrica}`),
     ]).catch(() => undefined);
     return {
       titulo: { familia: titulo, estilo: 'normal' },
+      texto: { familia: texto, estilo: 'normal', peso: 700 },
       destaque: { familia: destaque, estilo: 'normal' },
       'destaque-italico': { familia: destaque, estilo: 'italic' },
       cinema: { familia: cinema, estilo: 'normal', peso: 500 },
@@ -93,6 +98,7 @@ export function fontesDaPagina(): Promise<Fontes> {
       realeza: { familia: realeza, estilo: 'normal', peso: 900 },
       astral: { familia: astral, estilo: 'normal', peso: 900 },
       gotica: { familia: gotica, estilo: 'normal', peso: 900 },
+      geometrica: { familia: geometrica, estilo: 'normal', peso: 900 },
     } satisfies Fontes;
   })();
   return fontes;

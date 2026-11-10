@@ -16,9 +16,13 @@ export type Lado = 'frente' | 'costas';
 // placa de bar); colegial: Graduate (a letra de camisa de time, com os cantos
 // cortados); realeza: Cinzel (a letra de inscrição, de brasão); astral: Cinzel
 // Decorative (a mesma, com floreios); gotica: Grenze Gotisch (a letra gótica de
-// camiseta de rua). Essas só existem nas estampas.
+// camiseta de rua); geometrica: Poppins Black (a letra geométrica bem grossa, de
+// embalagem: o nome do Alto Em). Essas só existem nas estampas. texto: Inter em negrito, a fonte de
+// texto do site, para as linhas pequenas que o site escreve numa estampa de cara
+// atual (o "No repete desde 2012" do Tocando Agora).
 export type FonteDoMolde =
   | 'titulo'
+  | 'texto'
   | 'destaque'
   | 'destaque-italico'
   | 'cinema'
@@ -30,7 +34,8 @@ export type FonteDoMolde =
   | 'colegial'
   | 'realeza'
   | 'astral'
-  | 'gotica';
+  | 'gotica'
+  | 'geometrica';
 
 // Giro de uma camada, em graus (positivo: sentido horário), em volta de um ponto.
 export type Giro = { graus: number; x: number; y: number };
@@ -159,6 +164,9 @@ export type CamadaFotoQuadro = {
   largura: number;
   altura: number;
   janela?: { largura?: number; altura?: number; y?: number };
+  // Arredonda os dois cantos de baixo do retângulo (o raio, em unidades da arte): a
+  // foto acompanha uma moldura de cantos redondos, como a capa do Tocando Agora.
+  canto_de_baixo?: number;
   fundo?: boolean;
   // Só com "fundo": escurece a base da foto (esta fração da altura), como em pôster
   // de cinema, para o nome ser lido por cima dela.

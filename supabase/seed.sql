@@ -516,6 +516,68 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
+-- Design Tocando Agora: tela de player de música, estampa grande, para amigas e amigos. A arte vem
+-- do Higgsfield (a linha "Tocando agora", a capa de cantos redondos com as ondas, o título "Áudio de 7
+-- minutos", a barra do tempo e os botões); o site põe a foto dentro da capa, com os cantos de baixo
+-- redondos e a cabeça passando por cima da moldura, o nome (Anton, alargada) e a linha "No repete
+-- desde {ano}", em Inter.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('tocando-agora', 'Tocando Agora', 'ativo', 15, '2026-11-10', '{
+    "versao": 1,
+    "proporcao": 0.621,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/tocando-agora/topo.svg", "x": 500, "topo": 0, "largura": 874.0, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/tocando-agora/moldura.svg", "x": 500, "topo": 98.0, "largura": 851.2, "folga": 0},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 36, "largura": 805.4, "altura": 805, "canto_de_baixo": 108, "janela": {"largura": 1150, "altura": 1500, "y": 760}},
+      {"tipo": "arte", "arquivo": "/designs/tocando-agora/titulo.svg", "x": 500, "topo": 868, "largura": 985, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 1012, "largura_maxima": 985, "altura_no_centro": 262, "arco": 1, "compressao_maxima": 0.5, "expansao_maxima": 1.5, "engrossa": 3, "acento_dentro": true},
+      {"tipo": "arte", "arquivo": "/designs/tocando-agora/controles.svg", "x": 500, "topo": 1306, "largura": 985, "folga": 0},
+      {"tipo": "texto", "texto": "NO REPETE DESDE {desde}", "fonte": "texto", "x": 500, "base": 1596, "largura": 960, "altura": 27, "espaco": 0.42}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}, {"chave": "desde", "rotulo": "Amigas desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2012"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["amigas", "amigos"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Alto Em: os rótulos de advertência das embalagens, estampa grande, para amigas e amigos. A
+-- arte vem do Higgsfield (a linha "Advertência", o disco de pontos, os três rótulos de lupa, "Alto em
+-- fofoca", "Alto em drama" e "Alto em parceria", e a linha "Contém amiga de verdade"); o site põe o
+-- nome enorme na letra geométrica de embalagem (Poppins Black) e a foto por cima do disco.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('alto-em', 'Alto Em', 'ativo', 16, '2026-11-10', '{
+    "versao": 1,
+    "proporcao": 0.757,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/alto-em/topo.svg", "x": 500, "topo": 0, "largura": 690, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/alto-em/disco.svg", "x": 500, "topo": 342, "largura": 882, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "geometrica", "x": 500, "topo": 62, "largura_maxima": 820, "altura_no_centro": 352, "arco": 1, "compressao_maxima": 0.5, "expansao_maxima": 1.85, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 150, "largura": 1000, "altura": 944, "janela": {"largura": 1000, "altura": 1400, "y": 960}},
+      {"tipo": "arte", "arquivo": "/designs/alto-em/frente.svg", "x": 500, "topo": 1100, "largura": 998.5, "folga": 0, "base": "/designs/alto-em/frente-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/alto-em/linha.svg", "x": 500, "topo": 1282, "largura": 956.3, "folga": 0}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["amigas", "amigos"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
 -- O Letreiro (letreiro de cinema, conceito Bia & Caio) saiu da linha por decisão do Lucas
 -- (10/11/2026). Onde ele já existir no banco, fica encerrado.
 update public.designs set status = 'encerrado' where slug = 'letreiro';

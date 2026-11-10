@@ -497,7 +497,21 @@ function desenharFotoNoQuadro(ctx: CanvasRenderingContext2D, c: CamadaFotoQuadro
   const corte = { x: c.x - c.largura / 2, y: c.topo, w: c.largura, h: c.altura };
   ctx.save();
   ctx.beginPath();
-  ctx.rect(corte.x * escala, corte.y * escala, corte.w * escala, corte.h * escala);
+  const canto = Math.max(0, Math.min(c.canto_de_baixo ?? 0, corte.w / 2, corte.h)) * escala;
+  if (canto > 0) {
+    // Cantos de baixo redondos, para a foto acompanhar a moldura.
+    const [x0, y0] = [corte.x * escala, corte.y * escala];
+    const [x1, y1] = [(corte.x + corte.w) * escala, (corte.y + corte.h) * escala];
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y0);
+    ctx.lineTo(x1, y1 - canto);
+    ctx.arcTo(x1, y1, x1 - canto, y1, canto);
+    ctx.lineTo(x0 + canto, y1);
+    ctx.arcTo(x0, y1, x0, y1 - canto, canto);
+    ctx.closePath();
+  } else {
+    ctx.rect(corte.x * escala, corte.y * escala, corte.w * escala, corte.h * escala);
+  }
   ctx.clip();
   if (c.fundo && foto.inteira) {
     const aumento = Math.max(1, corte.w / w, corte.h / h);

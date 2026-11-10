@@ -111,6 +111,17 @@ export const passionOne = localFont({
   preload: false,
 });
 
+// Poppins Black: a letra geométrica bem grossa, de embalagem (o nome do Alto Em). Só de
+// estampa, de licença aberta (OFL).
+export const poppins = localFont({
+  src: './poppins-900.woff2',
+  weight: '900',
+  style: 'normal',
+  variable: '--font-poppins',
+  display: 'swap',
+  preload: false,
+});
+
 // Textos e botões.
 export const inter = localFont({
   src: './inter-variavel.woff2',
@@ -120,4 +131,4 @@ export const inter = localFont({
   display: 'swap',
 });
 
-export const variaveisDeFonte = `${anton.variable} ${instrumentSerif.variable} ${inter.variable} ${bodoniModa.variable} ${shrikhand.variable} ${passionOne.variable} ${alfaSlabOne.variable} ${graduate.variable} ${cinzel.variable} ${cinzelDecorative.variable} ${grenzeGotisch.variable}`;
+export const variaveisDeFonte = `${anton.variable} ${instrumentSerif.variable} ${inter.variable} ${bodoniModa.variable} ${shrikhand.variable} ${passionOne.variable} ${alfaSlabOne.variable} ${graduate.variable} ${cinzel.variable} ${cinzelDecorative.variable} ${grenzeGotisch.variable} ${poppins.variable}`;

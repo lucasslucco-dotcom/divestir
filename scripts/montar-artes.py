@@ -413,6 +413,51 @@ def figurinha_rara():
     print('  topo da tabela:', na_arte(corte, y=1360), ' fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
 
 
+def tocando_agora():
+    print('Tocando Agora')
+    itens = ler('tocando-agora')
+    # A moldura da capa (de 172 a 1184) fica com 842 de largura, no meio da arte, com o
+    # topo em 103, logo abaixo da linha "Tocando agora".
+    corte = (172 - 79 / (842 / 1012), 174 - 103 / (842 / 1012), 1012 / 0.842)
+    topo = [i for i in itens if i['caixa'][3] < 160]
+    moldura = [i for i in itens if i['caixa'][1] >= 160 and i['caixa'][3] < 1083]
+    # O título vem logo abaixo da moldura (que acaba em 1082): o acento do "Á" começa
+    # na mesma altura, então quem decide é onde a forma acaba.
+    titulo = [i for i in itens if 1090 < i['caixa'][3] < 1240]
+    controles = [i for i in itens if 1540 < i['caixa'][1] and i['caixa'][3] < 1860]
+    gravar('tocando-agora', 'topo', topo, corte, 'A linha "Tocando agora".')
+    gravar('tocando-agora', 'moldura', moldura, corte, 'A capa: a moldura de cantos redondos e as ondas (atrás da foto).')
+    gravar('tocando-agora', 'titulo', titulo, corte, 'O título da faixa, "Áudio de 7 minutos".')
+    gravar('tocando-agora', 'controles', controles, corte, 'A barra do tempo (0:12 e 7:04) e os botões do player.')
+    # A linha de baixo ("No repete desde 2012") é escrita pelo site, por causa do ano.
+    print('  dentro da moldura:', na_arte(corte, x=194), na_arte(corte, x=1162), ' base:', na_arte(corte, y=1061), ' canto:', na_arte(corte, tamanho=130))
+
+
+def alto_em():
+    print('Alto Em')
+    itens = ler('alto-em')
+    # Os três rótulos (de 40 a 1320) tomam a largura da arte.
+    corte = (33, 63, 1294)
+    topo = [i for i in itens if i['caixa'][3] < 160]
+    disco = [i for i in itens if 400 < i['caixa'][1] and i['caixa'][3] < 1640]
+    # Cada ponto do disco veio do vetor como um contorno de curvas; vira um círculo de
+    # verdade (centro e raio), que pesa quatro vezes menos no arquivo e sai mais redondo.
+    pontos = []
+    for i in disco:
+        x0, y0, x1, y1 = i['caixa']
+        if i['tipo'] == 'W' and abs((x1 - x0) - (y1 - y0)) <= 3:
+            cx, cy, r = (x0 + x1) / 2, (y0 + y1) / 2, (x1 - x0 + y1 - y0) / 4
+            i = {'tipo': 'C', 'texto': f'C{n(cx)} {n(cy)} {n(r)}', 'caixa': i['caixa']}
+        pontos.append(i)
+    disco = pontos
+    rotulos = [i for i in itens if 1640 <= i['caixa'][1] and i['caixa'][3] < 1870]
+    linha = [i for i in itens if i['caixa'][1] > 1870]
+    gravar('alto-em', 'topo', topo, corte, 'A linha "Advertência".')
+    gravar('alto-em', 'disco', disco, corte, 'O disco de pontos (atrás da foto).')
+    gravar('alto-em', 'frente', rotulos, corte, 'Os três rótulos de lupa: "Alto em fofoca", "Alto em drama" e "Alto em parceria" (na frente da foto e do disco).', base=True)
+    gravar('alto-em', 'linha', linha, corte, 'A linha "Contém amiga de verdade".')
+
+
 if __name__ == '__main__':
     turne_mundial()
     ao_vivo()
@@ -427,3 +472,5 @@ if __name__ == '__main__':
     melhor_mae()
     capa_de_revista()
     figurinha_rara()
+    tocando_agora()
+    alto_em()
