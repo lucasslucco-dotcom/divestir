@@ -485,7 +485,7 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
--- Design Figurinha Rara: figurinha de álbum, estampa grande, para amigas e amigos. A arte vem do
+-- Design Figurinha Rara: figurinha de álbum, estampa grande, para amigas. A arte vem do
 -- Higgsfield (a faixa "★ Figurinha rara ★", a moldura do cartão com os raios, o selo "Nº 01", a
 -- tabela das notas, "Fofoca 99, Conselho 100, Pontualidade 12, Parceria 100", e a linha "Edição
 -- limitada · Não tem repetida"); o site põe o nome enorme (Anton, alargada e engrossada) entre a
@@ -506,7 +506,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
-    "temas": ["amigas", "amigos"],
+    "temas": ["amigas"],
     "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
@@ -516,7 +516,7 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
--- Design Tocando Agora: tela de player de música, estampa grande, para amigas e amigos. A arte vem
+-- Design Tocando Agora: tela de player de música, estampa grande, para amigas. A arte vem
 -- do Higgsfield (a linha "Tocando agora", a capa de cantos redondos com as ondas, o título "Áudio de 7
 -- minutos", a barra do tempo e os botões); o site põe a foto dentro da capa, com os cantos de baixo
 -- redondos e a cabeça passando por cima da moldura, o nome (Anton, alargada) e a linha "No repete
@@ -538,7 +538,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}, {"chave": "desde", "rotulo": "Amigas desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2012"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
-    "temas": ["amigas", "amigos"],
+    "temas": ["amigas"],
     "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
@@ -548,7 +548,7 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
--- Design Alto Em: os rótulos de advertência das embalagens, estampa grande, para amigas e amigos. A
+-- Design Alto Em: os rótulos de advertência das embalagens, estampa grande, para amigas. A
 -- arte vem do Higgsfield (a linha "Advertência", o disco de pontos, os três rótulos de lupa, "Alto em
 -- fofoca", "Alto em drama" e "Alto em parceria", e a linha "Contém amiga de verdade"); o site põe o
 -- nome enorme na letra geométrica de embalagem (Poppins Black) e a foto por cima do disco.
@@ -568,7 +568,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
-    "temas": ["amigas", "amigos"],
+    "temas": ["amigas"],
     "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
