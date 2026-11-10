@@ -176,6 +176,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 16, "caixa": "alta"}, {"chave": "desde", "rotulo": "Desde que ano?", "max": 4, "caixa": "alta", "exemplo": "2019"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["casal"],
     "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "moletom", "moletom-capuz", "jaqueta-college"],
     "logo_peito": true
   }'::jsonb)

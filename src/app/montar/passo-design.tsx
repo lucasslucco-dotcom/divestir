@@ -1,8 +1,8 @@
 'use client';
 
-import { useId, useSyncExternalStore } from 'react';
+import { useId, useState, useSyncExternalStore } from 'react';
 import type { Cor, Peca } from '@/lib/catalogo';
-import { tirarSimbolosDaEstampa, type Design, type Lado } from '@/lib/molde/tipos';
+import { TEMAS, designsDoTema, tirarSimbolosDaEstampa, type Design, type Lado } from '@/lib/molde/tipos';
 import { TelaDaPrevia, type FotoDaPrevia } from './tela-da-previa';
 
 // Passo 4: o design. Cada miniatura já vem com a foto e o nome do cliente, não com
@@ -60,6 +60,8 @@ export function PassoDesign({
 }) {
   const id = useId();
   const hoje = useSyncExternalStore(semAssinatura, agora, () => null);
+  // O tema escolhido ("Para quem é?"): null é "Todos".
+  const [tema, setTema] = useState<string | null>(null);
 
   if (!designs.length) {
     return <p className="max-w-[38ch] text-[0.9375rem] leading-snug">Ainda não temos um design para essa peça.</p>;
@@ -77,15 +79,47 @@ export function PassoDesign({
   const extras = design?.config.campos.filter((campo) => campo.chave !== 'nome') ?? [];
   // Costas primeiro: é o lado padrão dos designs.
   const ordem = (['costas', 'frente'] as const).filter((l) => lados.includes(l));
+  // Todo tema tem pelo menos os designs que servem para todo mundo; os feitos para
+  // ele vêm na frente.
+  const temas = TEMAS.filter((t) => designsDoTema(designs, t.slug).length > 0);
+  const temaAtual = temas.some((t) => t.slug === tema) ? tema : null;
+  const lista = designsDoTema(designs, temaAtual);
+  const escolherTema = (slug: string | null) => {
+    setTema(slug);
+    // O design escolhido continua valendo se também for desse tema; senão, entra o
+    // primeiro do tema, para a prévia grande mostrar o que está na fila.
+    const novos = designsDoTema(designs, slug);
+    if (novos.length && !novos.some((d) => d.slug === design?.slug)) aoEscolherDesign(novos[0].slug);
+  };
 
   return (
     <>
+      {temas.length ? (
+        <fieldset className="mb-5">
+          <legend className="text-base leading-snug font-semibold">Para quem é?</legend>
+          <div className="vitrine -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+            {[{ slug: null, nome: 'Todos' }, ...temas].map((opcao) => (
+              <label key={opcao.slug ?? 'todos'} className="relative shrink-0">
+                <input
+                  type="radio"
+                  name={`${id}-tema`}
+                  value={opcao.slug ?? ''}
+                  checked={opcao.slug === temaAtual}
+                  onChange={() => escolherTema(opcao.slug)}
+                  className="peer sr-only"
+                />
+                <span className={`${opcaoDaPilula} border border-verde whitespace-nowrap`}>{opcao.nome}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ) : null}
       <div
         role="radiogroup"
         aria-label="Design"
         className="vitrine -mx-4 flex snap-x snap-mandatory scroll-pl-4 gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0"
       >
-        {designs.map((opcaoDeDesign) => {
+        {lista.map((opcaoDeDesign) => {
           const selo = hoje === null ? null : seloDoDrop(opcaoDeDesign, hoje);
           return (
             <label

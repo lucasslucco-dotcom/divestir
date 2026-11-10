@@ -185,6 +185,9 @@ export type ConfigDoMolde = {
   desgaste?: { arquivo: string };
   // "grande": a estampa toma mais da peça (a área "grande" de cada lado, quando existe).
   tamanho?: 'grande';
+  // Para quem o design foi feito (os temas de TEMAS). Sem temas, serve para todo mundo
+  // e aparece em qualquer tema.
+  temas?: string[];
   pecas_permitidas?: string[];
   // Com a estampa nas costas, a frente leva a marca pequena no peito, na mesma
   // tinta (briefing: "logo_peito"). Até o logo ficar pronto, a marca é o nome
@@ -202,6 +205,29 @@ export type Design = {
 };
 
 export const LARGURA_DA_ARTE = 1000;
+
+// Os temas do passo do design: para quem é a peça (pedido do Lucas, 10/11/2026). O
+// cliente escolhe um e vê primeiro os designs feitos para ele; os designs sem tema
+// servem para todo mundo e aparecem em todos.
+export const TEMAS = [
+  { slug: 'pets', nome: 'Pets' },
+  { slug: 'pais', nome: 'Pais' },
+  { slug: 'maes', nome: 'Mães' },
+  { slug: 'avos-ele', nome: 'Avôs' },
+  { slug: 'avos-ela', nome: 'Avós' },
+  { slug: 'amigos', nome: 'Amigos' },
+  { slug: 'amigas', nome: 'Amigas' },
+  { slug: 'casal', nome: 'Casal' },
+] as const;
+
+// Os designs de um tema: primeiro os feitos para ele, depois os que servem para todo
+// mundo. Sem tema (null), todos, na ordem da loja.
+export function designsDoTema(designs: Design[], tema: string | null): Design[] {
+  if (!tema) return designs;
+  const doTema = designs.filter((d) => d.config.temas?.includes(tema));
+  const paraTodos = designs.filter((d) => !d.config.temas?.length);
+  return [...doTema, ...paraTodos];
+}
 
 // O que sai na estampa de um campo de texto (o nome): letras, com ou sem acento,
 // números, espaço e . - ' & !. Emoji e outros símbolos não existem na fonte da
