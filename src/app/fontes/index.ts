@@ -23,13 +23,14 @@ export const instrumentSerif = localFont({
   display: 'swap',
 });
 
-// Só nas estampas de cinema (Em Cartaz): Bodoni Moda, de licença aberta (OFL). Não é
-// fonte do site: o navegador só baixa quando um design usa (decisão a confirmar com o
-// Lucas, 10/11/2026).
+// Só nas estampas de cinema (Em Cartaz e Melhor Mãe): Bodoni Moda, de licença aberta
+// (OFL). Não é fonte do site: o navegador só baixa quando um design usa (decisão a
+// confirmar com o Lucas, 10/11/2026). O peso 900 é o do nome do Melhor Mãe.
 export const bodoniModa = localFont({
   src: [
     { path: './bodoni-moda-500.woff2', weight: '500', style: 'normal' },
     { path: './bodoni-moda-700.woff2', weight: '700', style: 'normal' },
+    { path: './bodoni-moda-900.woff2', weight: '900', style: 'normal' },
   ],
   variable: '--font-bodoni-moda',
   display: 'swap',

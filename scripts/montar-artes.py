@@ -333,6 +333,66 @@ def o_brabo():
     print('  fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
 
 
+def grandes_sucessos():
+    print('Grandes Sucessos')
+    itens = ler('grandes-sucessos')
+    corte = (33, 196, 1294)
+    # O título são as duas réguas e "Grandes Sucessos" entre elas (acabam em 820); a
+    # barra de baixo começa em 1740. No meio, o disco são os anéis (formas grandes, uma
+    # dentro da outra) e o resto são as faixas, dos dois lados.
+    titulo = [i for i in itens if i['caixa'][3] < 823]
+    barra = [i for i in itens if i['caixa'][1] > 1735]
+    meio = [i for i in itens if i not in titulo and i not in barra]
+    disco = [i for i in meio if i['caixa'][2] - i['caixa'][0] > 250 and i['caixa'][3] - i['caixa'][1] > 250]
+    gravar('grandes-sucessos', 'titulo', titulo, corte, 'As duas réguas e "Grandes Sucessos".')
+    gravar('grandes-sucessos', 'disco', disco, corte, 'O disco de vinil (atrás da foto).')
+    gravar('grandes-sucessos', 'frente', barra, corte, 'A barra "Edição de colecionador ★ Volume único" (na frente da foto).', base=True)
+    print('  fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
+    # As faixas do disco vêm de uma arte só delas, maior (grandes-sucessos-faixas): na
+    # arte inteira as letras eram pequenas demais para o vetor sair limpo (um "A" de
+    # "casaco" veio fechado). São duas colunas: a da esquerda encosta à direita em 190 e
+    # a da direita começa em 794, as duas a partir de 585, na mesma escala: ficam fora do
+    # disco, para os anéis não aparecerem em pedaços entre as linhas.
+    faixas = ler('grandes-sucessos-faixas')
+    esquerda = [i for i in faixas if centro(i)[0] < 1024]
+    direita = [i for i in faixas if i not in esquerda]
+    def caixa_de(grupo):
+        return (min(i['caixa'][0] for i in grupo), min(i['caixa'][1] for i in grupo), max(i['caixa'][2] for i in grupo), max(i['caixa'][3] for i in grupo))
+    ce, cd = caixa_de(esquerda), caixa_de(direita)
+    k = 400 / (cd[3] - cd[1])  # a coluna da direita (três faixas de três linhas) tem 400 de altura
+    topo = min(ce[1], cd[1])
+    gravar('grandes-sucessos', 'faixas-esquerda', esquerda, (ce[2] - 190 / k, topo - 585 / k, 1000 / k), 'As faixas 1 a 3 do disco (na frente da foto).', folga=4)
+    gravar('grandes-sucessos', 'faixas-direita', direita, (cd[0] - 794 / k, topo - 585 / k, 1000 / k), 'As faixas 4 a 6 do disco (na frente da foto).', folga=4)
+
+
+def melhor_mae():
+    print('Melhor Mãe')
+    itens = ler('melhor-mae')
+    corte = (153, 91, 1099)
+    # Só o topo vem da arte: os louros, "Vencedora · Melhor mãe · Do mundo" e as cinco
+    # estrelas. As duas linhas de baixo são do site, por causa do ano e de quem é o júri
+    # ("os filhos", "a filha", "o filho"...).
+    topo = [i for i in itens if i['caixa'][3] < 600]
+    gravar('melhor-mae', 'topo', topo, corte, 'Os louros, "Vencedora · Melhor mãe · Do mundo" e as estrelas.')
+    print('  fim do topo:', na_arte(corte, y=max(i['caixa'][3] for i in topo)))
+
+
+def capa_de_revista():
+    print('Capa de Revista')
+    itens = ler('capa-de-revista')
+    corte = (31, 60, 1287)
+    # A linha de cima acaba em 142 (a cedilha); o til de "Mãe" começa logo abaixo, em 146.
+    topo = [i for i in itens if i['caixa'][3] < 144]
+    titulo = [i for i in itens if i['caixa'][1] >= 144 and i['caixa'][3] < 720]
+    chamadas = [i for i in itens if i['caixa'][1] >= 720 and i['caixa'][3] < 1400]
+    frase = [i for i in itens if i['caixa'][1] > 1600]
+    gravar('capa-de-revista', 'topo', topo, corte, 'A linha "Edição especial · Nº 1".')
+    gravar('capa-de-revista', 'titulo', titulo, corte, 'O nome da revista, "Mãe" (atrás da foto).')
+    gravar('capa-de-revista', 'chamadas', chamadas, corte, 'As chamadas de capa, dos dois lados (na frente da foto).')
+    gravar('capa-de-revista', 'frase', frase, corte, 'A frase "a mulher da minha vida".')
+    print('  fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
+
+
 if __name__ == '__main__':
     turne_mundial()
     ao_vivo()
@@ -343,3 +403,6 @@ if __name__ == '__main__':
     sua_majestade()
     mapa_astral()
     o_brabo()
+    grandes_sucessos()
+    melhor_mae()
+    capa_de_revista()

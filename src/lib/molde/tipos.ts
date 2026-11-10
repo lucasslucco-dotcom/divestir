@@ -9,7 +9,8 @@ export type Lado = 'frente' | 'costas';
 
 // Papéis de fonte da marca: o site resolve cada um para a fonte carregada.
 // titulo: Anton; destaque: Instrument Serif; destaque-italico: a mesma, itálica;
-// cinema e cinema-forte: Bodoni Moda (só nas estampas de cinema); vintage: Shrikhand
+// cinema, cinema-forte e cinema-preta: Bodoni Moda nos pesos 500, 700 e 900 (só nas
+// estampas de cinema; a preta é a do nome do Melhor Mãe); vintage: Shrikhand
 // (a letra gorda e inclinada de camiseta de turnê antiga); show: Passion One (a letra
 // grossa de pôster de show); bloco: Alfa Slab One (a letra de bloco com serifa, de
 // placa de bar); colegial: Graduate (a letra de camisa de time, com os cantos
@@ -22,6 +23,7 @@ export type FonteDoMolde =
   | 'destaque-italico'
   | 'cinema'
   | 'cinema-forte'
+  | 'cinema-preta'
   | 'vintage'
   | 'show'
   | 'bloco'

@@ -392,6 +392,99 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
+-- Design Grandes Sucessos: capa de disco, estampa grande, para mães e avós. A arte vem do
+-- Higgsfield (as réguas com "Grandes Sucessos", o disco de vinil, as seis faixas, que são as
+-- frases de mãe, e a barra "Edição de colecionador ★ Volume único"); o site põe o nome enorme
+-- na letra de pôster (Anton, engrossada) e a foto solta por cima do disco.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('grandes-sucessos', 'Grandes Sucessos', 'ativo', 11, '2026-11-10', '{
+    "versao": 1,
+    "proporcao": 0.775,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/grandes-sucessos/titulo.svg", "x": 500.2, "topo": 379.4, "largura": 950.9, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/grandes-sucessos/disco.svg", "x": 500, "topo": 478, "largura": 600, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 58, "largura_maxima": 950, "altura_no_centro": 312, "arco": 1, "compressao_maxima": 0.5, "expansao_maxima": 1.15, "engrossa": 5},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 486, "largura": 1000, "altura": 706, "janela": {"largura": 1000, "altura": 900, "y": 905}},
+      {"tipo": "arte", "arquivo": "/designs/grandes-sucessos/faixas-esquerda.svg", "x": 97.3, "topo": 593.5, "largura": 188.2, "folga": 7},
+      {"tipo": "arte", "arquivo": "/designs/grandes-sucessos/faixas-direita.svg", "x": 896.3, "topo": 583.7, "largura": 207.3, "folga": 7},
+      {"tipo": "arte", "arquivo": "/designs/grandes-sucessos/frente.svg", "x": 500, "topo": 1188.9, "largura": 1000, "folga": 0, "base": "/designs/grandes-sucessos/frente-base.svg"}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["maes", "avos-ela"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Melhor Mãe: prêmio de festival de cinema, estampa grande, para mães. A arte vem do
+-- Higgsfield (os louros, "Vencedora · Melhor mãe · Do mundo" e as estrelas); o site põe o nome
+-- na letra de cinema (Bodoni Moda 900, estreitada), com a base em arco, a foto grande e as
+-- duas linhas de baixo: "Por unanimidade · Júri: {os filhos, a filha, o filho, as filhas}", que
+-- o cliente escolhe, e "Todos os anos desde {ano}".
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('melhor-mae', 'Melhor Mãe', 'ativo', 12, '2026-11-10', '{
+    "versao": 1,
+    "proporcao": 0.667,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/melhor-mae/topo.svg", "x": 500, "topo": 0, "largura": 880, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "cinema-preta", "x": 500, "topo": 350, "largura_maxima": 1000, "altura_no_centro": 268, "arco": 1.38, "compressao_maxima": 0.5, "expansao_maxima": 1, "engrossa": 4, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 430, "largura": 1000, "altura": 950, "janela": {"largura": 1120, "altura": 1120, "y": 1060}},
+      {"tipo": "forma", "x": 500, "y": 1385, "largura": 940, "altura": 5},
+      {"tipo": "texto", "texto": "POR UNANIMIDADE · JÚRI: {juri}", "fonte": "cinema", "x": 500, "base": 1436, "largura": 940, "altura": 28, "espaco": 0.28},
+      {"tipo": "texto", "texto": "TODOS OS ANOS DESDE {desde}", "fonte": "cinema-forte", "x": 500, "base": 1492, "largura": 940, "altura": 31, "espaco": 0.3}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}, {"chave": "juri", "rotulo": "Quem é o júri?", "resumo": "Júri", "max": 9, "caixa": "alta", "opcoes": ["OS FILHOS", "A FILHA", "O FILHO", "AS FILHAS"]}, {"chave": "desde", "rotulo": "Mãe desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "1995"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["maes"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Capa de Revista: capa de revista de moda, estampa grande, para mães. A arte vem do
+-- Higgsfield (a linha "Edição especial · Nº 1", o nome da revista, "Mãe", as chamadas de capa
+-- "Ela tinha razão (de novo)" e "Colo aberto 24 horas", e a frase "a mulher da minha vida");
+-- o site põe a foto por cima do nome da revista, a régua e o nome embaixo (Anton, alargada).
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('capa-de-revista', 'Capa de Revista', 'ativo', 13, '2026-11-10', '{
+    "versao": 1,
+    "proporcao": 0.73,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/capa-de-revista/topo.svg", "x": 500, "topo": 0, "largura": 760, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/capa-de-revista/titulo.svg", "x": 500, "topo": 48, "largura": 960, "folga": 0},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 250, "largura": 1000, "altura": 812, "janela": {"largura": 1060, "altura": 1000, "y": 812}},
+      {"tipo": "arte", "arquivo": "/designs/capa-de-revista/chamadas.svg", "x": 500, "topo": 570, "largura": 1000, "folga": 7},
+      {"tipo": "forma", "x": 500, "y": 1065, "largura": 940, "altura": 5},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 1088, "largura_maxima": 940, "altura_no_centro": 205, "arco": 1, "compressao_maxima": 0.5, "expansao_maxima": 1.45, "acento_dentro": true},
+      {"tipo": "arte", "arquivo": "/designs/capa-de-revista/frase.svg", "x": 500, "topo": 1305, "largura": 780, "folga": 0}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["maes"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
 -- O Letreiro (letreiro de cinema, conceito Bia & Caio) saiu da linha por decisão do Lucas
 -- (10/11/2026). Onde ele já existir no banco, fica encerrado.
 update public.designs set status = 'encerrado' where slug = 'letreiro';
