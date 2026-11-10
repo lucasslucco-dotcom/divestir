@@ -27,8 +27,8 @@ FONTE = RAIZ / 'artes-fonte'
 SAIDA = RAIZ.parent / 'public' / 'designs'
 
 
-def ler(design: str):
-    linhas = (FONTE / f'{design}.txt').read_text(encoding='utf-8').split('\n')
+def ler(arquivo: str):
+    linhas = (FONTE / f'{arquivo}.txt').read_text(encoding='utf-8').split('\n')
     itens = []
     for texto in linhas[2:]:  # a linha 2 é o fundo preto inteiro
         if not texto:
@@ -62,8 +62,11 @@ def n(valor: float) -> str:
     return f'{valor:.1f}'.rstrip('0').rstrip('.')
 
 
-def gravar(design: str, parte: str, itens, corte, descricao: str, folga: float = 6, base: bool = False):
+def gravar(design: str, parte: str, itens, corte, descricao: str, folga: float = 6, base: bool = False, ate_y=None):
     """Grava a parte e devolve onde ela entra na arte (x do centro, topo e largura).
+
+    Com "ate_y" (em medidas do vetor), a parte é cortada reta nessa altura: o que
+    passar dali para baixo não entra.
 
     Com "base", grava também <parte>-base.svg: a mesma parte sem os furos (a faixa
     inteira, sem as letras vazadas). O molde apaga a foto embaixo dessa base antes
@@ -73,6 +76,8 @@ def gravar(design: str, parte: str, itens, corte, descricao: str, folga: float =
     y0 = min(i['caixa'][1] for i in itens) - folga
     x1 = max(i['caixa'][2] for i in itens) + folga
     y1 = max(i['caixa'][3] for i in itens) + folga
+    if ate_y is not None:
+        y1 = min(y1, ate_y)
     formas = []
     for i in itens:
         if i['tipo'] == 'C':
@@ -124,27 +129,41 @@ def turne_mundial():
     print('Turnê Mundial')
     itens = ler('turne-mundial')
     corte = (40, 70, 1280)  # x e y onde a arte do design começa no vetor, e a largura que vira 1000
-    # A fita começa em 1104; o que começa acima disso são os raios e as estrelas.
-    raios = [i for i in itens if i['caixa'][1] < 1100]
+    # A fita começa em 1104; o que começa acima disso são os raios da primeira arte
+    # (com um círculo vazio no meio), que não entram mais.
     frente = [i for i in itens if i['caixa'][1] >= 1100]
     # As datas (entre a fita, que acaba em 1336, e o selo, que começa em 1575) ficam
     # numa parte só delas: a fita e o selo levam o desgaste de estampa antiga, e a
     # letra pequena das datas fica inteira, para ler.
     datas = [i for i in frente if 1338 <= i['caixa'][1] < 1555]
     fita = [i for i in frente if i not in datas]
-    gravar('turne-mundial', 'raios', raios, corte, 'Raios e estrelas (atrás da foto).')
     gravar('turne-mundial', 'frente', fita, corte, 'Fita "Turnê Mundial 2026" e selo (na frente da foto).', base=True)
     gravar('turne-mundial', 'datas', datas, corte, 'As datas da turnê.')
-    # O círculo vazio no meio dos raios: ajuste pelos pontos de cada raio mais perto do meio.
-    cx, cy = 678.0, 800.0
-    for _ in range(30):
-        perto = [min(i['pontos'], key=lambda p: math.hypot(p[0] - cx, p[1] - cy)) for i in raios if len(i['pontos']) < 40]
-        raio = sorted(math.hypot(x - cx, y - cy) for x, y in perto)[len(perto) // 2]
-        dx = sum((x - cx) * (1 - raio / math.hypot(x - cx, y - cy)) for x, y in perto) / len(perto)
-        dy = sum((y - cy) * (1 - raio / math.hypot(x - cx, y - cy)) for x, y in perto) / len(perto)
-        cx, cy = cx + dx, cy + dy
-    print('  círculo vazio (x, y, raio):', na_arte(corte, cx, cy, raio), ' topo dos raios:', na_arte(corte, y=min(i['caixa'][1] for i in raios)))
     print('  fita: topo', na_arte(corte, y=1104), ' fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
+
+    # Os raios vêm de uma arte só deles (pedido do Lucas, 10/11/2026): saem do meio e
+    # passam por trás da foto, como no mockup. O centro do vetor (1024, 1024) cai no
+    # meio da foto, e os raios são cortados na altura da fita, que cobre o corte.
+    raios = ler('turne-mundial-raios')
+    pequeno = lambda i: i['caixa'][2] - i['caixa'][0] < 140 and i['caixa'][3] - i['caixa'][1] < 140
+    estrelas = [i for i in raios if pequeno(i)]
+    so_raios = [i for i in raios if not pequeno(i)]
+    largura = 1000 / RAIO_NA_ARTE * 890  # o raio comprido tem 890 no vetor
+    corte_dos_raios = (1024 - CENTRO_DOS_RAIOS[0] * largura / 1000, 1024 - CENTRO_DOS_RAIOS[1] * largura / 1000, largura)
+    gravar(
+        'turne-mundial', 'raios', so_raios, corte_dos_raios, 'Raios (atrás da foto e do nome).',
+        ate_y=corte_dos_raios[1] + RAIOS_ATE * largura / 1000,
+    )
+    # A estrela é uma peça só, que o molde põe três vezes (em cima e dos lados).
+    estrela = min(estrelas, key=lambda i: i['caixa'][1])
+    gravar('turne-mundial', 'estrela', [estrela], (estrela['caixa'][0], estrela['caixa'][1], 1000), 'Estrela.', folga=2)
+
+
+# Onde os raios da Turnê Mundial ficam na arte (unidades da arte): o centro, o tamanho
+# do raio comprido e até onde eles descem.
+CENTRO_DOS_RAIOS = (500, 545)
+RAIO_NA_ARTE = 420
+RAIOS_ATE = 885
 
 
 def ao_vivo():

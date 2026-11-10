@@ -24,7 +24,14 @@ import {
 import { CARRINHO_VAZIO, MONTAGEM_VAZIA, type Carrinho, type ItemDoCarrinho } from '@/lib/montagem/tipos';
 import { janelaDaFoto, textoDoCampo } from '@/lib/molde/desenhar';
 import { esquecerImagem } from '@/lib/molde/recursos';
-import { LARGURA_DA_ARTE, limparTextoDaEstampa, type CamadaFoto, type Design, type Lado } from '@/lib/molde/tipos';
+import {
+  LARGURA_DA_ARTE,
+  areaDoDesign,
+  limparTextoDaEstampa,
+  type CamadaFoto,
+  type Design,
+  type Lado,
+} from '@/lib/molde/tipos';
 import { Doca, type DescricaoDaVista, type Vista } from './doca';
 import { ID_DOS_PASSOS, nomeDaPeca, oQueFalta, reduzir, resolver, type Falta } from './estado';
 import { PassoDesign } from './passo-design';
@@ -477,12 +484,16 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   // com muito zoom, sai com poucos pontos na peça impressa.
   const camadaDaFoto = r.design?.config.camadas.find((c): c is CamadaFoto => c.tipo === 'foto');
   const quadroDaFoto = camadaDaFoto ? janelaDaFoto(camadaDaFoto) : null;
+  // No design de estampa grande, a largura impressa cresce na mesma medida da prévia.
+  const areaDaPeca = r.peca.areas[r.lado]?.previa ?? null;
+  const areaDaEstampa = r.design ? areaDoDesign(areaDaPeca, r.design.config) : areaDaPeca;
+  const aumentoDaEstampa = areaDaPeca && areaDaEstampa ? areaDaEstampa.largura / areaDaPeca.largura : 1;
   const definicao =
     montagem.foto && quadroDaFoto
       ? definicaoDaEstampa(
           montagem.foto,
           quadroDaFoto.largura / LARGURA_DA_ARTE,
-          r.peca.areas[r.lado]?.largura_cm ?? LARGURA_PADRAO_DA_ESTAMPA_CM,
+          (r.peca.areas[r.lado]?.largura_cm ?? LARGURA_PADRAO_DA_ESTAMPA_CM) * aumentoDaEstampa,
           quadroDaFoto.largura / quadroDaFoto.altura,
         )
       : null;

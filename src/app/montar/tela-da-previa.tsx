@@ -22,7 +22,7 @@ import {
   type Tela,
 } from '@/lib/molde/desenhar';
 import { carregarArte, carregarImagem, fontesDaPagina } from '@/lib/molde/recursos';
-import { LARGURA_DA_ARTE, type AreaNaFoto, type Design } from '@/lib/molde/tipos';
+import { LARGURA_DA_ARTE, areaDoDesign, type AreaNaFoto, type Design } from '@/lib/molde/tipos';
 import { IconeCarregando } from './icones';
 
 // Uma prévia desenhada: a foto de base da peça e, por cima, o design com a foto e o
@@ -128,7 +128,7 @@ function acaoDaTecla(tecla: string, passo: number): ((e: Enquadramento) => Enqua
 
 export function TelaDaPrevia({
   base,
-  area,
+  area: areaDaPeca,
   corDaPeca,
   arte,
   perto = false,
@@ -138,6 +138,8 @@ export function TelaDaPrevia({
   descricao,
   className,
 }: Props) {
+  // O design de estampa grande usa a área grande da peça (quando ela tem).
+  const area = arte?.tipo === 'design' ? areaDoDesign(areaDaPeca, arte.design.config) : areaDaPeca;
   const moldura = useRef<HTMLDivElement>(null);
   const tela = useRef<HTMLCanvasElement>(null);
   const preparo = useRef<Preparo | null>(null);

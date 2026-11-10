@@ -36,13 +36,24 @@ export const bodoniModa = localFont({
   preload: false,
 });
 
-// Só nas estampas de turnê: Caprasimo, de licença aberta (OFL), a letra gorda de
-// camiseta antiga. Não é fonte do site (decisão a confirmar com o Lucas, 10/11/2026).
-export const caprasimo = localFont({
-  src: './caprasimo-400.woff2',
+// Só nas estampas de turnê, de licença aberta (OFL). Não são fontes do site (decisão a
+// confirmar com o Lucas, 10/11/2026). Shrikhand: a letra gorda e inclinada de camiseta
+// de turnê antiga (Turnê Mundial). Passion One: a letra de pôster de show, bem grossa
+// (Ao Vivo).
+export const shrikhand = localFont({
+  src: './shrikhand-400.woff2',
   weight: '400',
   style: 'normal',
-  variable: '--font-caprasimo',
+  variable: '--font-shrikhand',
+  display: 'swap',
+  preload: false,
+});
+
+export const passionOne = localFont({
+  src: './passion-one-900.woff2',
+  weight: '900',
+  style: 'normal',
+  variable: '--font-passion-one',
   display: 'swap',
   preload: false,
 });
@@ -56,4 +67,4 @@ export const inter = localFont({
   display: 'swap',
 });
 
-export const variaveisDeFonte = `${anton.variable} ${instrumentSerif.variable} ${inter.variable} ${bodoniModa.variable} ${caprasimo.variable}`;
+export const variaveisDeFonte = `${anton.variable} ${instrumentSerif.variable} ${inter.variable} ${bodoniModa.variable} ${shrikhand.variable} ${passionOne.variable}`;

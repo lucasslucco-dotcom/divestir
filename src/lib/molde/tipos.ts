@@ -9,9 +9,10 @@ export type Lado = 'frente' | 'costas';
 
 // Papéis de fonte da marca: o site resolve cada um para a fonte carregada.
 // titulo: Anton; destaque: Instrument Serif; destaque-italico: a mesma, itálica;
-// cinema e cinema-forte: Bodoni Moda (só nas estampas de cinema); vintage: Caprasimo
-// (a letra gorda de camiseta de turnê antiga, só nas estampas).
-export type FonteDoMolde = 'titulo' | 'destaque' | 'destaque-italico' | 'cinema' | 'cinema-forte' | 'vintage';
+// cinema e cinema-forte: Bodoni Moda (só nas estampas de cinema); vintage: Shrikhand
+// (a letra gorda e inclinada de camiseta de turnê antiga); show: Passion One (a letra
+// grossa de pôster de show). As três só existem nas estampas.
+export type FonteDoMolde = 'titulo' | 'destaque' | 'destaque-italico' | 'cinema' | 'cinema-forte' | 'vintage' | 'show';
 
 // Giro de uma camada, em graus (positivo: sentido horário), em volta de um ponto.
 export type Giro = { graus: number; x: number; y: number };
@@ -179,6 +180,8 @@ export type ConfigDoMolde = {
   // sai) que fura o nome e as artes marcadas com "desgaste", deixando aparecer o
   // tecido. A foto e os textos pequenos ficam inteiros.
   desgaste?: { arquivo: string };
+  // "grande": a estampa toma mais da peça (a área "grande" de cada lado, quando existe).
+  tamanho?: 'grande';
   pecas_permitidas?: string[];
   // Com a estampa nas costas, a frente leva a marca pequena no peito, na mesma
   // tinta (briefing: "logo_peito"). Até o logo ficar pronto, a marca é o nome
@@ -226,7 +229,16 @@ export const TINTAS: Record<string, string> = {
 
 // Onde a arte fica na foto de base de uma peça, em frações da foto: centro (x),
 // topo e largura. A altura sai da proporção do molde.
-export type AreaNaFoto = { x: number; topo: number; largura: number };
+// "grande" é a mesma área para os designs de estampa grande (os de turnê, que tomam
+// as costas): outra largura e, se preciso, outro topo.
+export type AreaNaFoto = { x: number; topo: number; largura: number; grande?: { largura: number; topo?: number } };
+
+// A área que um design usa na peça: a normal ou, no design de estampa grande, a grande
+// (quando a peça tem; o moletom com capuz na frente, por exemplo, não tem).
+export function areaDoDesign(area: AreaNaFoto | null, config: ConfigDoMolde): AreaNaFoto | null {
+  if (!area || config.tamanho !== 'grande' || !area.grande) return area;
+  return { x: area.x, topo: area.grande.topo ?? area.topo, largura: area.grande.largura };
+}
 
 // Área de impressão de cada lado da peça (coluna area_impressao_cm de pecas).
 // Lado que não aparece aqui não recebe estampa (a jaqueta college só tem costas).

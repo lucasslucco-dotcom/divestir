@@ -41,13 +41,16 @@ on conflict (peca_id, cor_id, lado) do update set url = excluded.url;
 -- da marca no peito, na foto da frente, do lado esquerdo de quem veste: com a
 -- estampa nas costas, a frente leva DIVESTIR em Anton até o logo ficar pronto
 -- (decisão do Lucas, 08/11/2026).
+-- "grande", nas costas, é a área dos designs de estampa grande (os de turnê): a estampa
+-- toma mais da peça, como nos mockups aprovados (pedido do Lucas, 10/11/2026). O tamanho
+-- em centímetros depende do que a estamparia consegue imprimir e prensar.
 update public.pecas as p set area_impressao_cm = a.area
 from (values
-  ('camiseta-regular', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.205, "largura": 0.3}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.31}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.215, "largura": 0.11}}}'::jsonb),
-  ('camiseta-oversized', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.218, "largura": 0.326}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.177, "largura": 0.326}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.225, "largura": 0.11}}}'::jsonb),
-  ('moletom', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.2, "largura": 0.31}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.32}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.225, "largura": 0.11}}}'::jsonb),
-  ('moletom-capuz', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.305, "largura": 0.2}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.325, "largura": 0.36}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.655, "topo": 0.275, "largura": 0.1}}}'::jsonb),
-  ('jaqueta-college', '{"costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.17, "largura": 0.3}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.64, "topo": 0.23, "largura": 0.1}}}'::jsonb)
+  ('camiseta-regular', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.205, "largura": 0.3}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.31, "grande": {"largura": 0.4, "topo": 0.175}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.215, "largura": 0.11}}}'::jsonb),
+  ('camiseta-oversized', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.218, "largura": 0.326}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.177, "largura": 0.326, "grande": {"largura": 0.42, "topo": 0.165}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.225, "largura": 0.11}}}'::jsonb),
+  ('moletom', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.2, "largura": 0.31}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.32, "grande": {"largura": 0.4, "topo": 0.175}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.225, "largura": 0.11}}}'::jsonb),
+  ('moletom-capuz', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.305, "largura": 0.2}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.325, "largura": 0.36, "grande": {"largura": 0.42}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.655, "topo": 0.275, "largura": 0.1}}}'::jsonb),
+  ('jaqueta-college', '{"costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.17, "largura": 0.3, "grande": {"largura": 0.38, "topo": 0.16}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.64, "topo": 0.23, "largura": 0.1}}}'::jsonb)
 ) as a (slug, area)
 where p.slug = a.slug;
 
@@ -96,19 +99,24 @@ on conflict (slug) do update set
 -- creme quente dos mockups.
 -- "drop_entrada" liga o selo "Novo" nas duas primeiras semanas; rodar de novo não mexe nas datas.
 
--- Design Turnê Mundial: camiseta de turnê antiga. A arte (raios, fita "Turnê Mundial 2026",
--- datas e selo) vem do Higgsfield; o site põe o nome em arco, na letra gorda de turnê
--- (Caprasimo), e a foto solta no meio dos raios. O nome, a fita e o selo saem rachados
--- (desgaste); as datas ficam inteiras, para ler.
+-- Design Turnê Mundial: camiseta de turnê antiga, estampa grande. A arte vem do Higgsfield:
+-- os raios (que saem do meio e passam por trás da foto), a estrela, a fita "Turnê Mundial
+-- 2026", as datas e o selo. O site põe o nome em arco, na letra gorda de turnê (Shrikhand),
+-- e a foto solta no meio dos raios. O nome, a fita e o selo saem rachados (desgaste); as
+-- datas ficam inteiras, para ler.
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
   ('turne-mundial', 'Turnê Mundial', 'ativo', 2, '2026-11-10', '{
     "versao": 1,
     "proporcao": 0.7012,
     "posicao": "costas",
+    "tamanho": "grande",
     "camadas": [
-      {"tipo": "arte", "arquivo": "/designs/turne-mundial/raios.svg", "x": 498.2, "topo": 225, "largura": 826.2, "folga": 0},
-      {"tipo": "nome", "campo": "nome", "fonte": "vintage", "x": 500, "topo": 12, "largura_maxima": 900, "altura_no_centro": 215, "arco": 1.5, "compressao_maxima": 0.52, "curva": 14, "expansao_maxima": 1, "folga": 8, "desgaste": true, "acento_dentro": true},
-      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 236, "largura": 900, "altura": 640, "janela": {"largura": 920, "altura": 760, "y": 616}},
+      {"tipo": "arte", "arquivo": "/designs/turne-mundial/raios.svg", "x": 500.3, "topo": 135.2, "largura": 816.8, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/turne-mundial/estrela.svg", "x": 152, "topo": 548, "largura": 54, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/turne-mundial/estrela.svg", "x": 848, "topo": 548, "largura": 54, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "vintage", "x": 500, "topo": 12, "largura_maxima": 880, "altura_no_centro": 180, "arco": 1.8, "compressao_maxima": 0.5, "expansao_maxima": 1, "curva": 36, "folga": 10, "desgaste": true, "acento_dentro": true},
+      {"tipo": "arte", "arquivo": "/designs/turne-mundial/estrela.svg", "x": 500, "topo": 206, "largura": 54, "folga": 0},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 215, "largura": 900, "altura": 661, "janela": {"largura": 920, "altura": 760, "y": 600}},
       {"tipo": "arte", "arquivo": "/designs/turne-mundial/frente.svg", "x": 499.9, "topo": 808.7, "largura": 972.4, "folga": 8, "base": "/designs/turne-mundial/frente-base.svg", "desgaste": true},
       {"tipo": "arte", "arquivo": "/designs/turne-mundial/datas.svg", "x": 517.5, "topo": 1002.1, "largura": 923.4, "folga": 0}
     ],
@@ -124,18 +132,20 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
--- Design Ao Vivo: pôster de show. A arte (etiqueta, círculo de pontos, faixa "Turnê 2026" e a
--- linha de lugares) vem do Higgsfield; o site põe o nome enorme, de ponta a ponta, e a
--- foto solta por cima do círculo.
+-- Design Ao Vivo: pôster de show, estampa grande. A arte (etiqueta, círculo de pontos, faixa
+-- "Turnê 2026" e a linha de lugares) vem do Higgsfield; o site põe o nome enorme, de ponta a
+-- ponta, na letra grossa de pôster (Passion One), com a base em arco, e a foto solta por cima
+-- do círculo.
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
   ('ao-vivo', 'Ao Vivo', 'ativo', 3, '2026-11-10', '{
     "versao": 1,
     "proporcao": 0.6601,
     "posicao": "costas",
+    "tamanho": "grande",
     "camadas": [
       {"tipo": "arte", "arquivo": "/designs/ao-vivo/selo.svg", "x": 201.9, "topo": 13.9, "largura": 301.5, "folga": 0},
       {"tipo": "arte", "arquivo": "/designs/ao-vivo/pontos.svg", "x": 490.8, "topo": 411.7, "largura": 883.4, "folga": 0},
-      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 114, "largura_maxima": 900, "altura_no_centro": 372, "arco": 1.28, "compressao_maxima": 0.62, "folga": 9, "expansao_maxima": 1.35, "acento_dentro": true},
+      {"tipo": "nome", "campo": "nome", "fonte": "show", "x": 500, "topo": 114, "largura_maxima": 900, "altura_no_centro": 325, "arco": 1.55, "compressao_maxima": 0.62, "folga": 9, "expansao_maxima": 1.5, "acento_dentro": true},
       {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 400, "largura": 960, "altura": 865, "janela": {"largura": 1000, "altura": 1090, "y": 965}},
       {"tipo": "arte", "arquivo": "/designs/ao-vivo/frente.svg", "x": 498.4, "topo": 1105.8, "largura": 971.1, "folga": 0, "base": "/designs/ao-vivo/frente-base.svg"}
     ],

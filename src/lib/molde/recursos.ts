@@ -57,7 +57,8 @@ export function fontesDaPagina(): Promise<Fontes> {
     const titulo = estilo.getPropertyValue('--font-anton').trim() || 'Anton, sans-serif';
     const destaque = estilo.getPropertyValue('--font-instrument-serif').trim() || 'Georgia, serif';
     const cinema = estilo.getPropertyValue('--font-bodoni-moda').trim() || 'Georgia, serif';
-    const vintage = estilo.getPropertyValue('--font-caprasimo').trim() || 'Georgia, serif';
+    const vintage = estilo.getPropertyValue('--font-shrikhand').trim() || 'Georgia, serif';
+    const show = estilo.getPropertyValue('--font-passion-one').trim() || 'Impact, sans-serif';
     await Promise.all([
       document.fonts.load(`400 100px ${titulo}`),
       document.fonts.load(`400 100px ${destaque}`),
@@ -65,6 +66,7 @@ export function fontesDaPagina(): Promise<Fontes> {
       document.fonts.load(`500 100px ${cinema}`),
       document.fonts.load(`700 100px ${cinema}`),
       document.fonts.load(`400 100px ${vintage}`),
+      document.fonts.load(`900 100px ${show}`),
     ]).catch(() => undefined);
     return {
       titulo: { familia: titulo, estilo: 'normal' },
@@ -73,6 +75,7 @@ export function fontesDaPagina(): Promise<Fontes> {
       cinema: { familia: cinema, estilo: 'normal', peso: 500 },
       'cinema-forte': { familia: cinema, estilo: 'normal', peso: 700 },
       vintage: { familia: vintage, estilo: 'normal' },
+      show: { familia: show, estilo: 'normal', peso: 900 },
     } satisfies Fontes;
   })();
   return fontes;
