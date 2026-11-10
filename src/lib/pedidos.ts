@@ -6,7 +6,7 @@ import { cotarFrete, FreteIndisponivel } from './frete';
 import { MAX_PECAS_POR_PEDIDO, PRAZO_EM_TEXTO, precoDaPeca, precoDoPresente, somar } from './loja';
 import { buscarPagamento, pagamentoEmTeste, situacaoDoPagamento, type SituacaoDoPagamento } from './mercadopago';
 import { LIMITE_DO_CARTAO } from './montagem/tipos';
-import { ehConfigDoMolde, ladosDaPeca, type AreasDaPeca, type Lado } from './molde/tipos';
+import { ehConfigDoMolde, ladosDaPeca, limparTextoDaEstampa, type AreasDaPeca, type Lado } from './molde/tipos';
 import { criarClienteAdmin } from './supabase/admin';
 import {
   cepValido,
@@ -247,7 +247,8 @@ export async function criarPedido(pedido: PedidoDoCheckout): Promise<PedidoCriad
     if (!ladosDaPeca(areas).includes(p.lado)) throw new PedidoRecusado('Confere onde vai a estampa.', 409);
     const campos: Record<string, string> = {};
     for (const campo of config.campos) {
-      const valor = (p.campos[campo.chave] ?? '').trim();
+      // Só o que sai na estampa: emoji e símbolos ficam de fora, como no montador.
+      const valor = limparTextoDaEstampa(p.campos[campo.chave] ?? '');
       if (!valor || valor.length > campo.max) throw new PedidoRecusado('Confere o nome que vai na estampa.', 409);
       campos[campo.chave] = valor;
     }

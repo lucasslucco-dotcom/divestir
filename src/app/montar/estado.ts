@@ -3,7 +3,7 @@
 import type { Catalogo, Cor, Peca } from '@/lib/catalogo';
 import type { Enquadramento } from '@/lib/foto/enquadramento';
 import { MONTAGEM_VAZIA, type FotoDaMontagem, type Montagem } from '@/lib/montagem/tipos';
-import { ladosDaPeca, type Campo, type Design, type Lado } from '@/lib/molde/tipos';
+import { ladosDaPeca, limparTextoDaEstampa, type Campo, type Design, type Lado } from '@/lib/molde/tipos';
 
 export type Acao =
   | { tipo: 'restaurar'; montagem: Montagem }
@@ -19,6 +19,7 @@ export type Acao =
   | { tipo: 'ajustar' }
   | { tipo: 'original'; chave: string; original: FotoDaMontagem['original'] }
   | { tipo: 'sem-foto' }
+  | { tipo: 'no-carrinho'; id: string | null }
   | { tipo: 'nova' };
 
 export function reduzir(m: Montagem, acao: Acao): Montagem {
@@ -58,6 +59,8 @@ export function reduzir(m: Montagem, acao: Acao): Montagem {
       return m.foto?.chave === acao.chave ? { ...m, foto: { ...m.foto, original: acao.original } } : m;
     case 'sem-foto':
       return { ...m, foto: null };
+    case 'no-carrinho':
+      return { ...m, noCarrinho: acao.id };
     case 'nova':
       return MONTAGEM_VAZIA;
   }
@@ -131,7 +134,7 @@ export function oQueFalta(m: Montagem, r: Resolvida | null): Falta[] {
   else if (!m.foto.aprovada) falta.push({ texto: 'aprovar a foto', passo: 'foto' });
   const campos: Campo[] = r?.design?.config.campos ?? [];
   for (const campo of campos) {
-    if ((m.campos[campo.chave] ?? '').trim()) continue;
+    if (limparTextoDaEstampa(m.campos[campo.chave] ?? '')) continue;
     falta.push(
       campo.chave === 'nome'
         ? { texto: 'dar o nome', passo: 'nome' }

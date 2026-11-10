@@ -13,7 +13,7 @@ import {
 } from '@/lib/checkout';
 import { codigoNovo } from '@/lib/foto/guardar';
 import { MAX_PARCELAS, PRAZO_DE_PERSONALIZACAO, precoDoPresente, reais, somar } from '@/lib/loja';
-import { guardarCarrinho, guardarPedido, lerCarrinhoGuardado } from '@/lib/montagem/guardar';
+import { esperarEnvios, guardarCarrinho, guardarPedido, lerCarrinhoGuardado } from '@/lib/montagem/guardar';
 import type { Carrinho } from '@/lib/montagem/tipos';
 import type { Design } from '@/lib/molde/tipos';
 import {
@@ -328,6 +328,7 @@ export function Checkout({
   const [frete, setFrete] = useState<EstadoDoFrete | null>(null);
   const [cep, setCep] = useState<BuscaDoCep>('parado');
   const [enviando, setEnviando] = useState(false);
+  const [esperandoFoto, setEsperandoFoto] = useState(false);
   const [falha, setFalha] = useState<{ mensagem: string; carrinho?: boolean } | null>(null);
   const cotacao = useRef<AbortController | null>(null);
   const recortes = useRecortes(carrinho?.itens.map((i) => i.foto.chave) ?? []);
@@ -504,6 +505,19 @@ export function Checkout({
 
     setEnviando(true);
     setFalha(null);
+    // A foto original pode ainda estar chegando ao espaço privado (foto pesada, internet
+    // lenta): o pedido espera por ela.
+    setEsperandoFoto(true);
+    const chegaram = await esperarEnvios(carrinho.itens.map((i) => i.foto.chave));
+    setEsperandoFoto(false);
+    if (chegaram.some((chegou) => !chegou)) {
+      setFalha({
+        mensagem: 'A foto de uma das peças não chegou até a gente. Manda ela de novo pelo carrinho?',
+        carrinho: true,
+      });
+      setEnviando(false);
+      return;
+    }
     try {
       const resposta = await fetch('/api/pedidos', {
         method: 'POST',
@@ -901,7 +915,7 @@ export function Checkout({
               <button type="submit" disabled={enviando} className="ingresso w-full sm:w-auto disabled:cursor-wait">
                 {enviando ? (
                   <span className="flex items-center gap-2">
-                    <IconeCarregando /> Criando o pedido…
+                    <IconeCarregando /> {esperandoFoto ? 'Esperando a sua foto chegar…' : 'Criando o pedido…'}
                   </span>
                 ) : (
                   'Ir para o pagamento'

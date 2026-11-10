@@ -3,8 +3,8 @@
 import Image from 'next/image';
 import { useId, type ReactNode } from 'react';
 import type { Catalogo, Cor, Peca } from '@/lib/catalogo';
-import type { Campo } from '@/lib/molde/tipos';
-import { IconeSim } from './icones';
+import { limparTextoDaEstampa, temSimboloForaDaEstampa, type Campo } from '@/lib/molde/tipos';
+import { IconeAlerta, IconeSim } from './icones';
 import { linkDeTexto } from './passo-foto';
 import { TelaDaPrevia, type ArteDaPrevia } from './tela-da-previa';
 
@@ -126,6 +126,9 @@ export function PassoNome({
 }) {
   const id = useId();
   const max = campo?.max ?? 10;
+  // Emoji e símbolos não existem na fonte da estampa: o que sobra é o que vai impresso.
+  const limpo = limparTextoDaEstampa(valor);
+  const sobrou = temSimboloForaDaEstampa(valor);
   return (
     <>
       <label htmlFor={`${id}-nome`} className="block text-base leading-snug font-semibold">
@@ -150,6 +153,17 @@ export function PassoNome({
       <p id={`${id}-ajuda`} className="mt-2 text-[0.9375rem] leading-snug">
         Até {max} letras, como Thor, Vó Cida ou Duda.
       </p>
+      {sobrou ? (
+        <p
+          role="status"
+          className="mt-2 flex max-w-[38ch] items-start gap-2 text-[0.9375rem] leading-snug font-semibold"
+        >
+          <IconeAlerta className="mt-[3px] shrink-0" />
+          {limpo
+            ? `Emoji e símbolos não saem na estampa. Na peça vai assim: ${limpo.toLocaleUpperCase('pt-BR')}`
+            : 'Emoji e símbolos não saem na estampa. Escreve o nome com letras?'}
+        </p>
+      ) : null}
     </>
   );
 }

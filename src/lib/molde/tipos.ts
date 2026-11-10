@@ -30,7 +30,8 @@ export type CamadaAnel = {
 };
 
 // Campo que o cliente preenche (o nome). O topo da maiúscula fica reto e a base
-// desce nas pontas ("arco": quanto as pontas ficam mais altas que o meio).
+// desce nas pontas da arte ("arco": quanto uma letra na ponta da largura máxima
+// fica mais alta que uma no meio). Nome curto fica no meio e quase não desce.
 // Nomes longos primeiro estreitam as letras (até "compressao_maxima") e só
 // depois diminuem.
 export type CamadaNome = {
@@ -48,6 +49,10 @@ export type CamadaNome = {
 // A foto do cliente, recortada pelo círculo. Na metade de cima, ela pode passar do
 // círculo até "vaza_acima" unidades (a cabeça passa por cima do anel e da base do
 // nome); dali em diante, um círculo maior corta. Assim o nome nunca some.
+//
+// "janela" ajusta o quadro onde a foto entra: "escala" encolhe o quadro (1 é o
+// diâmetro do círculo) e "desce" baixa o centro dele. É o que decide onde a cabeça
+// fica quando a foto chega: encostando na base do nome, sem esconder as letras.
 export type CamadaFoto = {
   tipo: 'foto';
   formato: 'circulo';
@@ -55,6 +60,7 @@ export type CamadaFoto = {
   y: number;
   raio: number;
   vaza_acima: number;
+  janela?: { escala?: number; desce?: number };
 };
 
 // Arte fixa em SVG de uma tinta só (a cor vem de currentColor). "folga" abre um
@@ -102,6 +108,21 @@ export type Design = {
 };
 
 export const LARGURA_DA_ARTE = 1000;
+
+// O que sai na estampa de um campo de texto (o nome): letras, com ou sem acento,
+// números, espaço e . - ' & !. Emoji e outros símbolos não existem na fonte da
+// estampa, que é impressa numa tinta só, então ficam de fora.
+export const temSimboloForaDaEstampa = (valor: string) =>
+  /[^\p{Script=Latin}\p{Nd} .\-'&!\u2018\u2019]/u.test(valor.normalize('NFC'));
+
+export function limparTextoDaEstampa(valor: string) {
+  return valor
+    .normalize('NFC')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[^\p{Script=Latin}\p{Nd} .\-'&!]/gu, '')
+    .replace(/ {2,}/g, ' ')
+    .trim();
+}
 
 // As tintas da estampa: as cores da marca.
 export const TINTAS: Record<string, string> = {

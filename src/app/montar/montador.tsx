@@ -4,10 +4,12 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useId, useMemo, useReducer, useRef, useState, type FocusEvent } from 'react';
 import type { Catalogo, Cor } from '@/lib/catalogo';
 import { checarFoto } from '@/lib/foto/checar';
+import { LARGURA_PADRAO_DA_ESTAMPA_CM, definicaoDaEstampa, escalaDaOriginal } from '@/lib/foto/definicao';
 import { ENQUADRAMENTO_INICIAL, medirRecorte } from '@/lib/foto/enquadramento';
 import { abrirVaga, codigoNovo, enviarOriginal, type Vaga } from '@/lib/foto/guardar';
 import { pedirRecorte, prepararParaRecorte } from '@/lib/foto/recorte';
 import {
+  acompanharEnvio,
   apagarRecortesFora,
   guardarCarrinho,
   guardarMontagem,
@@ -19,9 +21,9 @@ import {
   recortesEmUso,
 } from '@/lib/montagem/guardar';
 import { CARRINHO_VAZIO, MONTAGEM_VAZIA, type Carrinho, type ItemDoCarrinho } from '@/lib/montagem/tipos';
-import { textoDoCampo } from '@/lib/molde/desenhar';
+import { janelaDaFoto, textoDoCampo } from '@/lib/molde/desenhar';
 import { esquecerImagem } from '@/lib/molde/recursos';
-import type { Design, Lado } from '@/lib/molde/tipos';
+import { LARGURA_DA_ARTE, limparTextoDaEstampa, type CamadaFoto, type Design, type Lado } from '@/lib/molde/tipos';
 import { Doca, type DescricaoDaVista, type Vista } from './doca';
 import { ID_DOS_PASSOS, nomeDaPeca, oQueFalta, reduzir, resolver, type Falta } from './estado';
 import { PassoDesign } from './passo-design';
@@ -35,7 +37,7 @@ import type { ArteDaPrevia, FotoDaPrevia, MudarEnquadramento } from './tela-da-p
 // navegador; se ela fechar a aba, volta de onde parou, com a foto.
 
 type VagaEmAndamento = Promise<{ vaga: Vaga; envio: Promise<boolean> } | null>;
-type Processo = { id: number; arquivo: File; url: string; vaga: VagaEmAndamento };
+type Processo = { id: number; arquivo: File; url: string; vaga: VagaEmAndamento; largura?: number; altura?: number };
 
 const suave = (): ScrollBehavior => (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
 
@@ -53,7 +55,6 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   const [aviso, setAviso] = useState<string | null>(null);
   const [vista, setVista] = useState<Vista | null>(null);
   const [compacta, setCompacta] = useState(false);
-  const [adicionada, setAdicionada] = useState<string | null>(null);
   const processo = useRef<Processo | null>(null);
   const recorteAtual = useRef<{ chave: string; url: string } | null>(null);
   const raiz = useRef<HTMLDivElement>(null);
@@ -72,7 +73,6 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
     // eslint-disable-next-line react-hooks/set-state-in-effect -- o navegador só é lido depois de a página abrir
     setCarrinho(lerCarrinhoGuardado());
     setJaPedidas(lerPedidosGuardados().flatMap((pedido) => pedido.itens));
-    if (salva?.editando) setAdicionada(null);
     setRestaurada(true);
   }, []);
 
@@ -182,6 +182,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
           id: vaga?.vaga.id ?? null,
           sessao: vaga?.vaga.sessao ?? null,
           geometria,
+          escalaDaOriginal: escalaDaOriginal(atual.largura, atual.altura),
           enquadramento: ENQUADRAMENTO_INICIAL,
           aprovada: false,
           teste,
@@ -189,7 +190,13 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
           criadaEm: new Date().toISOString(),
         },
       });
-      void vaga?.envio.then((ok) => despachar({ tipo: 'original', chave, original: ok ? 'enviada' : 'falhou' }));
+      // O envio da original segue por conta própria: o resultado fica gravado mesmo
+      // que a pessoa já tenha ido para o carrinho.
+      if (vaga) {
+        void acompanharEnvio(chave, vaga.envio).then((chegou) =>
+          despachar({ tipo: 'original', chave, original: chegou ? 'enviada' : 'falhou' }),
+        );
+      }
       setEnvio((e) => (e?.id === id ? { ...e, etapa: 'pronta' } : e));
       setVista('perto');
       // O ajuste acontece na prévia: o passo da foto para logo abaixo dela.
@@ -226,7 +233,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
       (aberta) => (aberta ? { vaga: aberta.vaga, envio: enviarOriginal(aberta.vaga, aberta.original) } : null),
       () => null,
     );
-    processo.current = { id, arquivo, url, vaga };
+    processo.current = { id, arquivo, url, vaga, largura: checagem.largura, altura: checagem.altura };
     await recortar(id);
   }
 
@@ -265,38 +272,51 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
     [montagem.foto, recorte],
   );
 
-  // A peça montada que já foi para o carrinho; qualquer mudança vira uma peça nova.
-  const assinatura = JSON.stringify([
-    montagem.peca,
-    montagem.cor,
-    montagem.design,
-    montagem.lado,
-    montagem.campos,
-    montagem.tamanho,
-    montagem.foto?.chave,
-    montagem.foto?.enquadramento,
-    montagem.foto?.aprovada,
-  ]);
-
-  // A peça que está sendo editada, se ela ainda estiver no carrinho.
+  // A peça do carrinho que saiu desta montagem (ou a que o carrinho mandou editar).
+  // Se a pessoa mudar alguma coisa depois de adicionar, a mudança vai para a mesma
+  // peça: assim trocar o tamanho não deixa duas peças no carrinho.
   const editada = montagem.editando ? carrinho.itens.find((item) => item.id === montagem.editando) : undefined;
+  const jaNoCarrinho = montagem.noCarrinho ? carrinho.itens.find((item) => item.id === montagem.noCarrinho) : undefined;
 
-  function adicionar() {
-    if (!r || !r.design || !r.tamanho || !montagem.foto?.aprovada) return;
-    if (oQueFalta(montagem, r).length) return;
-    // Lê de novo antes de mexer: outra aba pode ter mudado o carrinho.
-    const atual = lerCarrinhoGuardado();
-    const anterior = montagem.editando ? atual.itens.find((i) => i.id === montagem.editando) : undefined;
-    const item: ItemDoCarrinho = {
-      id: anterior?.id ?? codigoNovo(),
-      criadoEm: anterior?.criadoEm ?? new Date().toISOString(),
+  // A peça como ela vai para o carrinho, se já estiver completa.
+  function pecaPronta(): Omit<ItemDoCarrinho, 'id' | 'criadoEm' | 'presente'> | null {
+    if (!r || !r.design || !r.tamanho || !montagem.foto?.aprovada) return null;
+    if (oQueFalta(montagem, r).length) return null;
+    return {
       peca: r.peca.slug,
       cor: r.cor.slug,
       design: r.design.slug,
       lado: r.lado,
-      campos: Object.fromEntries(r.design.config.campos.map((c) => [c.chave, (montagem.campos[c.chave] ?? '').trim()])),
+      campos: Object.fromEntries(
+        r.design.config.campos.map((c) => [
+          c.chave,
+          limparTextoDaEstampa(montagem.campos[c.chave] ?? '')
+            .slice(0, c.max)
+            .trim(),
+        ]),
+      ),
       tamanho: r.tamanho,
       foto: montagem.foto,
+    };
+  }
+
+  const assinar = (p: Omit<ItemDoCarrinho, 'id' | 'criadoEm' | 'presente'>) =>
+    JSON.stringify([p.peca, p.cor, p.design, p.lado, p.campos, p.tamanho, p.foto.chave, p.foto.enquadramento]);
+  const pronta = pecaPronta();
+  const igualAoCarrinho = !!pronta && !!jaNoCarrinho && assinar(pronta) === assinar(jaNoCarrinho);
+
+  // "outra": adiciona como uma peça a mais, mesmo vindo de uma que já está no carrinho.
+  function adicionar(outra = false) {
+    const pronta = pecaPronta();
+    if (!pronta) return;
+    // Lê de novo antes de mexer: outra aba pode ter mudado o carrinho.
+    const atual = lerCarrinhoGuardado();
+    const alvo = outra ? null : (montagem.editando ?? montagem.noCarrinho);
+    const anterior = alvo ? atual.itens.find((i) => i.id === alvo) : undefined;
+    const item: ItemDoCarrinho = {
+      ...pronta,
+      id: anterior?.id ?? codigoNovo(),
+      criadoEm: anterior?.criadoEm ?? new Date().toISOString(),
       presente: anterior?.presente ?? null,
     };
     const novo: Carrinho = {
@@ -305,7 +325,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
     };
     guardarCarrinho(novo);
     setCarrinho(novo);
-    if (anterior) {
+    if (anterior && montagem.editando) {
       // Editou do carrinho: a peça volta para lá já com as mudanças, e o montador
       // fica livre para a próxima.
       despachar({ tipo: 'nova' });
@@ -313,7 +333,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
       router.push('/carrinho');
       return;
     }
-    setAdicionada(assinatura);
+    despachar({ tipo: 'no-carrinho', id: item.id });
   }
 
   function criarOutra() {
@@ -321,7 +341,6 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
     trocarRecorte(null);
     limparEnvio();
     setVista(null);
-    setAdicionada(null);
     setAviso(null);
     window.scrollTo({ top: 0, behavior: suave() });
   }
@@ -352,7 +371,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   }
 
   const valores = montagem.campos;
-  const nome = (valores.nome ?? '').trim();
+  const nome = limparTextoDaEstampa(valores.nome ?? '');
   const pecaNome = nomeDaPeca(r.peca, catalogo.pecas);
   const nomeNaArte = (design: Design) => textoDoCampo(design.config, 'nome', valores);
   const descreverDesign = (design: Design, cor: Cor, modo = '') =>
@@ -421,6 +440,17 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   }
 
   const ajustando = !!montagem.foto && !montagem.foto.aprovada && !!fotoDaPrevia;
+  // A definição da estampa com este enquadramento: quem aparece pequeno na foto, ou
+  // com muito zoom, sai com poucos pontos na peça impressa.
+  const camadaDaFoto = r.design?.config.camadas.find((c): c is CamadaFoto => c.tipo === 'foto');
+  const definicao =
+    montagem.foto && camadaDaFoto
+      ? definicaoDaEstampa(
+          montagem.foto,
+          janelaDaFoto(camadaDaFoto).largura / LARGURA_DA_ARTE,
+          r.peca.areas[r.lado]?.largura_cm ?? LARGURA_PADRAO_DA_ESTAMPA_CM,
+        )
+      : null;
   const vistaGrande: Vista = ajustando
     ? 'perto'
     : vista && vistas.some((v) => v.vista === vista)
@@ -497,6 +527,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
             envio={envio}
             foto={montagem.foto}
             temRecorte={!!fotoDaPrevia}
+            definicao={definicao?.nivel ?? null}
             aviso={aviso}
             reaproveitaveis={reaproveitaveis}
             aoEscolherArquivo={(arquivo) => void escolherArquivo(arquivo)}
@@ -574,10 +605,10 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
             foto={fotoDaPrevia}
             falta={falta}
             pecasNoCarrinho={carrinho.itens.length}
-            adicionada={adicionada === assinatura}
-            editando={!!editada}
+            situacao={editada ? 'editando' : igualAoCarrinho ? 'no-carrinho' : jaNoCarrinho ? 'mudou' : 'nova'}
             rotulo={r.design ? descreverDesign(r.design, r.cor, ', de perto') : pecaNome}
-            aoAdicionar={adicionar}
+            aoAdicionar={() => adicionar()}
+            aoAdicionarOutra={() => adicionar(true)}
             aoCriarOutra={criarOutra}
             aoIrPara={irPara}
           />

@@ -94,6 +94,7 @@ export type SituacaoDoPedido = {
 };
 
 // Peças com foto que não chegou ao espaço privado: o carrinho pede a foto de novo.
+// Foto que ainda está sendo enviada não conta: o checkout espera por ela.
 export function fotoPendente(item: ItemDoCarrinho) {
-  return !item.foto.id || !item.foto.sessao || item.foto.original !== 'enviada';
+  return !item.foto.id || !item.foto.sessao || (item.foto.original !== 'enviada' && item.foto.original !== 'enviando');
 }

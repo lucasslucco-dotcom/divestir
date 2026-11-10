@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import type { Checagem } from '@/lib/foto/checar';
+import type { Definicao } from '@/lib/foto/definicao';
 import {
   ENQUADRAMENTO_INICIAL,
   PASSO_DO_ZOOM,
@@ -100,12 +101,34 @@ function ResultadoDaChecagem({ envio }: { envio: EnvioDaFoto }) {
   );
 }
 
+// O aviso da definição: foto pequena, quem aparece pequeno nela ou muito zoom dão
+// poucos pontos para a peça impressa. Não trava: a equipe ainda revisa a arte.
+// Quando ele aparece, o selo da foto inteira ("Foto perfeita") sai de cena.
+function AvisoDaDefinicao({ nivel, zoom }: { nivel: Definicao['nivel']; zoom: number }) {
+  if (nivel === 'boa') return null;
+  const comZoom = zoom > 1.001;
+  return (
+    <p className="mt-3 flex max-w-[38ch] items-start gap-2 text-[0.9375rem] leading-snug font-semibold">
+      <IconeAlerta className="mt-[3px] shrink-0" />
+      {nivel === 'media'
+        ? comZoom
+          ? 'Com esse zoom, a estampa pode perder um pouco de definição.'
+          : 'Do jeito que está, a estampa pode perder um pouco de definição. Uma foto maior ou mais de perto fica melhor.'
+        : comZoom
+          ? 'Com esse zoom, a estampa vai sair sem definição. Diminui o zoom ou manda uma foto mais de perto.'
+          : 'Essa foto tem pouca definição para o tamanho da estampa. Uma foto maior ou mais de perto resolve.'}
+    </p>
+  );
+}
+
 function ControlesDoAjuste({
   foto,
+  definicao,
   aoEnquadrar,
   idDaDica,
 }: {
   foto: FotoDaMontagem;
+  definicao: Definicao['nivel'] | null;
   aoEnquadrar: MudarEnquadramento;
   idDaDica: string;
 }) {
@@ -153,6 +176,7 @@ function ControlesDoAjuste({
           Redefinir
         </button>
       </div>
+      <div aria-live="polite">{definicao ? <AvisoDaDefinicao nivel={definicao} zoom={zoom} /> : null}</div>
     </div>
   );
 }
@@ -196,6 +220,7 @@ export function PassoFoto({
   envio,
   foto,
   temRecorte,
+  definicao,
   aviso,
   reaproveitaveis,
   aoEscolherArquivo,
@@ -209,6 +234,7 @@ export function PassoFoto({
   envio: EnvioDaFoto | null;
   foto: FotoDaMontagem | null;
   temRecorte: boolean;
+  definicao: Definicao['nivel'] | null;
   aviso: string | null;
   reaproveitaveis: FotoReaproveitavel[];
   aoEscolherArquivo: (arquivo: File) => void;
@@ -314,7 +340,12 @@ export function PassoFoto({
       {ajustando && foto ? (
         <div>
           {/* O veredito da foto, curto: a foto em si já aparece na prévia. */}
-          {envio?.checagem ? (
+          {envio?.checagem &&
+          !(
+            definicao &&
+            definicao !== 'boa' &&
+            (envio.checagem.nivel === 'perfeita' || /definição/.test(envio.checagem.titulo))
+          ) ? (
             <div aria-live="polite" className="mb-5">
               <Selo checagem={envio.checagem} />
               {envio.checagem.nivel !== 'perfeita'
@@ -326,7 +357,7 @@ export function PassoFoto({
                 : null}
             </div>
           ) : null}
-          <ControlesDoAjuste foto={foto} aoEnquadrar={aoEnquadrar} idDaDica={idDaDica} />
+          <ControlesDoAjuste foto={foto} definicao={definicao} aoEnquadrar={aoEnquadrar} idDaDica={idDaDica} />
           <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-1">
             <button type="button" onClick={aoAprovar} className="ingresso w-full sm:w-auto">
               Ficou ótimo
@@ -371,6 +402,10 @@ export function PassoFoto({
             {envio?.etapa === 'barrada' ? 'Escolher outra foto' : 'Escolher a foto'}
           </button>
           <p className="mt-3 text-[0.9375rem] leading-snug">Pode ser do álbum ou tirada na hora.</p>
+          <p className="mt-2 max-w-[42ch] text-sm leading-snug">
+            A foto serve só para fazer a sua peça e fica guardada com segurança. Se você não comprar, ela é apagada em
+            30 dias.
+          </p>
         </div>
       ) : null}
     </div>

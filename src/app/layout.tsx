@@ -20,6 +20,9 @@ export const metadata: Metadata = {
     title: TITULO,
     description: DESCRICAO,
   },
+  // A imagem do link é o arquivo opengraph-image.jpg desta pasta (feito pelo
+  // scripts/gerar-imagem-do-link.mjs); aqui só se pede o cartão grande.
+  twitter: { card: 'summary_large_image' },
 };
 
 // Cor da barra do navegador no celular: o verde do topo da home.

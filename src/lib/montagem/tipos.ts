@@ -11,6 +11,9 @@ export type FotoDaMontagem = {
   id: string | null;
   sessao: string | null;
   geometria: Geometria;
+  // Quantos pixels da foto original cada pixel do recorte representa (null: não deu
+  // para medir). É o que diz se a estampa vai ter definição (foto/definicao.ts).
+  escalaDaOriginal: number | null;
   enquadramento: Enquadramento;
   aprovada: boolean;
   // Recorte feito no modo de teste do Photoroom (sai com marca d'água).
@@ -32,6 +35,9 @@ export type Montagem = {
   foto: FotoDaMontagem | null;
   // A peça do carrinho que está sendo editada ("Editar", no carrinho).
   editando: string | null;
+  // A peça do carrinho que saiu desta montagem ("Adicionar ao carrinho"): se a pessoa
+  // mudar alguma coisa depois, a mudança vai para a mesma peça, sem duplicar.
+  noCarrinho: string | null;
 };
 
 export const MONTAGEM_VAZIA: Montagem = {
@@ -44,6 +50,7 @@ export const MONTAGEM_VAZIA: Montagem = {
   tamanho: null,
   foto: null,
   editando: null,
+  noCarrinho: null,
 };
 
 // Presente (briefing, "Carrinho e checkout"): embalagem especial e cartão com a
@@ -147,16 +154,16 @@ export function lerFoto(valor: unknown): FotoDaMontagem | null {
     id: texto(f.id),
     sessao: texto(f.sessao),
     geometria: g,
+    escalaDaOriginal: (numero(f.escalaDaOriginal) ?? 0) > 0 ? numero(f.escalaDaOriginal) : null,
     enquadramento: enquadramento(f.enquadramento),
     aprovada: f.aprovada === true,
     teste: f.teste === true,
-    // Um envio que ficou pela metade (a aba fechou no meio) não dá para confirmar.
+    // "enviando" só vale enquanto o envio está acontecendo nesta aba: quem lê o que
+    // está guardado confere isso (guardar.ts).
     original:
-      original === 'enviada' || original === 'falhou' || original === 'sem-vaga'
+      original === 'enviada' || original === 'falhou' || original === 'sem-vaga' || original === 'enviando'
         ? original
-        : original === 'enviando'
-          ? 'falhou'
-          : 'sem-vaga',
+        : 'sem-vaga',
     criadaEm,
   };
   return fotoVencida(foto) ? null : foto;
@@ -176,6 +183,7 @@ export function lerMontagem(valor: unknown): Montagem | null {
     tamanho: texto(m.tamanho),
     foto: lerFoto(m.foto),
     editando: texto(m.editando),
+    noCarrinho: texto(m.noCarrinho),
   };
 }
 

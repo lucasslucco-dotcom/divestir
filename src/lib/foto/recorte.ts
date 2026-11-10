@@ -46,7 +46,13 @@ export async function pedirRecorte(
     dados.append('foto_id', vaga.id);
     dados.append('sessao', vaga.sessao);
   }
-  const resposta = await fetch('/api/recorte', { method: 'POST', body: dados });
+  let resposta: Response;
+  try {
+    resposta = await fetch('/api/recorte', { method: 'POST', body: dados });
+  } catch {
+    // O pedido nem saiu do aparelho: a internet caiu.
+    throw new Error('Parece que a internet caiu. Confere a conexão e tenta de novo.');
+  }
   if (!resposta.ok) {
     const corpo = (await resposta.json().catch(() => null)) as { erro?: string } | null;
     throw new Error(corpo?.erro ?? 'Não consegui tirar o fundo agora.');

@@ -10,6 +10,7 @@ import {
   lerMontagem,
   lerPedidos,
   type Carrinho,
+  type FotoDaMontagem,
   type ItemDoCarrinho,
   type Montagem,
   type PedidoGuardado,
@@ -38,7 +39,55 @@ function gravar(chave: string, valor: unknown) {
   }
 }
 
-export const lerMontagemGuardada = (): Montagem | null => lerMontagem(ler(CHAVE_DA_MONTAGEM));
+// O envio da foto original para o espaço privado continua enquanto a pessoa segue
+// montando, vai ao carrinho ou preenche o checkout. Quem acompanha é esta lista, que
+// vale para a aba inteira: quando o envio termina, o resultado é gravado direto no
+// que está guardado (a montagem e as peças do carrinho com aquela foto), mesmo que a
+// página que começou o envio já esteja escondida.
+const envios = new Map<string, Promise<boolean>>();
+
+function anotarEnvio<T>(valor: T, chave: string, original: FotoDaMontagem['original']): T {
+  const foto = (valor as { foto?: { chave?: unknown; original?: unknown } } | null)?.foto;
+  if (foto && foto.chave === chave) foto.original = original;
+  return valor;
+}
+
+export function acompanharEnvio(chave: string, envio: Promise<boolean>) {
+  const acompanhado = envio
+    .catch(() => false)
+    .then((chegou) => {
+      if (envios.get(chave) === acompanhado) envios.delete(chave);
+      const original = chegou ? 'enviada' : 'falhou';
+      const montagem = ler(CHAVE_DA_MONTAGEM);
+      if (montagem) gravar(CHAVE_DA_MONTAGEM, anotarEnvio(montagem, chave, original));
+      const carrinho = ler(CHAVE_DO_CARRINHO) as { itens?: unknown[] } | null;
+      if (carrinho && Array.isArray(carrinho.itens)) {
+        for (const item of carrinho.itens) anotarEnvio(item, chave, original);
+        gravar(CHAVE_DO_CARRINHO, carrinho);
+        window.dispatchEvent(new Event(EVENTO_DO_CARRINHO));
+      }
+      return chegou;
+    });
+  envios.set(chave, acompanhado);
+  return acompanhado;
+}
+
+// Espera os envios dessas fotos que ainda estão acontecendo (o checkout, antes de
+// fechar o pedido).
+export const esperarEnvios = (chaves: string[]) => Promise.all(chaves.map((chave) => envios.get(chave) ?? true));
+
+// Um envio que ficou pela metade (a aba fechou no meio) não dá para confirmar: a
+// foto conta como não enviada, e o carrinho pede de novo.
+function conferirEnvio<T extends { foto: FotoDaMontagem | null }>(dono: T): T {
+  const { foto } = dono;
+  if (!foto || foto.original !== 'enviando' || envios.has(foto.chave)) return dono;
+  return { ...dono, foto: { ...foto, original: 'falhou' } };
+}
+
+export function lerMontagemGuardada(): Montagem | null {
+  const montagem = lerMontagem(ler(CHAVE_DA_MONTAGEM));
+  return montagem ? conferirEnvio(montagem) : null;
+}
 export const guardarMontagem = (montagem: Montagem) => gravar(CHAVE_DA_MONTAGEM, montagem);
 
 // Antes de abrir o montador: "Editar" (do carrinho) deixa guardada a peça escolhida,
@@ -56,11 +105,15 @@ export function prepararEdicao(item: ItemDoCarrinho) {
     tamanho: item.tamanho,
     foto: { ...item.foto, aprovada: true },
     editando: item.id,
+    noCarrinho: null,
   });
 }
 
 export const prepararNovaMontagem = () => guardarMontagem(MONTAGEM_VAZIA);
-export const lerCarrinhoGuardado = (): Carrinho => lerCarrinho(ler(CHAVE_DO_CARRINHO));
+export function lerCarrinhoGuardado(): Carrinho {
+  const carrinho = lerCarrinho(ler(CHAVE_DO_CARRINHO));
+  return { versao: 1, itens: carrinho.itens.map(conferirEnvio) };
+}
 export function guardarCarrinho(carrinho: Carrinho) {
   gravar(CHAVE_DO_CARRINHO, carrinho);
   window.dispatchEvent(new Event(EVENTO_DO_CARRINHO));
@@ -100,11 +153,14 @@ export function acompanharCarrinho(aoMudar: () => void) {
   };
 }
 
-// Tira do carrinho as peças de um pedido pago (lendo de novo: outra aba pode ter mexido).
+// Tira do carrinho as peças de um pedido pago (lendo de novo: outra aba pode ter
+// mexido). Se a montagem aberta era uma dessas peças, o montador volta ao começo.
 export function tirarDoCarrinho(ids: string[]) {
   const atual = lerCarrinhoGuardado();
   const restantes = atual.itens.filter((item) => !ids.includes(item.id));
   if (restantes.length !== atual.itens.length) guardarCarrinho({ versao: 1, itens: restantes });
+  const montagem = lerMontagemGuardada();
+  if (montagem?.noCarrinho && ids.includes(montagem.noCarrinho)) guardarMontagem(MONTAGEM_VAZIA);
 }
 
 // Os pedidos feitos neste navegador (até 20, dos últimos 30 dias).

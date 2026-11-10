@@ -12,6 +12,7 @@ import {
   LARGURA_DA_ARTE,
   TINTAS,
   alturaDaArte,
+  limparTextoDaEstampa,
   type AreaNaFoto,
   type CamadaAnel,
   type CamadaArte,
@@ -82,7 +83,9 @@ export function tintaDaCor(config: ConfigDoMolde, corDaPeca: string) {
 // O texto que vai no campo: o que a pessoa digitou ou, vazio, o rótulo do campo.
 export function textoDoCampo(config: ConfigDoMolde, chave: string, valores: Record<string, string>) {
   const campo = config.campos.find((c) => c.chave === chave);
-  const valor = (valores[chave] ?? '').trim().slice(0, campo?.max ?? 40);
+  const valor = limparTextoDaEstampa(valores[chave] ?? '')
+    .slice(0, campo?.max ?? 40)
+    .trim();
   const texto = valor || campo?.rotulo || '';
   return campo?.caixa === 'alta' ? texto.toLocaleUpperCase('pt-BR') : texto;
 }
@@ -110,9 +113,61 @@ function desenharAnel(ctx: CanvasRenderingContext2D, c: CamadaAnel, tinta: strin
   ctx.restore();
 }
 
-// O nome: escrito numa tela à parte e redesenhado coluna a coluna. Até o topo da
-// maiúscula nada muda (os acentos ficam no lugar); dali para baixo a coluna estica,
-// mais nas pontas que no meio, e a base do nome vira um arco.
+// O nome é escrito numa tela à parte (o rascunho), já com o tamanho e a largura
+// finais: nomes longos primeiro estreitam as letras e só depois diminuem.
+function rascunharNome(
+  medida: CanvasRenderingContext2D,
+  c: CamadaNome,
+  texto: string,
+  tinta: string,
+  escala: number,
+  fontes: Fontes,
+  criarTela: CriarTela,
+) {
+  const fonte = fontes[c.fonte];
+  medida.save();
+  medida.font = fonteCss(fonte, 100);
+  const capa = medida.measureText('H').actualBoundingBoxAscent / 100 || 0.86;
+  let px = (c.altura_no_centro * escala) / capa;
+  medida.font = fonteCss(fonte, px);
+  let largura = medida.measureText(texto).width;
+  const maxima = c.largura_maxima * escala;
+  const estreita = Math.min(1, Math.max(c.compressao_maxima, maxima / largura));
+  if (largura * estreita > maxima) {
+    px *= maxima / (largura * estreita);
+    medida.font = fonteCss(fonte, px);
+    largura = medida.measureText(texto).width;
+  }
+  medida.restore();
+
+  const alturaDaCapa = px * capa;
+  const acima = Math.ceil(px * 0.5);
+  const abaixo = Math.ceil(px * 0.35);
+  const w = Math.max(1, Math.ceil(largura * estreita) + 2);
+  const h = Math.ceil(acima + alturaDaCapa + abaixo);
+  const tela = criarTela(w, h);
+  const r = contexto(tela, { willReadFrequently: true });
+  r.font = fonteCss(fonte, px);
+  r.fillStyle = tinta;
+  r.textBaseline = 'alphabetic';
+  r.scale(estreita, 1);
+  r.fillText(texto, 1 / estreita, acima + alturaDaCapa);
+  return { tela, w, h, acima, alturaDaCapa, x0: Math.round(c.x * escala - w / 2), topo: c.topo * escala };
+}
+
+// Quanto a coluna do nome estica do topo da maiúscula para baixo: nada no meio da
+// arte e cada vez mais perto das pontas, e a base do nome vira um arco. O arco é o
+// da arte (a largura máxima do nome), não o de cada nome: assim a base acompanha o
+// círculo da foto, e um nome curto (ZÉ, LU, THOR) fica no meio, quase reto, em vez
+// de descer para dentro do círculo, onde a cabeça de quem está na foto o cobriria.
+// "x" é a coluna dentro do rascunho, que começa em x0 na tela.
+const esticar = (c: CamadaNome, x: number, x0: number, escala: number) => {
+  const u = Math.min(1, Math.abs(x0 + x + 0.5 - c.x * escala) / Math.max(1, (c.largura_maxima * escala) / 2));
+  return 1 + (c.arco - 1) * u * u;
+};
+
+// O nome: redesenhado coluna a coluna a partir do rascunho. Até o topo da maiúscula
+// nada muda (os acentos ficam no lugar); dali para baixo a coluna estica.
 function desenharNome(
   ctx: CanvasRenderingContext2D,
   c: CamadaNome,
@@ -123,51 +178,104 @@ function desenharNome(
   criarTela: CriarTela,
 ) {
   if (!texto) return;
-  const fonte = fontes[c.fonte];
-  ctx.save();
-  ctx.font = fonteCss(fonte, 100);
-  const capa = ctx.measureText('H').actualBoundingBoxAscent / 100 || 0.86;
-  let px = (c.altura_no_centro * escala) / capa;
-  ctx.font = fonteCss(fonte, px);
-  let largura = ctx.measureText(texto).width;
-  const maxima = c.largura_maxima * escala;
-  const estreita = Math.min(1, Math.max(c.compressao_maxima, maxima / largura));
-  if (largura * estreita > maxima) {
-    px *= maxima / (largura * estreita);
-    ctx.font = fonteCss(fonte, px);
-    largura = ctx.measureText(texto).width;
-  }
-  ctx.restore();
-
-  const alturaDaCapa = px * capa;
-  const acima = Math.ceil(px * 0.5);
-  const abaixo = Math.ceil(px * 0.35);
-  const w = Math.max(1, Math.ceil(largura * estreita) + 2);
-  const h = Math.ceil(acima + alturaDaCapa + abaixo);
-  const rascunho = criarTela(w, h);
-  const r = contexto(rascunho);
-  r.font = fonteCss(fonte, px);
-  r.fillStyle = tinta;
-  r.textBaseline = 'alphabetic';
-  r.scale(estreita, 1);
-  r.fillText(texto, 1 / estreita, acima + alturaDaCapa);
-
-  const x0 = Math.round(c.x * escala - w / 2);
-  const topo = c.topo * escala;
+  const { tela: rascunho, w, h, acima, x0, topo } = rascunharNome(ctx, c, texto, tinta, escala, fontes, criarTela);
   for (let x = 0; x < w; x++) {
-    const u = (x + 0.5 - w / 2) / (w / 2);
-    const s = 1 + (c.arco - 1) * u * u;
+    const s = esticar(c, x, x0, escala);
     ctx.drawImage(rascunho, x, 0, 1, acima, x0 + x, topo - acima, 1, acima);
     ctx.drawImage(rascunho, x, acima, 1, h - acima, x0 + x, topo, 1, (h - acima) * s);
   }
   liberarTelas(rascunho);
 }
 
+// Letras com um pedaço abaixo da linha de base (a cedilha do Ç, a perna do Q e, com
+// minúsculas, g j p q y). Esse pedaço cai dentro do círculo da foto, e a cabeça de
+// quem está na foto pode passar por cima: PAÇOCA viraria PACOCA.
+const DESCE_DA_LINHA = /[ÇçQqgjpy]/;
+
+// O que do nome desce da linha de base, para pintar de novo por cima da foto, com um
+// respiro em volta. Só entram as colunas que têm tinta bem abaixo da linha: as
+// curvas do O, do C e do S passam um fio dela e ficam de fora. Devolve a forma e a
+// máscara do respiro (que não toca nas letras, só no que está abaixo delas).
+function descidasDoNome(
+  c: CamadaNome,
+  texto: string,
+  tinta: string,
+  escala: number,
+  fontes: Fontes,
+  criarTela: CriarTela,
+  W: number,
+  H: number,
+): { forma: Tela; mascara: Tela } | null {
+  if (!DESCE_DA_LINHA.test(texto)) return null;
+  const forma = criarTela(W, H);
+  const f = contexto(forma);
+  const {
+    tela: rascunho,
+    w,
+    h,
+    acima,
+    alturaDaCapa,
+    x0,
+    topo,
+  } = rascunharNome(f, c, texto, tinta, escala, fontes, criarTela);
+  const base = Math.round(acima + alturaDaCapa);
+  const limite = Math.min(h - 1, base + Math.max(2, Math.round(alturaDaCapa * 0.045)));
+  let colunas: number[] = [];
+  try {
+    const { data } = contexto(rascunho).getImageData(0, limite, w, h - limite);
+    for (let x = 0; x < w; x++) {
+      for (let y = 0; y < h - limite; y++) {
+        if (data[(y * w + x) * 4 + 3] > 96) {
+          colunas.push(x);
+          break;
+        }
+      }
+    }
+  } catch {
+    colunas = [];
+  }
+  if (!colunas.length) {
+    liberarTelas(rascunho, forma);
+    return null;
+  }
+  for (const x of colunas) {
+    const s = esticar(c, x, x0, escala);
+    f.drawImage(rascunho, x, base, 1, h - base, x0 + x, topo + alturaDaCapa * s, 1, (h - base) * s);
+  }
+  const mascara = mascaraComFolga(forma, 0, 0, 9 * escala, W, H, criarTela);
+  // O respiro vale só abaixo da linha de base: as letras do nome ficam inteiras.
+  const m = contexto(mascara);
+  for (let x = -Math.ceil(10 * escala); x < w + Math.ceil(10 * escala); x++) {
+    const s = esticar(c, x, x0, escala);
+    m.clearRect(x0 + x, 0, 1, topo + alturaDaCapa * s);
+  }
+  liberarTelas(rascunho);
+  return { forma, mascara };
+}
+
+// Apaga o que estiver embaixo de uma forma, com um respiro em volta dela: a mesma
+// forma, deslocada em volta, vira a máscara.
+function mascaraComFolga(forma: Tela, x: number, y: number, folga: number, W: number, H: number, criarTela: CriarTela) {
+  const mascara = criarTela(W, H);
+  const m = contexto(mascara);
+  for (let k = 0; k < 24; k++) {
+    const angulo = (k / 24) * Math.PI * 2;
+    m.drawImage(forma, x + Math.cos(angulo) * folga, y + Math.sin(angulo) * folga);
+  }
+  m.drawImage(forma, x, y);
+  return mascara;
+}
+
 // A janela de 4:5 onde a foto entra, em unidades da arte. É o quadro do
 // enquadramento da Etapa 3, com a largura do diâmetro do círculo e o mesmo centro:
 // o que está no meio do quadro vai para o meio do círculo.
+// O molde pode encolher e baixar esse quadro ("janela"), para a cabeça chegar
+// encostando na base do nome em vez de passar por cima das letras.
 export function janelaDaFoto(c: CamadaFoto) {
-  return { x: c.x - c.raio, y: c.y - 1.25 * c.raio, largura: 2 * c.raio, altura: 2.5 * c.raio };
+  const escala = Math.min(1.5, Math.max(0.5, c.janela?.escala ?? 1));
+  const raio = c.raio * escala;
+  const y = c.y + (c.janela?.desce ?? 0);
+  return { x: c.x - raio, y: y - 1.25 * raio, largura: 2 * raio, altura: 2.5 * raio };
 }
 
 function desenharFoto(ctx: CanvasRenderingContext2D, c: CamadaFoto, foto: FotoNoMolde, escala: number) {
@@ -256,10 +364,21 @@ export async function prepararArte(pedido: Omit<Pedido, 'foto'>, escala: number)
     return fixa;
   };
 
+  const nomes = config.camadas.filter((c): c is CamadaNome => c.tipo === 'nome');
   for (const camada of config.camadas) {
     if (camada.tipo === 'foto') {
       passos.push({ tipo: 'foto', camada });
       fixa = null;
+      // A cedilha (e o que mais descer da linha de base do nome) volta por cima da foto.
+      for (const nome of nomes) {
+        const texto = textoDoCampo(config, nome.campo, pedido.valores);
+        const descidas = descidasDoNome(nome, texto, tinta, escala, pedido.fontes, criarTela, W, H);
+        if (!descidas) continue;
+        passos.push({ tipo: 'folga', mascara: descidas.mascara });
+        fixa = null;
+        telaFixa().drawImage(descidas.forma, 0, 0);
+        liberarTelas(descidas.forma);
+      }
     } else if (camada.tipo === 'texto') desenharTexto(telaFixa(), camada, tinta, escala, pedido.fontes);
     else if (camada.tipo === 'anel') desenharAnel(telaFixa(), camada, tinta, escala);
     else if (camada.tipo === 'nome') {
@@ -273,17 +392,8 @@ export async function prepararArte(pedido: Omit<Pedido, 'foto'>, escala: number)
         criarTela,
       );
       if (camada.folga > 0) {
-        // Respiro em volta da arte: a mesma forma, deslocada em volta, apaga o que
-        // estiver embaixo (foto, anel, nome).
-        const mascara = criarTela(W, H);
-        const m = contexto(mascara);
-        const folga = camada.folga * escala;
-        for (let k = 0; k < 24; k++) {
-          const angulo = (k / 24) * Math.PI * 2;
-          m.drawImage(tela, x + Math.cos(angulo) * folga, y + Math.sin(angulo) * folga);
-        }
-        m.drawImage(tela, x, y);
-        passos.push({ tipo: 'folga', mascara });
+        // Respiro em volta da arte: apaga o que estiver embaixo (foto, anel, nome).
+        passos.push({ tipo: 'folga', mascara: mascaraComFolga(tela, x, y, camada.folga * escala, W, H, criarTela) });
         fixa = null;
       }
       telaFixa().drawImage(tela, x, y);
@@ -405,6 +515,40 @@ export function janelaDaFotoNaTela(
   };
 }
 
+// Suaviza a sombra do tecido (média dos vizinhos, na horizontal e na vertical, duas
+// vezes). As dobras são largas e continuam lá; o que sai são os quadradinhos da
+// compressão da foto de base, que apareciam na tinta quando a prévia é ampliada.
+function suavizar(mapa: Float32Array, w: number, h: number, raio: number) {
+  if (raio < 1 || w < 3 || h < 3) return;
+  const apoio = new Float32Array(Math.max(w, h));
+  const passar = (inicio: number, passo: number, n: number) => {
+    for (let i = 0; i < n; i++) apoio[i] = mapa[inicio + i * passo];
+    let soma = 0;
+    let conta = 0;
+    for (let i = 0; i <= Math.min(raio, n - 1); i++) {
+      soma += apoio[i];
+      conta++;
+    }
+    for (let i = 0; i < n; i++) {
+      mapa[inicio + i * passo] = soma / conta;
+      const sai = i - raio;
+      const entra = i + raio + 1;
+      if (sai >= 0) {
+        soma -= apoio[sai];
+        conta--;
+      }
+      if (entra < n) {
+        soma += apoio[entra];
+        conta++;
+      }
+    }
+  };
+  for (let vez = 0; vez < 2; vez++) {
+    for (let y = 0; y < h; y++) passar(y * w, 1, w);
+    for (let x = 0; x < w; x++) passar(x, w, h);
+  }
+}
+
 export type PecaPreparada = {
   largura: number;
   altura: number;
@@ -476,6 +620,8 @@ export function prepararPeca(
           const luz = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
           sombra[p] = Math.max(0.78, Math.min(1.1, (luz + 24) / (media + 24)));
         }
+        // Quanto mais ampliada a foto de base, mais larga a suavização.
+        suavizar(sombra, bw, bh, Math.min(12, Math.max(1, Math.round(3 * s))));
       } catch {
         // Navegador que não deixa ler a tela: a estampa entra sem a sombra do tecido.
         fundo = null;

@@ -12,7 +12,13 @@ import { TelaDaPrevia, type FotoDaPrevia } from './tela-da-previa';
 // Passo 7: o resumo da peça e o carrinho. A peça fica guardada no carrinho do
 // navegador; "Finalizar compra" leva ao carrinho (onde fica o presente) e "Criar
 // outra Divestir" começa outra, reaproveitando a foto (decisão do Lucas, 08/11/2026).
-// Vindo do "Editar" do carrinho, o botão salva as mudanças na mesma peça.
+// Vindo do "Editar" do carrinho, o botão salva as mudanças na mesma peça. E quem
+// muda alguma coisa depois de adicionar atualiza a peça que já está no carrinho, em
+// vez de ganhar uma segunda sem querer.
+
+// nova: ainda não foi para o carrinho; no-carrinho: está lá, igual à tela; mudou:
+// está lá, mas a pessoa mudou alguma coisa depois; editando: veio do "Editar".
+export type SituacaoDaPeca = 'nova' | 'no-carrinho' | 'mudou' | 'editando';
 
 function juntar(itens: string[]) {
   if (itens.length <= 1) return itens.join('');
@@ -27,10 +33,10 @@ export function PassoResumo({
   foto,
   falta,
   pecasNoCarrinho,
-  adicionada,
-  editando,
+  situacao,
   rotulo,
   aoAdicionar,
+  aoAdicionarOutra,
   aoCriarOutra,
   aoIrPara,
 }: {
@@ -41,16 +47,18 @@ export function PassoResumo({
   foto: FotoDaPrevia | null;
   falta: Falta[];
   pecasNoCarrinho: number;
-  adicionada: boolean;
-  editando: boolean;
+  situacao: SituacaoDaPeca;
   rotulo: string;
   aoAdicionar: () => void;
+  aoAdicionarOutra: () => void;
   aoCriarOutra: () => void;
   aoIrPara: (passo: Falta['passo']) => void;
 }) {
   const [tentou, setTentou] = useState(false);
+  const editando = situacao === 'editando';
+  const mudou = situacao === 'mudou';
 
-  if (adicionada) {
+  if (situacao === 'no-carrinho') {
     return (
       <div role="status">
         <p className="flex items-start gap-2 text-lg leading-snug font-semibold">
@@ -145,6 +153,11 @@ export function PassoResumo({
             Você está mudando uma peça do carrinho. Ao salvar, ela volta para lá com as mudanças.
           </p>
         ) : null}
+        {mudou ? (
+          <p className="mb-4 max-w-[38ch] text-[0.9375rem] leading-snug">
+            Essa peça já está no carrinho, e você mudou alguma coisa nela.
+          </p>
+        ) : null}
         <button
           type="button"
           onClick={() => {
@@ -153,13 +166,26 @@ export function PassoResumo({
           }}
           className="ingresso w-full sm:w-auto"
         >
-          {editando ? 'Salvar as mudanças' : 'Adicionar ao carrinho'}
+          {editando ? 'Salvar as mudanças' : mudou ? 'Atualizar a peça do carrinho' : 'Adicionar ao carrinho'}
         </button>
         {editando ? (
           <div>
             <Link href="/carrinho" className={linkDeTexto}>
               Voltar ao carrinho sem mudar
             </Link>
+          </div>
+        ) : mudou ? (
+          <div>
+            <button
+              type="button"
+              onClick={() => {
+                setTentou(true);
+                aoAdicionarOutra();
+              }}
+              className={linkDeTexto}
+            >
+              Adicionar como outra peça
+            </button>
           </div>
         ) : pecasNoCarrinho ? (
           <p className="mt-3 text-[0.9375rem] leading-snug">
