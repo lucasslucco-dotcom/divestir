@@ -265,6 +265,8 @@ export const TEMAS = [
   { slug: 'avos-ela', nome: 'Avós' },
   // Para pais e mães homenagearem os filhos (pedido do Lucas, 10/11/2026).
   { slug: 'filhos', nome: 'Filhos' },
+  // Entre irmãos (pedido do Lucas, 11/11/2026).
+  { slug: 'irmaos', nome: 'Irmãos' },
   { slug: 'casal', nome: 'Casal' },
   { slug: 'amigas', nome: 'Amigas' },
   { slug: 'amigos', nome: 'Amigos' },

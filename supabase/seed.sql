@@ -633,7 +633,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}, {"chave": "desde", "rotulo": "Na grelha desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2005"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
-    "temas": ["amigos"],
+    "temas": ["amigos", "pais", "avos-ele", "irmaos"],
     "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
