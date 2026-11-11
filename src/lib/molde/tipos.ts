@@ -17,7 +17,9 @@ export type Lado = 'frente' | 'costas';
 // cortados); realeza: Cinzel (a letra de inscrição, de brasão); astral: Cinzel
 // Decorative (a mesma, com floreios); gotica: Grenze Gotisch (a letra gótica de
 // camiseta de rua); geometrica: Poppins Black (a letra geométrica bem grossa, de
-// embalagem: o nome do Alto Em). Essas só existem nas estampas. texto: Inter em negrito, a fonte de
+// embalagem: o nome do Alto Em); redonda: Lilita One (a letra gorda de cantos redondos:
+// o nome do Previsão do Tempo); pixel: Handjet Black (a letra de pixel de fliperama: o
+// Modo Casal). Essas só existem nas estampas. texto: Inter em negrito, a fonte de
 // texto do site, para as linhas pequenas que o site escreve numa estampa de cara
 // atual (o "No repete desde 2012" do Tocando Agora).
 export type FonteDoMolde =
@@ -35,7 +37,9 @@ export type FonteDoMolde =
   | 'realeza'
   | 'astral'
   | 'gotica'
-  | 'geometrica';
+  | 'geometrica'
+  | 'redonda'
+  | 'pixel';
 
 // Giro de uma camada, em graus (positivo: sentido horário), em volta de um ponto.
 export type Giro = { graus: number; x: number; y: number };

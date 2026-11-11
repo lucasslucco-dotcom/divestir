@@ -508,6 +508,85 @@ def mestre_da_brasa():
     # A linha de baixo ("No comando da grelha desde 2005") é escrita pelo site, por causa do ano.
 
 
+def destino():
+    print('Destino')
+    itens = ler('destino')
+    # A faixa "Você chegou ao seu destino" (de 33 a 1328) toma a largura da arte, com
+    # uma margem de 10 de cada lado.
+    corte = (23, 118, 1314)
+    topo = [i for i in itens if i['caixa'][3] < 300]
+    # O alfinete é a forma cheia à direita do mapa, com o coração furado dentro. Ele
+    # sai do mapa e vai para a frente da foto: é o protagonista da arte e, atrás, a
+    # foto do casal quase sempre cobria.
+    alfinete = next(i for i in itens if i['tipo'] == 'W' and 850 < i['caixa'][0] < 950 and 550 < i['caixa'][1] < 650 and i['caixa'][3] - i['caixa'][1] > 300)
+    a, b, c, d = alfinete['caixa']
+    pino = [alfinete] + [i for i in itens if i['tipo'] == 'K' and a < i['caixa'][0] and i['caixa'][2] < c and b < i['caixa'][1] and i['caixa'][3] < d]
+    mapa = [i for i in itens if 300 <= i['caixa'][1] < 1600 and i not in pino]
+    faixa = [i for i in itens if 1600 <= i['caixa'][1] and i['caixa'][3] < 1800]
+    linha = [i for i in itens if i['caixa'][1] >= 1800]
+    gravar('destino', 'topo', topo, corte, 'A linha "Rota finalizada", com um alfinete de cada lado.')
+    gravar('destino', 'mapa', mapa, corte, 'O mapa e a rota tracejada (atrás da foto).')
+    gravar('destino', 'pino', pino, corte, 'O alfinete com o coração (na frente da foto).', base=True)
+    gravar('destino', 'faixa', faixa, corte, 'A faixa "Você chegou ao seu destino" (na frente da foto).', base=True)
+    gravar('destino', 'linha', linha, corte, 'A linha "Tempo de viagem: pra sempre".')
+    # A linha de baixo ("Juntos desde 2019 · Sem recalcular a rota") é escrita pelo site, por causa do ano.
+
+
+def previsao_do_tempo():
+    print('Previsão do Tempo')
+    itens = ler('previsao-do-tempo')
+    # A faixa "100% de chance de grude" (de 38 a 1322) toma a largura da arte, com uma
+    # margem de 8 de cada lado.
+    corte = (30, 90, 1300)
+    topo = [i for i in itens if i['caixa'][3] < 300]
+    sol = [i for i in itens if 300 <= i['caixa'][1] < 1400]
+    faixa = [i for i in itens if 1400 <= i['caixa'][1] and i['caixa'][3] < 1620]
+    semana = [i for i in itens if i['caixa'][1] >= 1620]
+    gravar('previsao-do-tempo', 'topo', topo, corte, 'A linha "Previsão do tempo".')
+    gravar('previsao-do-tempo', 'sol', sol, corte, 'O sol com os raios e a nuvem (atrás da foto).')
+    gravar('previsao-do-tempo', 'faixa', faixa, corte, 'A faixa "100% de chance de grude" (na frente da foto).', base=True)
+    gravar('previsao-do-tempo', 'semana', semana, corte, 'A semana, de segunda a sexta, com um coração por dia.')
+    # A linha de baixo ("Sensação térmica: quentinho · Desde 2019") é escrita pelo site, por causa do ano.
+
+
+def conexao_surreal():
+    print('Conexão Surreal')
+    itens = ler('conexao-surreal')
+    # A faixa "Conexão surreal" (de 44 a 1312) toma a largura da arte, com uma margem
+    # de 10 de cada lado.
+    corte = (34, 90, 1288)
+    topo = [i for i in itens if i['caixa'][3] < 300]
+    wifi = [i for i in itens if 300 <= i['caixa'][1] < 1560]
+    faixa = [i for i in itens if 1560 <= i['caixa'][1] and i['caixa'][3] < 1790]
+    linha = [i for i in itens if i['caixa'][1] >= 1790]
+    gravar('conexao-surreal', 'topo', topo, corte, 'A linha "Rede disponível".')
+    gravar('conexao-surreal', 'wifi', wifi, corte, 'O símbolo de Wi-Fi: os três arcos e o ponto (atrás da foto).')
+    gravar('conexao-surreal', 'faixa', faixa, corte, 'A faixa "Conexão surreal" (na frente da foto).', base=True)
+    gravar('conexao-surreal', 'linha', linha, corte, 'A linha "Sinal cheio | Senha: só a gente sabe", com os ícones.')
+    # A linha de baixo ("Conectados automaticamente desde 2019") é escrita pelo site, por causa do ano.
+
+
+def modo_casal():
+    print('Modo Casal')
+    itens = ler('modo-casal')
+    # A moldura de pixel (de 21 a 1340) toma a largura da arte, com uma margem de 10
+    # de cada lado.
+    corte = (11, 47, 1339)
+    # A moldura, a barra "Modo casal: ativado" e a linha das vidas vêm do vetor numa
+    # forma só. Ela inteira vai atrás da foto; a barra, tirada dela com a "caixa", é
+    # pintada de novo na frente, para a foto acabar atrás da barra.
+    moldura = next(i for i in itens if i['tipo'] == 'W' and i['caixa'][2] - i['caixa'][0] > 1200)
+    de_cima = next(i for i in itens if i['tipo'] == 'K' and i['caixa'][1] < 100 and i['caixa'][3] > 1400)
+    de_baixo = next(i for i in itens if i['tipo'] == 'K' and 1650 < i['caixa'][1] < 1750 and i['caixa'][2] - i['caixa'][0] > 1200)
+    y0, y1 = de_cima['caixa'][3], de_baixo['caixa'][1]
+    letras = [i for i in itens if i['tipo'] == 'K' and y0 <= i['caixa'][1] and i['caixa'][3] <= y1]
+    print(f'  barra: de {y0} a {y1}, {len(letras)} furos')
+    gravar('modo-casal', 'moldura', itens, corte, 'A moldura de pixel, "Player 1 + Player 2", o coração, a barra e a linha das vidas (atrás da foto).', folga=10)
+    gravar('modo-casal', 'barra', [moldura] + letras, corte, 'A barra "Modo casal: ativado" (na frente da foto).', base=True, caixa=(moldura['caixa'][0], y0, moldura['caixa'][2], y1))
+    print('  linha de baixo (base do texto do site):', na_arte(corte, y=(itens and max(i['caixa'][3] for i in itens if i['tipo'] == 'K'))))
+    # A linha de baixo ("Jogando juntos desde 2019 · Continue? Sempre") é escrita pelo site, por causa do ano.
+
+
 if __name__ == '__main__':
     turne_mundial()
     ao_vivo()
@@ -526,3 +605,7 @@ if __name__ == '__main__':
     alto_em()
     grande_premio()
     mestre_da_brasa()
+    destino()
+    previsao_do_tempo()
+    conexao_surreal()
+    modo_casal()

@@ -122,6 +122,28 @@ export const poppins = localFont({
   preload: false,
 });
 
+// Lilita One: a letra gorda de cantos redondos, de aplicativo simpático (o nome do
+// Previsão do Tempo). Só de estampa, de licença aberta (OFL).
+export const lilitaOne = localFont({
+  src: './lilita-one-400.woff2',
+  weight: '400',
+  style: 'normal',
+  variable: '--font-lilita-one',
+  display: 'swap',
+  preload: false,
+});
+
+// Handjet Black: a letra de pixel, alta e grossa, de fliperama (o Modo Casal). Só de
+// estampa, de licença aberta (OFL).
+export const handjet = localFont({
+  src: './handjet-900.woff2',
+  weight: '900',
+  style: 'normal',
+  variable: '--font-handjet',
+  display: 'swap',
+  preload: false,
+});
+
 // Textos e botões.
 export const inter = localFont({
   src: './inter-variavel.woff2',
@@ -131,4 +153,4 @@ export const inter = localFont({
   display: 'swap',
 });
 
-export const variaveisDeFonte = `${anton.variable} ${instrumentSerif.variable} ${inter.variable} ${bodoniModa.variable} ${shrikhand.variable} ${passionOne.variable} ${alfaSlabOne.variable} ${graduate.variable} ${cinzel.variable} ${cinzelDecorative.variable} ${grenzeGotisch.variable} ${poppins.variable}`;
+export const variaveisDeFonte = `${anton.variable} ${instrumentSerif.variable} ${inter.variable} ${bodoniModa.variable} ${shrikhand.variable} ${passionOne.variable} ${alfaSlabOne.variable} ${graduate.variable} ${cinzel.variable} ${cinzelDecorative.variable} ${grenzeGotisch.variable} ${poppins.variable} ${lilitaOne.variable} ${handjet.variable}`;

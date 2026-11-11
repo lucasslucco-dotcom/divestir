@@ -66,6 +66,8 @@ export function fontesDaPagina(): Promise<Fontes> {
     const astral = estilo.getPropertyValue('--font-cinzel-decorative').trim() || 'Georgia, serif';
     const gotica = estilo.getPropertyValue('--font-grenze-gotisch').trim() || 'Georgia, serif';
     const geometrica = estilo.getPropertyValue('--font-poppins').trim() || 'Arial Black, sans-serif';
+    const redonda = estilo.getPropertyValue('--font-lilita-one').trim() || 'Arial Black, sans-serif';
+    const pixel = estilo.getPropertyValue('--font-handjet').trim() || 'monospace';
     await Promise.all([
       document.fonts.load(`400 100px ${titulo}`),
       document.fonts.load(`700 100px ${texto}`),
@@ -82,6 +84,8 @@ export function fontesDaPagina(): Promise<Fontes> {
       document.fonts.load(`900 100px ${astral}`),
       document.fonts.load(`900 100px ${gotica}`),
       document.fonts.load(`900 100px ${geometrica}`),
+      document.fonts.load(`400 100px ${redonda}`),
+      document.fonts.load(`900 100px ${pixel}`),
     ]).catch(() => undefined);
     return {
       titulo: { familia: titulo, estilo: 'normal' },
@@ -99,6 +103,8 @@ export function fontesDaPagina(): Promise<Fontes> {
       astral: { familia: astral, estilo: 'normal', peso: 900 },
       gotica: { familia: gotica, estilo: 'normal', peso: 900 },
       geometrica: { familia: geometrica, estilo: 'normal', peso: 900 },
+      redonda: { familia: redonda, estilo: 'normal' },
+      pixel: { familia: pixel, estilo: 'normal', peso: 900 },
     } satisfies Fontes;
   })();
   return fontes;

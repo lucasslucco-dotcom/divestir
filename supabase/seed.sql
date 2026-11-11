@@ -643,6 +643,130 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
+-- Design Destino: GPS, estampa grande, para casal. A arte vem do Higgsfield ("Rota finalizada", o
+-- mapa com a rota tracejada, o alfinete com o coração, a faixa "Você chegou ao seu destino" e
+-- "Tempo de viagem: pra sempre"); o site põe o nome do casal (Poppins Black, engrossada), a foto um
+-- pouco à esquerda, com o alfinete na frente dela, e a linha "Juntos desde {ano} · Sem recalcular a
+-- rota", em Inter.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('destino', 'Destino', 'ativo', 20, '2026-11-11', '{
+    "versao": 1,
+    "proporcao": 0.707,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/destino/topo.svg", "x": 499.2, "topo": 3.4, "largura": 884.3, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/destino/mapa.svg", "x": 500.4, "topo": 363.8, "largura": 964.2, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "geometrica", "x": 500, "topo": 100, "largura_maxima": 985, "altura_no_centro": 255, "arco": 1, "compressao_maxima": 0.5, "expansao_maxima": 1.3, "engrossa": 4, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 440, "topo": 230, "largura": 1120, "altura": 975, "janela": {"largura": 900, "altura": 1000, "y": 790}},
+      {"tipo": "arte", "arquivo": "/designs/destino/pino.svg", "x": 768.8, "topo": 358.8, "largura": 218.0, "folga": 0, "base": "/designs/destino/pino-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/destino/faixa.svg", "x": 500.6, "topo": 1135.8, "largura": 995.1, "folga": 0, "base": "/designs/destino/faixa-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/destino/linha.svg", "x": 499.6, "topo": 1286.5, "largura": 882.8, "folga": 0},
+      {"tipo": "texto", "texto": "JUNTOS DESDE {desde} · SEM RECALCULAR A ROTA", "fonte": "texto", "x": 500, "base": 1400, "largura": 960, "altura": 26, "espaco": 0.3}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 20, "caixa": "alta"}, {"chave": "desde", "rotulo": "Juntos desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["casal"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Previsão do Tempo: aplicativo de clima, estampa grande, para casal. A arte vem do Higgsfield
+-- ("Previsão do tempo", o sol com a nuvem, a faixa "100% de chance de grude" e a semana com um
+-- coração por dia); o site põe o nome do casal na letra gorda de cantos redondos (Lilita One), a foto
+-- na frente do sol e a linha "Sensação térmica: quentinho · Desde {ano}", em Inter.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('previsao-do-tempo', 'Previsão do Tempo', 'ativo', 21, '2026-11-11', '{
+    "versao": 1,
+    "proporcao": 0.677,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/previsao-do-tempo/topo.svg", "x": 500.6, "topo": 8.5, "largura": 883.5, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/previsao-do-tempo/sol.svg", "x": 507.7, "topo": 334.2, "largura": 883.8, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "redonda", "x": 500, "topo": 80, "largura_maxima": 985, "altura_no_centro": 245, "arco": 1.1, "compressao_maxima": 0.5, "expansao_maxima": 1.4, "engrossa": 5, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 230, "largura": 1000, "altura": 940, "janela": {"largura": 1050, "altura": 950, "y": 770}},
+      {"tipo": "arte", "arquivo": "/designs/previsao-do-tempo/faixa.svg", "x": 499.8, "topo": 1106.9, "largura": 996.5, "folga": 0, "base": "/designs/previsao-do-tempo/faixa-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/previsao-do-tempo/semana.svg", "x": 501.0, "topo": 1271.2, "largura": 909.6, "folga": 0},
+      {"tipo": "texto", "texto": "SENSAÇÃO TÉRMICA: QUENTINHO · DESDE {desde}", "fonte": "texto", "x": 500, "base": 1462, "largura": 960, "altura": 26, "espaco": 0.3}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 20, "caixa": "alta"}, {"chave": "desde", "rotulo": "Juntos desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["casal"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Conexão Surreal: rede de Wi-Fi, estampa grande, para casal. A arte vem do Higgsfield ("Rede
+-- disponível", o símbolo de Wi-Fi gigante, a faixa "Conexão surreal" e a linha "Sinal cheio | Senha:
+-- só a gente sabe"); o site põe o nome do casal em Anton, com a base em arco, a foto na frente do
+-- Wi-Fi e a linha "Conectados automaticamente desde {ano}", em Inter.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('conexao-surreal', 'Conexão Surreal', 'ativo', 22, '2026-11-11', '{
+    "versao": 1,
+    "proporcao": 0.678,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/conexao-surreal/topo.svg", "x": 502.9, "topo": 0, "largura": 741.8, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/conexao-surreal/wifi.svg", "x": 499.2, "topo": 379.3, "largura": 986.8, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 62, "largura_maxima": 985, "altura_no_centro": 270, "arco": 1.3, "compressao_maxima": 0.5, "expansao_maxima": 1.5, "engrossa": 3, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 240, "largura": 1000, "altura": 990, "janela": {"largura": 1050, "altura": 1000, "y": 800}},
+      {"tipo": "arte", "arquivo": "/designs/conexao-surreal/faixa.svg", "x": 500.2, "topo": 1148.7, "largura": 994.2, "folga": 0, "base": "/designs/conexao-surreal/faixa-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/conexao-surreal/linha.svg", "x": 502.1, "topo": 1326.9, "largura": 942.2, "folga": 0},
+      {"tipo": "texto", "texto": "CONECTADOS AUTOMATICAMENTE DESDE {desde}", "fonte": "texto", "x": 500, "base": 1458, "largura": 960, "altura": 26, "espaco": 0.3}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 20, "caixa": "alta"}, {"chave": "desde", "rotulo": "Juntos desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["casal"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Modo Casal: fliperama em pixel, estampa grande, para casal. A arte vem do Higgsfield (a
+-- moldura de pixel com "Player 1 + Player 2", o coração de pixels, a barra "Modo casal: ativado" e
+-- a linha "Vidas ♥♥♥ · Fase: pra sempre"); o site põe o nome do casal na letra de pixel (Handjet
+-- Black), a foto na frente do coração e a linha "Jogando juntos desde {ano} · Continue? Sempre".
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('modo-casal', 'Modo Casal', 'ativo', 19, '2026-11-11', '{
+    "versao": 1,
+    "proporcao": 0.679,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/modo-casal/moldura.svg", "x": 499.8, "topo": 0, "largura": 999.6, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "pixel", "x": 500, "topo": 100, "largura_maxima": 900, "altura_no_centro": 235, "arco": 1, "compressao_maxima": 0.5, "expansao_maxima": 1.9, "engrossa": 3, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 240, "largura": 1000, "altura": 930, "janela": {"largura": 1050, "altura": 950, "y": 770}},
+      {"tipo": "arte", "arquivo": "/designs/modo-casal/barra.svg", "x": 499.8, "topo": 1108.7, "largura": 984.7, "folga": 0, "base": "/designs/modo-casal/barra-base.svg"},
+      {"tipo": "texto", "texto": "JOGANDO JUNTOS DESDE {desde} · CONTINUE? SEMPRE", "fonte": "pixel", "x": 500, "base": 1397, "largura": 880, "altura": 27, "espaco": 0.12}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 20, "caixa": "alta"}, {"chave": "desde", "rotulo": "Juntos desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["casal"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
 -- O Letreiro (letreiro de cinema, conceito Bia & Caio) saiu da linha por decisão do Lucas
 -- (10/11/2026). Onde ele já existir no banco, fica encerrado.
 update public.designs set status = 'encerrado' where slug = 'letreiro';
