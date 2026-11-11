@@ -14,8 +14,12 @@ export type FotoDaMontagem = {
   // Quantos pixels da foto original cada pixel do recorte representa (null: não deu
   // para medir). É o que diz se a estampa vai ter definição (foto/definicao.ts).
   escalaDaOriginal: number | null;
+  // O enquadramento no design escolhido agora.
   enquadramento: Enquadramento;
   aprovada: boolean;
+  // Cada design enquadra a foto do seu jeito (círculo, moldura, pôster): os ajustes já
+  // aprovados ficam guardados aqui, por design, para voltarem quando a pessoa volta a ele.
+  enquadramentos?: Record<string, Enquadramento>;
   // Recorte feito no modo de teste do Photoroom (sai com marca d'água).
   teste: boolean;
   // A foto com o fundo original também está guardada no aparelho, no mesmo quadro do
@@ -31,6 +35,8 @@ export type Montagem = {
   peca: string | null;
   cor: string | null;
   design: string | null;
+  // "Para quem é?": o tema escolhido, "todos" ou nada (a pessoa ainda não tocou em nenhum).
+  tema: string | null;
   // Onde vai a estampa (null: o lado padrão do design).
   lado: Lado | null;
   campos: Record<string, string>;
@@ -48,6 +54,7 @@ export const MONTAGEM_VAZIA: Montagem = {
   peca: null,
   cor: null,
   design: null,
+  tema: null,
   lado: null,
   campos: {},
   tamanho: null,
@@ -139,6 +146,27 @@ function enquadramento(valor: unknown): Enquadramento {
   };
 }
 
+// Os ajustes guardados por design: só entra o que tem cara de design e de enquadramento.
+function enquadramentos(valor: unknown): Record<string, Enquadramento> | undefined {
+  if (!valor || typeof valor !== 'object') return undefined;
+  const saida: Record<string, Enquadramento> = {};
+  for (const [slug, e] of Object.entries(valor as Record<string, unknown>).slice(0, 60)) {
+    if (/^[a-z0-9-]{1,60}$/.test(slug) && e && typeof e === 'object') saida[slug] = enquadramento(e);
+  }
+  return Object.keys(saida).length ? saida : undefined;
+}
+
+// A foto num design: ao trocar de design, o ajuste aprovado no anterior fica guardado e o
+// do novo volta, se a pessoa já tinha aprovado; senão o ajuste recomeça, para ela conferir
+// como a foto ficou nele (pedido do Lucas, 10/11/2026).
+export function fotoNoDesign(foto: FotoDaMontagem, de: string | null, para: string | null): FotoDaMontagem {
+  if (de === para) return foto;
+  const guardados = { ...foto.enquadramentos };
+  if (de && foto.aprovada) guardados[de] = foto.enquadramento;
+  const salvo = para ? guardados[para] : undefined;
+  return { ...foto, enquadramentos: guardados, enquadramento: salvo ?? ENQUADRAMENTO_INICIAL, aprovada: !!salvo };
+}
+
 export function fotoVencida(foto: FotoDaMontagem, agora = Date.now()) {
   const criada = Date.parse(foto.criadaEm);
   return !Number.isFinite(criada) || agora - criada > VALIDADE_DA_FOTO_EM_DIAS * 24 * 60 * 60 * 1000;
@@ -160,6 +188,7 @@ export function lerFoto(valor: unknown): FotoDaMontagem | null {
     escalaDaOriginal: (numero(f.escalaDaOriginal) ?? 0) > 0 ? numero(f.escalaDaOriginal) : null,
     enquadramento: enquadramento(f.enquadramento),
     aprovada: f.aprovada === true,
+    enquadramentos: enquadramentos(f.enquadramentos),
     teste: f.teste === true,
     inteira: f.inteira === true,
     // "enviando" só vale enquanto o envio está acontecendo nesta aba: quem lê o que
@@ -182,6 +211,7 @@ export function lerMontagem(valor: unknown): Montagem | null {
     peca: texto(m.peca),
     cor: texto(m.cor),
     design: texto(m.design),
+    tema: texto(m.tema),
     lado: lado(m.lado),
     campos: campos(m.campos),
     tamanho: texto(m.tamanho),

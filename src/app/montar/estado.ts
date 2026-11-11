@@ -2,14 +2,16 @@
 // estampa, o tamanho e o que ainda falta para ir ao carrinho.
 import type { Catalogo, Cor, Peca } from '@/lib/catalogo';
 import type { Enquadramento } from '@/lib/foto/enquadramento';
-import { MONTAGEM_VAZIA, type FotoDaMontagem, type Montagem } from '@/lib/montagem/tipos';
+import { MONTAGEM_VAZIA, fotoNoDesign, type FotoDaMontagem, type Montagem } from '@/lib/montagem/tipos';
 import { ladosDaPeca, valorDoCampo, type Campo, type Design, type Lado } from '@/lib/molde/tipos';
 
 export type Acao =
   | { tipo: 'restaurar'; montagem: Montagem }
   | { tipo: 'peca'; slug: string }
   | { tipo: 'cor'; slug: string }
-  | { tipo: 'design'; slug: string }
+  // "de": o design que estava na prévia (o ajuste da foto é guardado por design).
+  | { tipo: 'design'; slug: string; de: string | null }
+  | { tipo: 'tema'; tema: string }
   | { tipo: 'lado'; lado: Lado }
   | { tipo: 'campo'; chave: string; valor: string }
   | { tipo: 'tamanho'; tamanho: string }
@@ -31,7 +33,11 @@ export function reduzir(m: Montagem, acao: Acao): Montagem {
     case 'cor':
       return { ...m, cor: acao.slug };
     case 'design':
-      return { ...m, design: acao.slug };
+      // A foto vai junto para o design novo: com o ajuste que a pessoa já aprovou nele
+      // ou, na primeira vez, com o ajuste aberto de novo.
+      return { ...m, design: acao.slug, foto: m.foto ? fotoNoDesign(m.foto, acao.de, acao.slug) : null };
+    case 'tema':
+      return { ...m, tema: acao.tema };
     case 'lado':
       return { ...m, lado: acao.lado };
     case 'campo':
@@ -72,6 +78,9 @@ export type Resolvida = {
   // Designs que aceitam a peça escolhida, e o escolhido entre eles.
   designs: Design[];
   design: Design | null;
+  // A pessoa escolheu este design (antes disso, vale o primeiro da fila, e a prévia só
+  // mostra o design quando já tem a foto dela).
+  designEscolhido: boolean;
   lados: Lado[];
   lado: Lado;
   outroLado: Lado;
@@ -97,7 +106,8 @@ export function resolver(catalogo: Catalogo, designs: Design[], m: Montagem): Re
   const cor = cores.find((c) => c.slug === m.cor) ?? cores.find((c) => c.slug === 'preto') ?? cores[0];
   if (!cor) return null;
   const permitidos = designs.filter((d) => !d.config.pecas_permitidas || d.config.pecas_permitidas.includes(peca.slug));
-  const design = permitidos.find((d) => d.slug === m.design) ?? permitidos[0] ?? null;
+  const escolhido = permitidos.find((d) => d.slug === m.design);
+  const design = escolhido ?? permitidos[0] ?? null;
   const lados = ladosDaPeca(peca.areas);
   const lado =
     m.lado && lados.includes(m.lado)
@@ -110,6 +120,7 @@ export function resolver(catalogo: Catalogo, designs: Design[], m: Montagem): Re
     cor,
     designs: permitidos,
     design,
+    designEscolhido: !!escolhido,
     lados,
     lado,
     outroLado: lado === 'frente' ? 'costas' : 'frente',
@@ -124,11 +135,13 @@ export function nomeDaPeca(peca: Peca, pecas: Peca[]) {
   return repetido ? `${peca.nome} ${peca.caimento.toLocaleLowerCase('pt-BR')}` : peca.nome;
 }
 
+// Na ordem em que aparecem: peça, design, foto, nome, cor, tamanho e carrinho (o
+// design vem antes da foto desde 11/11/2026, pedido do Lucas).
 export const ID_DOS_PASSOS = {
   peca: 'passo-peca',
+  design: 'passo-design',
   foto: 'passo-foto',
   nome: 'passo-nome',
-  design: 'passo-design',
   cor: 'passo-cor',
   tamanho: 'passo-tamanho',
   carrinho: 'passo-carrinho',
@@ -139,6 +152,7 @@ export type Falta = { texto: string; passo: keyof typeof ID_DOS_PASSOS };
 // O que ainda falta para a peça ir ao carrinho, na ordem dos passos.
 export function oQueFalta(m: Montagem, r: Resolvida | null): Falta[] {
   const falta: Falta[] = [];
+  if (!r?.design) falta.push({ texto: 'escolher um design', passo: 'design' });
   if (!m.foto) falta.push({ texto: 'mandar a foto', passo: 'foto' });
   else if (!m.foto.aprovada) falta.push({ texto: 'aprovar a foto', passo: 'foto' });
   const campos: Campo[] = r?.design?.config.campos ?? [];
@@ -147,13 +161,12 @@ export function oQueFalta(m: Montagem, r: Resolvida | null): Falta[] {
     falta.push(
       campo.chave === 'nome'
         ? { texto: 'dar o nome', passo: 'nome' }
-        : // "Desde que ano?" vira "dizer desde que ano".
+        : // "Desde que ano?" vira "dizer desde que ano". Os textos do design ficam no passo do nome.
           campo.rotulo.trim().endsWith('?')
-          ? { texto: `dizer ${campo.rotulo.trim().slice(0, -1).toLocaleLowerCase('pt-BR')}`, passo: 'design' }
-          : { texto: `preencher ${campo.rotulo.toLocaleLowerCase('pt-BR')}`, passo: 'design' },
+          ? { texto: `dizer ${campo.rotulo.trim().slice(0, -1).toLocaleLowerCase('pt-BR')}`, passo: 'nome' }
+          : { texto: `preencher ${campo.rotulo.toLocaleLowerCase('pt-BR')}`, passo: 'nome' },
     );
   }
-  if (!r?.design) falta.push({ texto: 'escolher um design', passo: 'design' });
   if (!r?.tamanho) falta.push({ texto: 'escolher o tamanho', passo: 'tamanho' });
   return falta;
 }

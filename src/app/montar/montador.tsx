@@ -1,7 +1,17 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useId, useMemo, useReducer, useRef, useState, type FocusEvent } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type FocusEvent,
+} from 'react';
 import type { Catalogo, Cor } from '@/lib/catalogo';
 import { checarFoto } from '@/lib/foto/checar';
 import { LARGURA_PADRAO_DA_ESTAMPA_CM, definicaoDaEstampa, escalaDaOriginal } from '@/lib/foto/definicao';
@@ -21,8 +31,9 @@ import {
   lerRecorte,
   recortesEmUso,
 } from '@/lib/montagem/guardar';
-import { CARRINHO_VAZIO, MONTAGEM_VAZIA, type Carrinho, type ItemDoCarrinho } from '@/lib/montagem/tipos';
+import { CARRINHO_VAZIO, MONTAGEM_VAZIA, fotoNoDesign, type Carrinho, type ItemDoCarrinho } from '@/lib/montagem/tipos';
 import { janelaDaFoto, textoDoCampo } from '@/lib/molde/desenhar';
+import { exemploDoDesign } from '@/lib/molde/exemplos';
 import { esquecerImagem } from '@/lib/molde/recursos';
 import {
   LARGURA_DA_ARTE,
@@ -35,15 +46,18 @@ import {
 } from '@/lib/molde/tipos';
 import { Doca, type DescricaoDaVista, type Vista } from './doca';
 import { coresDaPeca, ID_DOS_PASSOS, nomeDaPeca, oQueFalta, reduzir, resolver, type Falta } from './estado';
-import { PassoDesign } from './passo-design';
+import { PassoDesign, TODOS } from './passo-design';
 import { PassoFoto, type EnvioDaFoto, type FotoReaproveitavel } from './passo-foto';
 import { PassoResumo } from './passo-resumo';
 import { Passo, PassoCor, PassoNome, PassoPeca, PassoTamanho } from './passos';
 import type { ArteDaPrevia, FotoDaPrevia, MudarEnquadramento } from './tela-da-previa';
 
 // O montador completo (briefing, "Jornada do cliente e o montador"): uma página só,
-// com a prévia fixa e os 7 passos. Tudo o que a pessoa escolhe fica guardado no
-// navegador; se ela fechar a aba, volta de onde parou, com a foto.
+// com a prévia fixa e os 7 passos. Desde 11/11/2026 (pedido do Lucas), o caminho é
+// peça, design ("Para quem é?"), foto, nome, cor, tamanho e carrinho: a foto já é
+// ajustada no design escolhido, e o nome já nasce com o limite de letras dele. Tudo o
+// que a pessoa escolhe fica guardado no navegador; se ela fechar a aba, volta de onde
+// parou, com a foto.
 
 type VagaEmAndamento = Promise<{ vaga: Vaga; envio: Promise<boolean> } | null>;
 // O recorte em uso e, se houver, a mesma foto com o fundo (endereços temporários).
@@ -70,8 +84,14 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   const recorteAtual = useRef<RecorteEmUso | null>(null);
   const raiz = useRef<HTMLDivElement>(null);
   const doca = useRef<HTMLDivElement>(null);
+  // O seletor de fotos do aparelho (álbum ou câmera): um só, aberto pelo passo da foto
+  // e pelo "Trocar a foto" da prévia.
+  const campoDaFoto = useRef<HTMLInputElement>(null);
+  const escolherFoto = () => campoDaFoto.current?.click();
   const idDaDica = useId();
   const router = useRouter();
+  // As escolhas juntas com o que existe no catálogo e nos designs.
+  const r = useMemo(() => resolver(catalogo, designs, montagem), [catalogo, designs, montagem]);
 
   // Volta de onde a pessoa parou (depois de a página abrir, porque o servidor não
   // conhece o que está guardado no navegador). O site mantém a página escondida
@@ -163,8 +183,12 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   }, []);
 
   function irPara(passo: keyof typeof ID_DOS_PASSOS) {
+    // Dois quadros de espera: a prévia fixa muda de altura quando o ajuste da foto abre
+    // ou fecha, e o passo precisa parar logo abaixo dela já no tamanho novo.
     requestAnimationFrame(() =>
-      document.getElementById(ID_DOS_PASSOS[passo])?.scrollIntoView({ behavior: suave(), block: 'start' }),
+      requestAnimationFrame(() =>
+        document.getElementById(ID_DOS_PASSOS[passo])?.scrollIntoView({ behavior: suave(), block: 'start' }),
+      ),
     );
   }
 
@@ -266,10 +290,28 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
     await recortar(id);
   }
 
+  function aoEscolherFoto(evento: ChangeEvent<HTMLInputElement>) {
+    const arquivo = evento.target.files?.[0];
+    // Limpa o campo para a mesma foto poder ser escolhida de novo.
+    evento.target.value = '';
+    if (arquivo) void escolherArquivo(arquivo);
+  }
+
   function aprovar() {
+    // Foto recém-mandada: o próximo passo é o nome. Quem só trocou de design e aprovou
+    // o ajuste de novo fica onde está, a não ser que o design novo peça mais um texto.
+    const acabouDeMandar = !!envio;
+    const faltaTexto = r?.design?.config.campos.some((campo) => !valorDoCampo(campo, montagem.campos)) ?? false;
     despachar({ tipo: 'aprovar' });
     limparEnvio();
-    irPara('nome');
+    if (acabouDeMandar || faltaTexto) irPara('nome');
+  }
+
+  // Trocar de design leva a foto junto: o ajuste é guardado por design e, num design
+  // novo, abre de novo ali mesmo, na prévia.
+  function escolherDesign(slug: string) {
+    despachar({ tipo: 'design', slug, de: r?.design?.slug ?? null });
+    if (montagem.foto) setVista('perto');
   }
 
   function ajustar() {
@@ -293,13 +335,16 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
       url: URL.createObjectURL(arquivo),
       inteira: inteira ? URL.createObjectURL(inteira) : null,
     });
-    despachar({ tipo: 'foto', foto: { ...item.foto, aprovada: true }, campos: item.campos });
+    // O ajuste que vem com a foto é o do design da peça de onde ela saiu.
+    const foto = fotoNoDesign({ ...item.foto, aprovada: true }, item.design, r?.design?.slug ?? null);
+    despachar({ tipo: 'foto', foto, campos: item.campos });
     setVista('perto');
+    // Num design diferente, o ajuste abre de novo: o passo da foto para logo abaixo da prévia.
+    if (!foto.aprovada) irPara('foto');
   }
 
   const enquadrar = useCallback<MudarEnquadramento>((mudanca) => despachar({ tipo: 'enquadrar', mudanca }), []);
 
-  const r = useMemo(() => resolver(catalogo, designs, montagem), [catalogo, designs, montagem]);
   const fotoDaPrevia = useMemo<FotoDaPrevia | null>(
     () =>
       montagem.foto && recorte && recorte.chave === montagem.foto.chave
@@ -387,7 +432,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
     setCompacta(true);
     setTimeout(() => {
       const livre = (doca.current?.getBoundingClientRect().bottom ?? 0) + 16;
-      const caixa = campo.closest('li')?.querySelector('label') ?? campo;
+      const caixa = campo.labels?.[0] ?? campo;
       window.scrollBy({ top: caixa.getBoundingClientRect().top - livre, behavior: suave() });
     }, 320);
   }
@@ -407,16 +452,49 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   const valores = montagem.campos;
   const nome = limparTextoDaEstampa(valores.nome ?? '');
   const pecaNome = nomeDaPeca(r.peca, catalogo.pecas);
-  const nomeNaArte = (design: Design) => textoDoCampo(design.config, 'nome', valores);
-  const descreverDesign = (design: Design, cor: Cor, modo = '') =>
-    `Prévia ilustrativa: ${design.nome} com o nome ${nomeNaArte(design)}, ${minusculo(pecaNome)} ${minusculo(cor.nome)}, estampa ${noLado(r.lado)}${modo}`;
 
-  // As vistas da prévia: com a foto, a estampa de perto, o lado da estampa inteiro e
-  // o outro lado; antes da foto, a frente e as costas da peça.
+  // Antes de a pessoa mandar a foto, os designs aparecem com uma foto de exemplo do
+  // tema escolhido em "Para quem é?" (e com um nome de exemplo, se ela ainda não
+  // escreveu o dela). Depois, com a foto dela: cada design com o ajuste aprovado nele.
+  const temaDoExemplo = montagem.tema && montagem.tema !== TODOS ? montagem.tema : null;
+  const semFoto = !montagem.foto;
+  const fotoDoDesign = (design: Design): FotoDaPrevia | null => {
+    if (montagem.foto) {
+      if (!fotoDaPrevia || design.slug === r.design?.slug) return fotoDaPrevia;
+      return {
+        ...fotoDaPrevia,
+        enquadramento: montagem.foto.enquadramentos?.[design.slug] ?? ENQUADRAMENTO_INICIAL,
+      };
+    }
+    const exemplo = exemploDoDesign(design, temaDoExemplo);
+    return {
+      url: exemplo.url,
+      geometria: exemplo.geometria,
+      enquadramento: ENQUADRAMENTO_INICIAL,
+      inteira: exemplo.inteira ?? null,
+    };
+  };
+  const valoresDoDesign = (design: Design) =>
+    semFoto && !nome ? { ...valores, nome: exemploDoDesign(design, temaDoExemplo).nome } : valores;
+  // A prévia grande só mostra o exemplo depois que a pessoa escolhe um design: antes
+  // disso, o assunto é a peça.
+  const comExemplo = semFoto && r.designEscolhido && !!r.design;
+
+  const nomeNaArte = (design: Design) => textoDoCampo(design.config, 'nome', valoresDoDesign(design));
+  const descreverDesign = (design: Design, cor: Cor, modo = '') =>
+    `Prévia ilustrativa: ${design.nome} com o nome ${nomeNaArte(design)}, ${minusculo(pecaNome)} ${minusculo(cor.nome)}, estampa ${noLado(r.lado)}${modo}${semFoto ? ', com foto de exemplo' : ''}`;
+
+  // As vistas da prévia: com o design (e a foto da pessoa ou a de exemplo), a estampa
+  // de perto, o lado da estampa inteiro e o outro lado; antes disso, a frente e as
+  // costas da peça.
   const fotosDaCor = r.peca.fotos[r.cor.slug] ?? {};
   const vistas: DescricaoDaVista[] = [];
-  if (fotoDaPrevia && r.design) {
-    const arte: ArteDaPrevia = { tipo: 'design', design: r.design, valores, foto: fotoDaPrevia };
+  const arteDaPeca: ArteDaPrevia | null =
+    r.design && (fotoDaPrevia || comExemplo)
+      ? { tipo: 'design', design: r.design, valores: valoresDoDesign(r.design), foto: fotoDoDesign(r.design) }
+      : null;
+  if (arteDaPeca && r.design) {
+    const arte = arteDaPeca;
     const area = r.peca.areas[r.lado]?.previa ?? null;
     const baseDaEstampa = fotosDaCor[r.lado];
     const baseDoOutro = fotosDaCor[r.outroLado];
@@ -500,11 +578,12 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
 
   const falta: Falta[] = oQueFalta(montagem, r);
   const campoDoNome = r.design?.config.campos.find((campo) => campo.chave === 'nome');
+  const camposExtras = r.design?.config.campos.filter((campo) => campo.chave !== 'nome') ?? [];
   const reaproveitaveis: FotoReaproveitavel[] = [];
   for (const item of [...carrinho.itens].reverse().concat(jaPedidas)) {
     if (item.foto.chave === montagem.foto?.chave) continue;
     if (reaproveitaveis.some((outra) => outra.foto.chave === item.foto.chave)) continue;
-    reaproveitaveis.push({ foto: item.foto, campos: item.campos });
+    reaproveitaveis.push({ foto: item.foto, campos: item.campos, design: item.design });
   }
 
   return (
@@ -513,10 +592,19 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
       // Tablet: a mesma coluna do celular, centralizada, para a prévia não engolir a tela.
       className="sm:mx-auto sm:max-w-xl lg:mx-0 lg:grid lg:max-w-none lg:grid-cols-[minmax(0,1fr)_26rem] lg:items-start lg:gap-x-12 xl:gap-x-16"
     >
+      <input
+        ref={campoDaFoto}
+        type="file"
+        accept="image/*,.heic,.heif"
+        onChange={aoEscolherFoto}
+        tabIndex={-1}
+        aria-hidden="true"
+        className="sr-only"
+      />
       <div className="lg:col-start-2 lg:row-start-1">
         <h1 className="font-titulo text-[clamp(2.25rem,9vw,4rem)] leading-none uppercase">Monta a sua Divestir</h1>
         <p className="mt-3 hidden max-w-[28ch] font-destaque text-[1.6rem] leading-tight italic lg:block">
-          Escolhe a peça, manda a foto e vê a sua Divestir nascer na tela.
+          Escolhe a peça e o design, manda a foto e vê a sua Divestir nascer na tela.
         </p>
       </div>
 
@@ -537,8 +625,19 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
           cores={coresDaPeca(catalogo, r.peca)}
           cor={r.cor}
           aoEscolherCor={(slug) => despachar({ tipo: 'cor', slug })}
-          ajuste={ajustando ? enquadrar : undefined}
-          descricaoDoAjuste={ajustando ? idDaDica : undefined}
+          ajuste={
+            ajustando && montagem.foto
+              ? {
+                  mudar: enquadrar,
+                  descricao: idDaDica,
+                  enquadramento: montagem.foto.enquadramento,
+                  definicao: definicao?.nivel ?? null,
+                  aoTrocarFoto: escolherFoto,
+                  aoAprovar: aprovar,
+                }
+              : undefined
+          }
+          exemplo={comExemplo}
           compacta={compacta}
         />
         {/* Quem usa leitor de tela ouve a prévia sempre que ela muda. */}
@@ -558,8 +657,34 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
         </Passo>
 
         <Passo
-          id={ID_DOS_PASSOS.foto}
+          id={ID_DOS_PASSOS.design}
           numero={2}
+          titulo="O design"
+          resumo={(r.designEscolhido || fotoDaPrevia) && r.design ? `${r.design.nome}, ${noLado(r.lado)}` : null}
+        >
+          <PassoDesign
+            designs={r.designs}
+            design={r.design}
+            escolhido={r.designEscolhido || !!montagem.foto}
+            tema={montagem.tema}
+            peca={r.peca}
+            cor={r.cor}
+            lado={r.lado}
+            lados={r.lados}
+            marcaNoPeito={r.marcaNoPeito}
+            comExemplo={semFoto}
+            fotoDoDesign={fotoDoDesign}
+            valoresDoDesign={valoresDoDesign}
+            rotuloDoDesign={(design) => descreverDesign(design, r.cor, ', de perto')}
+            aoEscolherTema={(tema) => despachar({ tipo: 'tema', tema })}
+            aoEscolherDesign={escolherDesign}
+            aoEscolherLado={(lado) => despachar({ tipo: 'lado', lado })}
+          />
+        </Passo>
+
+        <Passo
+          id={ID_DOS_PASSOS.foto}
+          numero={3}
           titulo="A foto"
           resumo={montagem.foto?.aprovada && fotoDaPrevia ? 'Foto aprovada' : null}
         >
@@ -570,11 +695,9 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
             definicao={definicao?.nivel ?? null}
             aviso={aviso}
             reaproveitaveis={reaproveitaveis}
-            aoEscolherArquivo={(arquivo) => void escolherArquivo(arquivo)}
+            aoEscolherFoto={escolherFoto}
             aoTentarDeNovo={() => processo.current && void recortar(processo.current.id)}
-            aoAprovar={aprovar}
             aoAjustar={ajustar}
-            aoEnquadrar={enquadrar}
             aoReaproveitar={(item) => void reaproveitar(item)}
             idDaDica={idDaDica}
           />
@@ -582,37 +705,16 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
 
         <Passo
           id={ID_DOS_PASSOS.nome}
-          numero={3}
-          titulo="O nome"
+          numero={4}
+          titulo={camposExtras.length ? 'O nome e os detalhes' : 'O nome'}
           resumo={nome ? nome.toLocaleUpperCase('pt-BR') : null}
         >
           <PassoNome
             campo={campoDoNome}
-            valor={valores.nome ?? ''}
-            aoMudar={(valor) => despachar({ tipo: 'campo', chave: 'nome', valor })}
-          />
-        </Passo>
-
-        <Passo
-          id={ID_DOS_PASSOS.design}
-          numero={4}
-          titulo="O design"
-          resumo={fotoDaPrevia && r.design ? `${r.design.nome}, ${noLado(r.lado)}` : null}
-        >
-          <PassoDesign
-            designs={r.designs}
-            design={r.design}
-            peca={r.peca}
-            cor={r.cor}
-            lado={r.lado}
-            lados={r.lados}
-            marcaNoPeito={r.marcaNoPeito}
-            foto={fotoDaPrevia}
+            extras={camposExtras}
             valores={valores}
-            rotuloDoDesign={(design) => descreverDesign(design, r.cor, ', de perto')}
-            aoEscolherDesign={(slug) => despachar({ tipo: 'design', slug })}
-            aoEscolherLado={(lado) => despachar({ tipo: 'lado', lado })}
-            aoMudarCampo={(chave, valor) => despachar({ tipo: 'campo', chave, valor })}
+            casal={!!r.design?.config.temas?.includes('casal')}
+            aoMudar={(chave, valor) => despachar({ tipo: 'campo', chave, valor })}
           />
         </Passo>
 
@@ -622,7 +724,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
             cor={r.cor}
             peca={r.peca}
             lado={r.lado}
-            arte={fotoDaPrevia && r.design ? { tipo: 'design', design: r.design, valores, foto: fotoDaPrevia } : null}
+            arte={arteDaPeca}
             aoEscolher={(slug) => despachar({ tipo: 'cor', slug })}
             rotuloDaCor={(cor) => (r.design ? descreverDesign(r.design, cor, ', de perto') : cor.nome)}
           />

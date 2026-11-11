@@ -100,6 +100,7 @@ export function prepararEdicao(item: ItemDoCarrinho) {
     peca: item.peca,
     cor: item.cor,
     design: item.design,
+    tema: null,
     lado: item.lado,
     campos: item.campos,
     tamanho: item.tamanho,

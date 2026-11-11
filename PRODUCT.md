@@ -29,7 +29,7 @@ A foto de quem você ama vira ídolo, numa peça com cara de merch oficial (fã-
 
 ## Operating Context
 
-- Fluxo do montador: peça → foto → nome → design → cor → tamanho → carrinho, numa página só, com a prévia fixa (detalhes em `docs/divestir-briefing.md`, seção "Jornada do cliente e o montador"). O que a pessoa escolhe fica guardado no navegador: fechou a aba, volta de onde parou, com a foto.
+- Fluxo do montador: peça → design ("Para quem é?") → foto → nome → cor → tamanho → carrinho (ordem decidida pelo Lucas em 11/11/2026: a foto já é ajustada no design escolhido), numa página só, com a prévia fixa (detalhes em `docs/divestir-briefing.md`, seção "Jornada do cliente e o montador"). O que a pessoa escolhe fica guardado no navegador: fechou a aba, volta de onde parou, com a foto.
 - A foto é checada (resolução e nitidez), recortada automaticamente e encaixada no template. Toda prévia é marcada como ilustrativa.
 - Compra: carrinho no navegador, com presente por peça (embalagem especial e cartão com a mensagem do cliente) e "Editar" de volta ao montador; checkout numa página só, sem conta (nome, e-mail, WhatsApp e CPF), com busca por CEP, entrega direta para quem vai ganhar o presente e o frete do Melhor Envio já somado ao prazo de personalização (10 a 15 dias úteis); pagamento pelo Mercado Pago, em Pix ou cartão em até 12 vezes, numa página do pedido que serve de confirmação e de acompanhamento pelo link (decisões do Lucas, 08/11/2026).
 - Produção, estamparia (DTF) e entrega já são resolvidas pela operação. O site só mostra ao cliente o prazo e o rastreio.
@@ -59,6 +59,7 @@ A foto de quem você ama vira ídolo, numa peça com cara de merch oficial (fã-
 - Briefing completo do produto: `docs/divestir-briefing.md`.
 - 30 fotos de base das peças em `public/catalogo/`, geradas no Higgsfield em 07/11/2026 (manequim invisível, fundo cinza de estúdio; 5 peças × 3 cores × frente e costas). A versão preta de frente de cada peça foi a matriz das outras, para a silhueta não mudar ao trocar de cor. Os códigos de cada foto estão em `docs/fotos-de-base.md`. São fotos geradas, não fotos de produto real.
 - Mockups de conceito dos designs, gerados no Higgsfield com pets de exemplo. São ilustrações, não fotos de clientes.
+- 9 fotos de exemplo do montador em `public/designs/exemplos/` (mãe, pai, avô, avó, criança, casal, amiga, amigo e pet), geradas no Higgsfield: aparecem nas miniaturas dos designs e na prévia antes de a pessoa mandar a foto dela, sempre com o selo "Foto de exemplo". Ninguém nelas é de verdade.
 - Vitrine da home com 8 exemplos ilustrativos em `public/exemplos/`: um para cada design (Fã-Clube, Capa de Revista, Futebol Clube, Turnê, Maison, Procura-se), com pets, pessoas e um objeto, em peças e cores diferentes. O Thor veio da foto de referência enviada pelo Lucas; os outros foram gerados no Higgsfield no mesmo estilo, com o mesmo fundo verde. Na home, aparecem sempre como exemplos ilustrativos.
 - 18 fotos ilustrativas do guia da foto perfeita em `public/guia/`, geradas no Higgsfield em 08/11/2026: um par "assim sim / assim não" para cada uma das 8 dicas, com o mesmo protagonista nas duas fotos, e o par da dica de ouro. A tela avisa que são exemplos. Códigos em `docs/fotos-do-guia.md`.
 - Ainda não existem e não devem ser inventados: depoimentos, clientes, números de vendas, fotos reais de produto e preços.

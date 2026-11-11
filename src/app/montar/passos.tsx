@@ -3,8 +3,15 @@
 import Image from 'next/image';
 import { useId, useState, type ReactNode } from 'react';
 import type { Catalogo, Cor, Peca } from '@/lib/catalogo';
-import { temSimboloForaDaEstampa, tirarSimbolosDaEstampa, type Campo } from '@/lib/molde/tipos';
+import {
+  limparTextoDaEstampa,
+  temSimboloForaDaEstampa,
+  tirarSimbolosDaEstampa,
+  valorDoCampo,
+  type Campo,
+} from '@/lib/molde/tipos';
 import { IconeAlerta, IconeSim } from './icones';
+import { opcaoDaPilula } from './passo-design';
 import { linkDeTexto } from './passo-foto';
 import { TelaDaPrevia, type ArteDaPrevia } from './tela-da-previa';
 
@@ -114,34 +121,46 @@ export function PassoPeca({
   );
 }
 
-// Passo 3: o nome. Entra na prévia enquanto a pessoa digita.
+// Passo 4: o nome e os outros textos que o design pede (o ano do "Em Cartaz", o júri
+// do "Melhor Mãe"). Vem depois do design porque cada design tem um espaço diferente
+// para o nome: assim o limite de letras já é o do design escolhido. Tudo entra na
+// prévia enquanto a pessoa digita.
 export function PassoNome({
   campo,
-  valor,
+  extras,
+  valores,
+  casal,
   aoMudar,
 }: {
   campo: Campo | undefined;
-  valor: string;
-  aoMudar: (valor: string) => void;
+  // Os outros campos do design, além do nome.
+  extras: Campo[];
+  valores: Record<string, string>;
+  // Design de casal: o nome é o dos dois.
+  casal: boolean;
+  aoMudar: (chave: string, valor: string) => void;
 }) {
   const id = useId();
   const max = campo?.max ?? 10;
+  const valor = valores.nome ?? '';
   const [tirou, setTirou] = useState(false);
+  // Nome escrito num design que aceitava mais letras: na estampa, ele sai cortado.
+  const passou = limparTextoDaEstampa(valor).length > max;
 
   // Emoji e símbolos não existem na fonte da estampa (confirmado pelo Lucas,
   // 10/11/2026): eles nem entram no campo, e um aviso explica. Enquanto o teclado
   // ainda está montando uma letra (o acento antes da vogal), nada é mexido.
   function mudar(bruto: string, montando: boolean) {
-    if (montando) return aoMudar(bruto.slice(0, max));
+    if (montando) return aoMudar('nome', bruto.slice(0, max));
     // O aviso fica até a pessoa voltar ao campo: sumir na letra seguinte seria rápido demais.
     if (temSimboloForaDaEstampa(bruto)) setTirou(true);
-    aoMudar(tirarSimbolosDaEstampa(bruto).slice(0, max));
+    aoMudar('nome', tirarSimbolosDaEstampa(bruto).slice(0, max));
   }
 
   return (
     <>
       <label htmlFor={`${id}-nome`} className="block text-base leading-snug font-semibold">
-        Como ele(a) se chama?
+        {casal ? 'Qual é o nome do casal?' : 'Como ele(a) se chama?'}
       </label>
       <input
         id={`${id}-nome`}
@@ -156,7 +175,7 @@ export function PassoNome({
         onKeyDown={(evento) => {
           if (evento.key === 'Enter') evento.currentTarget.blur();
         }}
-        maxLength={max}
+        maxLength={Math.max(max, valor.length)}
         autoComplete="off"
         autoCapitalize="characters"
         spellCheck={false}
@@ -165,9 +184,15 @@ export function PassoNome({
         className="mt-2 h-12 w-full max-w-[22rem] rounded-md border border-verde bg-creme px-4 text-lg leading-none font-semibold tracking-[0.04em] uppercase outline-offset-2 focus-visible:outline-2 focus-visible:outline-verde"
       />
       <p id={`${id}-ajuda`} className="mt-2 text-[0.9375rem] leading-snug">
-        Até {max} letras, como Thor, Vó Cida ou Duda.
+        {casal ? `Até ${max} letras, como Ana & Leo.` : `Até ${max} letras, como Thor, Vó Cida ou Duda.`}
       </p>
       <div aria-live="polite">
+        {passou ? (
+          <p className="mt-2 flex max-w-[38ch] items-start gap-2 text-[0.9375rem] leading-snug font-semibold">
+            <IconeAlerta className="mt-[3px] shrink-0" />
+            Nesse design cabem até {max} letras, e o nome sai cortado na estampa. Encurta ele aqui?
+          </p>
+        ) : null}
         {tirou ? (
           <p className="mt-2 flex max-w-[38ch] items-start gap-2 text-[0.9375rem] leading-snug font-semibold">
             <IconeAlerta className="mt-[3px] shrink-0" />
@@ -175,6 +200,69 @@ export function PassoNome({
           </p>
         ) : null}
       </div>
+
+      {extras.map((extra) =>
+        extra.opcoes?.length ? (
+          // Campo de opções: a pessoa escolhe uma (PAI, AVÔ, TIO...) em vez de digitar.
+          <fieldset key={extra.chave} className="mt-6">
+            <legend className="text-base leading-snug font-semibold">{extra.rotulo}</legend>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {extra.opcoes.map((opcao) => (
+                <label key={opcao} className="relative">
+                  <input
+                    type="radio"
+                    name={`${id}-${extra.chave}`}
+                    value={opcao}
+                    checked={valorDoCampo(extra, valores) === opcao}
+                    onChange={() => aoMudar(extra.chave, opcao)}
+                    className="peer sr-only"
+                  />
+                  <span className={`${opcaoDaPilula} border border-verde whitespace-nowrap`}>
+                    {opcao.charAt(0) + opcao.slice(1).toLocaleLowerCase('pt-BR')}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ) : (
+          <div key={extra.chave} className="mt-6">
+            <label htmlFor={`${id}-${extra.chave}`} className="block text-base leading-snug font-semibold">
+              {extra.rotulo}
+            </label>
+            <input
+              id={`${id}-${extra.chave}`}
+              type="text"
+              value={valores[extra.chave] ?? ''}
+              // Como no nome: emoji e símbolos não saem na estampa e nem entram aqui.
+              onChange={(evento) =>
+                aoMudar(
+                  extra.chave,
+                  (evento.nativeEvent as InputEvent).isComposing
+                    ? evento.target.value.slice(0, extra.max)
+                    : tirarSimbolosDaEstampa(evento.target.value).slice(0, extra.max),
+                )
+              }
+              onBlur={(evento) => aoMudar(extra.chave, tirarSimbolosDaEstampa(evento.target.value).slice(0, extra.max))}
+              onKeyDown={(evento) => {
+                if (evento.key === 'Enter') evento.currentTarget.blur();
+              }}
+              maxLength={extra.max}
+              inputMode={extra.exemplo && /^\d+$/.test(extra.exemplo) ? 'numeric' : undefined}
+              autoComplete="off"
+              enterKeyHint="done"
+              aria-describedby={extra.exemplo ? `${id}-${extra.chave}-ajuda` : undefined}
+              className={`mt-2 h-12 w-full max-w-[22rem] rounded-md border border-verde bg-creme px-4 text-lg leading-none font-semibold outline-offset-2 focus-visible:outline-2 focus-visible:outline-verde ${
+                extra.caixa === 'alta' ? 'tracking-[0.04em] uppercase' : ''
+              }`}
+            />
+            {extra.exemplo ? (
+              <p id={`${id}-${extra.chave}-ajuda`} className="mt-2 text-[0.9375rem] leading-snug">
+                Vai na estampa. Por exemplo: {extra.exemplo}.
+              </p>
+            ) : null}
+          </div>
+        ),
+      )}
     </>
   );
 }

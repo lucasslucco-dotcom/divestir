@@ -1,24 +1,16 @@
 'use client';
 
-import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useState } from 'react';
 import type { Checagem } from '@/lib/foto/checar';
 import type { Definicao } from '@/lib/foto/definicao';
-import {
-  ENQUADRAMENTO_INICIAL,
-  PASSO_DO_ZOOM,
-  ZOOM_MAXIMO,
-  ZOOM_MINIMO,
-  ehInicial,
-  zoomEm,
-} from '@/lib/foto/enquadramento';
 import { lerRecorte } from '@/lib/montagem/guardar';
 import type { FotoDaMontagem } from '@/lib/montagem/tipos';
 import { Guia } from './guia';
-import { IconeAlerta, IconeCarregando, IconeMais, IconeMenos, IconeNao, IconeSim } from './icones';
-import type { MudarEnquadramento } from './tela-da-previa';
+import { IconeAlerta, IconeCarregando, IconeNao, IconeSim } from './icones';
 
-// Passo 2: a foto. Guia da foto perfeita, escolha da foto, checagem no aparelho,
-// recorte e o ajuste do enquadramento, que acontece na própria prévia.
+// Passo 3: a foto, já no design escolhido. Guia da foto perfeita, escolha da foto,
+// checagem no aparelho, recorte e o ajuste do enquadramento, que acontece na própria
+// prévia: o zoom, "Trocar a foto" e "Ficou ótimo" ficam colados nela (doca.tsx).
 
 export type EnvioDaFoto = {
   id: number;
@@ -28,20 +20,13 @@ export type EnvioDaFoto = {
   mensagem?: string;
 };
 
-export type FotoReaproveitavel = { foto: FotoDaMontagem; campos: Record<string, string> };
+// "design": o design da peça de onde a foto vem (o ajuste guardado nela é o dele).
+export type FotoReaproveitavel = { foto: FotoDaMontagem; campos: Record<string, string>; design: string };
 
 const numero = new Intl.NumberFormat('pt-BR');
-const porcentagem = new Intl.NumberFormat('pt-BR', { style: 'percent', maximumFractionDigits: 0 });
 
 export const linkDeTexto =
   'inline-block cursor-pointer py-3 text-[0.9375rem] leading-5 underline decoration-1 underline-offset-[0.3em] hover:decoration-2';
-
-// O segundo botão de uma dupla (ao lado do ingresso): contorno verde, mesma altura.
-const botaoDeContorno =
-  'inline-flex min-h-14 min-w-0 flex-1 cursor-pointer items-center justify-center rounded-lg border-2 border-verde px-4 text-[1.0625rem] leading-tight font-bold outline-offset-2 transition-colors duration-200 ease-saida hover:bg-verde hover:text-creme focus-visible:outline-2 focus-visible:outline-verde sm:flex-none sm:px-8';
-
-const botaoDeZoom =
-  'inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-verde hover:bg-verde hover:text-creme disabled:cursor-default disabled:border-dashed disabled:hover:bg-transparent disabled:hover:text-verde';
 
 function Selo({ checagem }: { checagem: Checagem }) {
   if (checagem.nivel === 'perfeita') {
@@ -126,66 +111,6 @@ function AvisoDaDefinicao({ nivel, zoom }: { nivel: Definicao['nivel']; zoom: nu
   );
 }
 
-function ControlesDoAjuste({
-  foto,
-  definicao,
-  aoEnquadrar,
-  idDaDica,
-}: {
-  foto: FotoDaMontagem;
-  definicao: Definicao['nivel'] | null;
-  aoEnquadrar: MudarEnquadramento;
-  idDaDica: string;
-}) {
-  const { zoom } = foto.enquadramento;
-  return (
-    <div>
-      <p id={idDaDica} className="max-w-[38ch] text-[0.9375rem] leading-snug">
-        <span className="pointer-coarse:hidden">
-          Ajuste na própria prévia: arraste a foto para mover e use os botões para dar zoom.
-        </span>
-        <span className="hidden pointer-coarse:inline">
-          Ajuste na própria prévia: arraste a foto para mover e use dois dedos para dar zoom.
-        </span>
-        <span className="sr-only"> No teclado, use as setas para mover e as teclas + e − para o zoom.</span>
-      </p>
-      <div className="mt-2 flex items-center gap-1">
-        <button
-          type="button"
-          aria-label="Diminuir o zoom"
-          disabled={zoom <= ZOOM_MINIMO + 1e-6}
-          onClick={() => aoEnquadrar((atual) => zoomEm(atual, 1 / PASSO_DO_ZOOM))}
-          className={botaoDeZoom}
-        >
-          <IconeMenos />
-        </button>
-        <span aria-live="polite" className="w-14 text-center text-sm leading-none font-semibold tabular-nums">
-          <span className="sr-only">Zoom de </span>
-          {porcentagem.format(zoom)}
-        </span>
-        <button
-          type="button"
-          aria-label="Aumentar o zoom"
-          disabled={zoom >= ZOOM_MAXIMO - 1e-6}
-          onClick={() => aoEnquadrar((atual) => zoomEm(atual, PASSO_DO_ZOOM))}
-          className={botaoDeZoom}
-        >
-          <IconeMais />
-        </button>
-        <button
-          type="button"
-          disabled={ehInicial(foto.enquadramento)}
-          onClick={() => aoEnquadrar(() => ENQUADRAMENTO_INICIAL)}
-          className={`ml-auto disabled:invisible ${linkDeTexto}`}
-        >
-          Redefinir
-        </button>
-      </div>
-      <div aria-live="polite">{definicao ? <AvisoDaDefinicao nivel={definicao} zoom={zoom} /> : null}</div>
-    </div>
-  );
-}
-
 // Uma foto que a pessoa já mandou (está numa peça do carrinho), para reaproveitar.
 function FotoGuardada({ item, aoUsar }: { item: FotoReaproveitavel; aoUsar: () => void }) {
   const [url, setUrl] = useState<string | null>(null);
@@ -236,11 +161,9 @@ export function PassoFoto({
   definicao,
   aviso,
   reaproveitaveis,
-  aoEscolherArquivo,
+  aoEscolherFoto: escolher,
   aoTentarDeNovo,
-  aoAprovar,
   aoAjustar,
-  aoEnquadrar,
   aoReaproveitar,
   idDaDica,
 }: {
@@ -250,25 +173,13 @@ export function PassoFoto({
   definicao: Definicao['nivel'] | null;
   aviso: string | null;
   reaproveitaveis: FotoReaproveitavel[];
-  aoEscolherArquivo: (arquivo: File) => void;
+  // Abre o seletor de fotos do aparelho (álbum ou câmera).
+  aoEscolherFoto: () => void;
   aoTentarDeNovo: () => void;
-  aoAprovar: () => void;
   aoAjustar: () => void;
-  aoEnquadrar: MudarEnquadramento;
   aoReaproveitar: (item: FotoReaproveitavel) => void;
   idDaDica: string;
 }) {
-  const campo = useRef<HTMLInputElement>(null);
-  // Os botões abrem o seletor de fotos do aparelho (álbum ou câmera).
-  const escolher = () => campo.current?.click();
-
-  function aoEscolher(evento: ChangeEvent<HTMLInputElement>) {
-    const arquivo = evento.target.files?.[0];
-    // Limpa o campo para a mesma foto poder ser escolhida de novo.
-    evento.target.value = '';
-    if (arquivo) aoEscolherArquivo(arquivo);
-  }
-
   const processando = envio?.etapa === 'conferindo' || envio?.etapa === 'recortando';
   const ajustando = !!foto && !foto.aprovada && temRecorte && !processando;
   const aprovada = !!foto?.aprovada && temRecorte && !processando;
@@ -276,16 +187,6 @@ export function PassoFoto({
 
   return (
     <div>
-      <input
-        ref={campo}
-        type="file"
-        accept="image/*,.heic,.heif"
-        onChange={aoEscolher}
-        tabIndex={-1}
-        aria-hidden="true"
-        className="sr-only"
-      />
-
       {aviso ? (
         <p className="mb-5 flex max-w-[38ch] items-start gap-2 text-[0.9375rem] leading-snug font-semibold">
           <IconeAlerta className="mt-[3px] shrink-0" />
@@ -370,33 +271,20 @@ export function PassoFoto({
                 : null}
             </div>
           ) : null}
-          <ControlesDoAjuste foto={foto} definicao={definicao} aoEnquadrar={aoEnquadrar} idDaDica={idDaDica} />
-          {definicao === 'baixa' ? (
-            // Abaixo da qualidade da estampa, o caminho principal é mandar outra foto.
-            <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-1">
-              <button type="button" onClick={escolher} className="ingresso w-full cursor-pointer sm:w-auto">
-                Escolher outra foto
-              </button>
-              <button type="button" onClick={aoAprovar} className={linkDeTexto}>
-                Usar essa mesmo assim
-              </button>
-            </div>
-          ) : (
-            // Os dois caminhos lado a lado, logo abaixo da prévia: quem não gostou de como
-            // a foto ficou troca na hora (pedido do Lucas, 10/11/2026).
-            <div className="mt-5 flex items-stretch gap-3">
-              <button type="button" onClick={escolher} className={botaoDeContorno}>
-                Trocar a foto
-              </button>
-              <button
-                type="button"
-                onClick={aoAprovar}
-                className="ingresso min-w-0 flex-1 px-4! sm:flex-none sm:px-10!"
-              >
-                Ficou ótimo
-              </button>
-            </div>
-          )}
+          <p id={idDaDica} className="max-w-[38ch] text-[0.9375rem] leading-snug">
+            <span className="pointer-coarse:hidden">
+              Ajuste na própria prévia: arraste a foto para mover e use os botões para dar zoom.
+            </span>
+            <span className="hidden pointer-coarse:inline">
+              Ajuste na própria prévia: arraste a foto para mover e use dois dedos para dar zoom.
+            </span>{' '}
+            Quando gostar, toque em &ldquo;{definicao === 'baixa' ? 'Usar essa mesmo assim' : 'Ficou ótimo'}&rdquo;,
+            logo abaixo dela.
+            <span className="sr-only"> No teclado, use as setas para mover e as teclas + e − para o zoom.</span>
+          </p>
+          <div aria-live="polite">
+            {definicao ? <AvisoDaDefinicao nivel={definicao} zoom={foto.enquadramento.zoom} /> : null}
+          </div>
           <p className="mt-3 max-w-[38ch] text-[0.9375rem] leading-snug">
             Confere se o recorte pegou tudo: orelhas, cabelo, rabo. Se cortou algo importante, é melhor trocar a foto.
           </p>

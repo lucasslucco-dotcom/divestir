@@ -1,17 +1,19 @@
 'use client';
 
-import { useId, useState, useSyncExternalStore } from 'react';
+import { useId, useSyncExternalStore } from 'react';
 import type { Cor, Peca } from '@/lib/catalogo';
-import { TEMAS, designsDoTema, tirarSimbolosDaEstampa, valorDoCampo, type Design, type Lado } from '@/lib/molde/tipos';
+import { TEMAS, designsDoTema, type Design, type Lado } from '@/lib/molde/tipos';
 import { TelaDaPrevia, type FotoDaPrevia } from './tela-da-previa';
 
-// Passo 4: o design. Cada miniatura já vem com a foto e o nome do cliente, não com
-// um exemplo genérico: é aqui que a pessoa se apaixona (briefing). Aqui também se
+// Passo 2: o design, antes da foto (caminho novo, pedido do Lucas, 10/11/2026): a
+// pessoa diz para quem é, escolhe o design e só então manda a foto, que já é ajustada
+// nele. Antes da foto, cada miniatura mostra uma foto de exemplo do tema; depois, a
+// foto e o nome do cliente: é aqui que a pessoa se apaixona (briefing). Aqui também se
 // escolhe onde vai a estampa (decisão do Lucas, 08/11/2026).
 
 const DIA = 24 * 60 * 60 * 1000;
 // O "tema" de quem quer ver todos os designs.
-const TODOS = 'todos';
+export const TODOS = 'todos';
 
 // A hora de agora vem do relógio do aparelho; no servidor, ainda não há selo.
 const semAssinatura = () => () => {};
@@ -34,52 +36,54 @@ export const opcaoDaPilula =
 export function PassoDesign({
   designs,
   design,
+  escolhido,
+  tema,
   peca,
   cor,
   lado,
   lados,
   marcaNoPeito,
-  foto,
-  valores,
+  comExemplo,
+  fotoDoDesign,
+  valoresDoDesign,
   rotuloDoDesign,
+  aoEscolherTema,
   aoEscolherDesign,
   aoEscolherLado,
-  aoMudarCampo,
 }: {
   designs: Design[];
   design: Design | null;
+  // A pessoa já escolheu um design (antes disso, nenhuma miniatura fica marcada, a não
+  // ser que a foto dela já esteja na prévia, no primeiro da fila).
+  escolhido: boolean;
+  // "Para quem é?": um dos temas, "todos" ou, antes de a pessoa tocar em algum, nada (a
+  // fila mostra todos os designs e nenhum tema fica marcado).
+  tema: string | null;
   peca: Peca;
   cor: Cor;
   lado: Lado;
   lados: Lado[];
   marcaNoPeito: boolean;
-  foto: FotoDaPrevia | null;
-  valores: Record<string, string>;
+  // As miniaturas estão com fotos de exemplo (a pessoa ainda não mandou a dela).
+  comExemplo: boolean;
+  // A foto de cada miniatura (a do cliente, com o ajuste daquele design, ou a de
+  // exemplo) e os textos que entram na estampa.
+  fotoDoDesign: (design: Design) => FotoDaPrevia | null;
+  valoresDoDesign: (design: Design) => Record<string, string>;
   rotuloDoDesign: (design: Design) => string;
+  aoEscolherTema: (tema: string) => void;
   aoEscolherDesign: (slug: string) => void;
   aoEscolherLado: (lado: Lado) => void;
-  aoMudarCampo: (chave: string, valor: string) => void;
 }) {
   const id = useId();
   const hoje = useSyncExternalStore(semAssinatura, agora, () => null);
-  // O tema escolhido ("Para quem é?"): um dos temas, "todos" ou, antes de a pessoa
-  // tocar em algum, nada (a fila mostra todos os designs e nenhum tema fica marcado).
-  const [tema, setTema] = useState<string | null>(null);
 
   if (!designs.length) {
     return <p className="max-w-[38ch] text-[0.9375rem] leading-snug">Ainda não temos um design para essa peça.</p>;
   }
-  if (!foto) {
-    return (
-      <p className="max-w-[38ch] text-[0.9375rem] leading-snug">
-        Os designs aparecem aqui já com a sua foto e o nome, assim que a foto estiver pronta.
-      </p>
-    );
-  }
 
   const base = peca.fotos[cor.slug]?.[lado];
   const area = peca.areas[lado]?.previa ?? null;
-  const extras = design?.config.campos.filter((campo) => campo.chave !== 'nome') ?? [];
   // Costas primeiro: é o lado padrão dos designs.
   const ordem = (['costas', 'frente'] as const).filter((l) => lados.includes(l));
   // Todo tema tem pelo menos os designs que servem para todo mundo; os feitos para
@@ -88,14 +92,17 @@ export function PassoDesign({
   const temaAtual = temas.some((t) => t.slug === tema) ? tema : null;
   const lista = designsDoTema(designs, temaAtual);
   const escolherTema = (slug: string | null) => {
-    setTema(slug ?? TODOS);
+    aoEscolherTema(slug ?? TODOS);
     // Quem toca num tema quer ver os designs feitos para ele: o primeiro da fila entra
     // na prévia grande, a não ser que o design escolhido já seja desse tema. Tema que
     // só tem os designs de todo mundo deixa a escolha como está.
     const novos = designsDoTema(designs, slug);
     const doTema = slug ? novos.filter((d) => d.config.temas?.includes(slug)) : [];
     const serve = doTema.length ? doTema : novos;
-    if (serve.length && !serve.some((d) => d.slug === design?.slug)) aoEscolherDesign(serve[0].slug);
+    // "Todos" não escolhe nada por conta própria.
+    if (slug && serve.length && !(escolhido && serve.some((d) => d.slug === design?.slug))) {
+      aoEscolherDesign(serve[0].slug);
+    }
   };
 
   return (
@@ -139,7 +146,7 @@ export function PassoDesign({
                 type="radio"
                 name="design"
                 value={opcaoDeDesign.slug}
-                checked={opcaoDeDesign.slug === design?.slug}
+                checked={escolhido && opcaoDeDesign.slug === design?.slug}
                 onChange={() => aoEscolherDesign(opcaoDeDesign.slug)}
                 className="peer sr-only"
               />
@@ -149,7 +156,12 @@ export function PassoDesign({
                     base={base}
                     area={area}
                     corDaPeca={cor.slug}
-                    arte={{ tipo: 'design', design: opcaoDeDesign, valores, foto }}
+                    arte={{
+                      tipo: 'design',
+                      design: opcaoDeDesign,
+                      valores: valoresDoDesign(opcaoDeDesign),
+                      foto: fotoDoDesign(opcaoDeDesign),
+                    }}
                     perto
                     rotulo={rotuloDoDesign(opcaoDeDesign)}
                     adiar
@@ -170,72 +182,11 @@ export function PassoDesign({
           );
         })}
       </div>
-      <p className="mt-2 text-xs leading-relaxed">Prévias ilustrativas, com a sua foto e o nome.</p>
-
-      {extras.map((campo) =>
-        campo.opcoes?.length ? (
-          // Campo de opções: a pessoa escolhe uma (PAI, AVÔ, TIO...) em vez de digitar.
-          <fieldset key={campo.chave} className="mt-6">
-            <legend className="text-base leading-snug font-semibold">{campo.rotulo}</legend>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {campo.opcoes.map((opcao) => (
-                <label key={opcao} className="relative">
-                  <input
-                    type="radio"
-                    name={`${id}-${campo.chave}`}
-                    value={opcao}
-                    checked={valorDoCampo(campo, valores) === opcao}
-                    onChange={() => aoMudarCampo(campo.chave, opcao)}
-                    className="peer sr-only"
-                  />
-                  <span className={`${opcaoDaPilula} border border-verde whitespace-nowrap`}>
-                    {opcao.charAt(0) + opcao.slice(1).toLocaleLowerCase('pt-BR')}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-        ) : (
-          <div key={campo.chave} className="mt-6">
-            <label htmlFor={`${id}-${campo.chave}`} className="block text-base leading-snug font-semibold">
-              {campo.rotulo}
-            </label>
-            <input
-              id={`${id}-${campo.chave}`}
-              type="text"
-              value={valores[campo.chave] ?? ''}
-              // Como no nome: emoji e símbolos não saem na estampa e nem entram aqui.
-              onChange={(evento) =>
-                aoMudarCampo(
-                  campo.chave,
-                  (evento.nativeEvent as InputEvent).isComposing
-                    ? evento.target.value.slice(0, campo.max)
-                    : tirarSimbolosDaEstampa(evento.target.value).slice(0, campo.max),
-                )
-              }
-              onBlur={(evento) =>
-                aoMudarCampo(campo.chave, tirarSimbolosDaEstampa(evento.target.value).slice(0, campo.max))
-              }
-              onKeyDown={(evento) => {
-                if (evento.key === 'Enter') evento.currentTarget.blur();
-              }}
-              maxLength={campo.max}
-              inputMode={campo.exemplo && /^\d+$/.test(campo.exemplo) ? 'numeric' : undefined}
-              autoComplete="off"
-              enterKeyHint="done"
-              aria-describedby={campo.exemplo ? `${id}-${campo.chave}-ajuda` : undefined}
-              className={`mt-2 h-12 w-full max-w-[22rem] rounded-md border border-verde bg-creme px-4 text-lg leading-none font-semibold outline-offset-2 focus-visible:outline-2 focus-visible:outline-verde ${
-                campo.caixa === 'alta' ? 'tracking-[0.04em] uppercase' : ''
-              }`}
-            />
-            {campo.exemplo ? (
-              <p id={`${id}-${campo.chave}-ajuda`} className="mt-2 text-[0.9375rem] leading-snug">
-                Vai na estampa. Por exemplo: {campo.exemplo}.
-              </p>
-            ) : null}
-          </div>
-        ),
-      )}
+      <p className="mt-2 max-w-[42ch] text-xs leading-relaxed">
+        {comExemplo
+          ? 'Prévias ilustrativas, com fotos de exemplo. A sua foto entra no lugar assim que você mandar.'
+          : 'Prévias ilustrativas, com a sua foto e o nome.'}
+      </p>
 
       <fieldset className="mt-7">
         <legend className="text-base leading-snug font-semibold">Onde vai a estampa?</legend>

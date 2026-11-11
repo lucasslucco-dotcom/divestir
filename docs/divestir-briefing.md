@@ -25,17 +25,19 @@ A Divestir vende roupa sob demanda com a foto de quem a pessoa ama estampada, de
 O montador é uma página só: a prévia da peça fica fixa (no topo no celular, à esquerda no desktop) e os passos rolam ao lado. Cada escolha atualiza a prévia na hora, sem recarregar. O cliente sempre vê frente e costas e pode voltar a qualquer passo sem perder o que já fez.
 
 1. **Escolher a peça.** Cards com foto de cada modelo: camiseta regular, camiseta oversized, camiseta dry-fit, moletom, moletom com capuz, jaqueta bomber. Preço "a partir de" em cada card. A prévia já aparece em preto, a cor padrão.
-2. **Enviar a foto.** Upload por arquivo ou câmera do celular. Antes do botão, o guia da foto perfeita em formato visual. Ao subir, o sistema confere resolução e nitidez, remove o fundo automaticamente e mostra o recorte. O cliente pode ajustar o enquadramento (arrastar e dar zoom) e, se o recorte falhar, trocar a foto.
-3. **Dar nome.** Um campo: "Como ele(a) se chama?" (THOR, VÓ CIDA, DUDA). Limite de caracteres definido por template; o texto entra na prévia enquanto a pessoa digita.
-4. **Escolher o design.** Carrossel de miniaturas, cada uma já renderizada com a foto e o nome do cliente, não com um exemplo genérico. É aqui que a pessoa se apaixona. Selo "Novo" ou "Últimos dias" nos designs de drop.
+2. **Escolher o design.** Primeiro, "Para quem é?" (Mães, Pais, Avôs, Avós, Filhos, Irmãos, Casal, Amigas, Amigos, Pets ou Todos). Depois, o carrossel de miniaturas dos designs. Antes de a pessoa mandar a foto, cada miniatura mostra uma foto de exemplo do tema escolhido, marcada como exemplo; depois da foto, a foto e o nome do cliente. É aqui que a pessoa se apaixona. Selo "Novo" ou "Últimos dias" nos designs de drop.
+3. **Enviar a foto.** Upload por arquivo ou câmera do celular. Antes do botão, o guia da foto perfeita em formato visual. Ao subir, o sistema confere resolução e nitidez, remove o fundo automaticamente e mostra a foto já no design escolhido. O cliente ajusta o enquadramento ali mesmo (arrastar e dar zoom), com os botões "Trocar a foto" e "Ficou ótimo" colados na prévia. Se trocar de design depois, o ajuste abre de novo no design novo, e o que já foi aprovado em cada design fica guardado.
+4. **Dar nome.** Um campo: "Como ele(a) se chama?" (THOR, VÓ CIDA, DUDA), com o limite de caracteres do design escolhido, e os outros textos que o design pedir (o ano, por exemplo). O texto entra na prévia enquanto a pessoa digita.
 5. **Escolher a cor.** Preto, branco e creme, sempre trocáveis numa barra fixa. A tinta do design muda junto com a cor da peça.
 6. **Escolher o tamanho.** PP ao GGG, com tabela de medidas por modelo (regular e oversized vestem diferente). Fica no fim porque não muda a prévia e pedido de tamanho logo de cara é atrito.
 7. **Adicionar ao carrinho.** Botões: "Finalizar compra" e "Criar outra Divestir". Ao criar outra, a foto enviada fica disponível para reaproveitar.
 
+A ordem "design antes da foto" foi decidida pelo Lucas em 11/11/2026, depois de testar a ordem antiga (peça, foto, nome, design): a foto era ajustada num design e deixava de servir ao trocar para outro, e o nome era digitado antes de a pessoa saber quantas letras cabiam.
+
 **Regras do montador**
 
 - O estado da montagem fica salvo no navegador: se a pessoa fechar a aba, volta de onde parou.
-- Toda prévia mostra um selo discreto "Prévia ilustrativa" para alinhar expectativa de cor de tela.
+- Toda prévia mostra um selo discreto "Prévia ilustrativa" para alinhar expectativa de cor de tela. Enquanto a prévia está com uma foto de exemplo, o selo diz "Foto de exemplo".
 - Sem cadastro para montar: login só é pedido no checkout (e pode ser como convidado, só e-mail e WhatsApp).
 
 ## Guia da foto perfeita
