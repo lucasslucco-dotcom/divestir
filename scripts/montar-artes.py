@@ -721,21 +721,25 @@ def feita_a_mao():
     # de 10 de cada lado.
     corte = (40, 30, 1279)
     topo = [i for i in itens if i['caixa'][3] < 300]
-    # Os pontinhos soltos dentro dos furos da toalhinha (sujeira do vetor, menores que
-    # 12 medidas) ficam de fora: não sairiam na estampa e só pesam no arquivo.
-    toalha = [
-        i
-        for i in itens
-        if 300 <= i['caixa'][1]
-        and i['caixa'][3] < 1590
-        and not (i['tipo'] == 'W' and i['caixa'][2] - i['caixa'][0] < 12 and i['caixa'][3] - i['caixa'][1] < 12)
-    ]
     etiqueta = [i for i in itens if 1590 <= i['caixa'][1] and i['caixa'][3] < 1842]
     linha = [i for i in itens if i['caixa'][1] >= 1842]
     gravar('feita-a-mao', 'topo', topo, corte, 'A linha "Feita à mão".')
-    gravar('feita-a-mao', 'toalha', toalha, corte, 'A toalhinha de crochê (atrás da foto).')
     gravar('feita-a-mao', 'etiqueta', etiqueta, corte, 'A etiqueta costurada "Colo sob medida" (na frente da foto).', base=True)
     gravar('feita-a-mao', 'linha', linha, corte, 'A linha "Modo de usar: abraçar sem moderação".')
+    # A toalhinha vem de uma arte só dela (pedido do Lucas, 11/11/2026: a do primeiro
+    # conceito, leve, com a borda de conchinhas e a rede aberta no meio), num quadro de
+    # 2048 x 2048. O vetor chegou simplificado (só retas, com folga de 1,6 medida). Os
+    # pontinhos soltos dentro dos furos (sujeira do vetor) ficam de fora. No molde ela
+    # entra com 940 de largura, no meio; o lugar que sai aqui embaixo não vale para ela.
+    toalha = [
+        i
+        for i in ler('feita-a-mao-toalha')
+        if not (i['tipo'] == 'W' and i['caixa'][2] - i['caixa'][0] < 20 and i['caixa'][3] - i['caixa'][1] < 20)
+    ]
+    gravar('feita-a-mao', 'toalha', toalha, (0, 0, 2048), 'A toalhinha de crochê (atrás da foto).')
+    largura = max(i['caixa'][2] for i in toalha) - min(i['caixa'][0] for i in toalha) + 12
+    altura = max(i['caixa'][3] for i in toalha) - min(i['caixa'][1] for i in toalha) + 12
+    print('  toalhinha: altura ÷ largura =', round(altura / largura, 4))
 
 
 def casa_da_vo():

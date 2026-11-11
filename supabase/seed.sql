@@ -956,8 +956,9 @@ on conflict (slug) do update set
   config = excluded.config;
 
 -- Design Feita à Mão: toalhinha de crochê, estampa grande, para avós. A arte vem do Higgsfield ("Feita
--- à mão", a toalhinha, a etiqueta costurada "Colo sob medida" e a linha "Modo de usar: abraçar sem
--- moderação"); o site põe o nome na letra de cinema (Bodoni Moda 900, estreitada), com a base em arco
+-- à mão", a etiqueta costurada "Colo sob medida" e a linha "Modo de usar: abraçar sem moderação"; a
+-- toalhinha vem de uma arte só dela, a do primeiro conceito: borda de conchinhas e rede aberta no
+-- meio); o site põe o nome na letra de cinema (Bodoni Moda 900, estreitada), com a base em arco
 -- forte, acompanhando a toalhinha, e a foto na frente dela. Não pede o ano.
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
   ('feita-a-mao', 'Feita à Mão', 'ativo', 29, '2026-11-11', '{
@@ -967,11 +968,11 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "tamanho": "grande",
     "camadas": [
       {"tipo": "arte", "arquivo": "/designs/feita-a-mao/topo.svg", "x": 500.0, "topo": 17.2, "largura": 682.6, "folga": 0},
-      {"tipo": "arte", "arquivo": "/designs/feita-a-mao/toalha.svg", "x": 501.2, "topo": 345, "largura": 940, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/feita-a-mao/toalha.svg", "x": 500, "topo": 345, "largura": 940, "folga": 0},
       {"tipo": "nome", "campo": "nome", "fonte": "cinema-preta", "x": 500, "topo": 100, "largura_maxima": 900, "altura_no_centro": 255, "arco": 1.65, "compressao_maxima": 0.5, "expansao_maxima": 1.15, "engrossa": 1, "folga": 10, "acento_dentro": true},
-      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 360, "largura": 900, "altura": 990, "janela": {"largura": 860, "altura": 1080, "y": 971}},
-      {"tipo": "arte", "arquivo": "/designs/feita-a-mao/etiqueta.svg", "x": 500.0, "topo": 1280, "largura": 993.7, "folga": 0, "base": "/designs/feita-a-mao/etiqueta-base.svg"},
-      {"tipo": "arte", "arquivo": "/designs/feita-a-mao/linha.svg", "x": 500.4, "topo": 1484.5, "largura": 941.4, "folga": 0}
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 360, "largura": 900, "altura": 981, "janela": {"largura": 860, "altura": 1080, "y": 971}},
+      {"tipo": "arte", "arquivo": "/designs/feita-a-mao/etiqueta.svg", "x": 500.0, "topo": 1271, "largura": 993.7, "folga": 0, "base": "/designs/feita-a-mao/etiqueta-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/feita-a-mao/linha.svg", "x": 500.4, "topo": 1475.5, "largura": 941.4, "folga": 0}
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
