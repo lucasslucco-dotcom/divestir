@@ -587,6 +587,86 @@ def modo_casal():
     # A linha de baixo ("Jogando juntos desde 2019 · Continue? Sempre") é escrita pelo site, por causa do ano.
 
 
+def obra_prima():
+    print('Obra-Prima')
+    itens = ler('obra-prima')
+    # A placa "Valor incalculável" (de 38 a 1324) toma a largura da arte, com uma
+    # margem de 10 de cada lado.
+    corte = (28, 80, 1306)
+    topo = [i for i in itens if i['caixa'][3] < 300]
+    moldura = [i for i in itens if 300 <= i['caixa'][1] and i['caixa'][3] < 1560]
+    placa = [i for i in itens if 1560 <= i['caixa'][1] and i['caixa'][3] < 1765]
+    linha = [i for i in itens if i['caixa'][1] >= 1765]
+    gravar('obra-prima', 'topo', topo, corte, 'A linha "Minha obra-prima", com as estrelas.')
+    gravar('obra-prima', 'moldura', moldura, corte, 'A moldura de museu (atrás da foto).')
+    gravar('obra-prima', 'placa', placa, corte, 'A placa "Valor incalculável", com os parafusos.', base=True)
+    gravar('obra-prima', 'linha', linha, corte, 'A linha "Técnica: amor e noites sem dormir".')
+    # A linha de baixo ("Acervo da família · Desde 2019") é escrita pelo site, por causa do ano.
+
+
+def familia_coruja():
+    print('Família Coruja')
+    itens = ler('familia-coruja')
+    # As asas da coruja (de 45 a 1316) tomam a largura da arte, com uma margem de 10
+    # de cada lado.
+    corte = (35, 110, 1291)
+    topo = [i for i in itens if i['caixa'][3] < 300]
+    # A fita (lisa: o texto dela é do site, porque o cliente escolhe "mãe", "pai", "vó"...)
+    # fica na frente da foto; a coruja inteira, com os pés, atrás.
+    fita = [i for i in itens if i['caixa'][1] >= 1580]
+    coruja = [i for i in itens if i not in topo and i not in fita]
+    # No vetor, as garras da coruja mordem a beirada de cima da fita. Como a foto passa
+    # na frente da coruja, a beirada é fechada aqui (um remendo que acompanha a curva
+    # dela), para a fita sair inteira por cima da foto.
+    remendo = 'WM470 1634L600 1642L770 1643L930 1631L930 1680L470 1680Z'
+    fita.append({'tipo': 'W', 'texto': remendo, 'caixa': (470, 1631, 930, 1680), 'pontos': []})
+    gravar('familia-coruja', 'topo', topo, corte, 'O arco "Com muito orgulho", com as estrelas.')
+    gravar('familia-coruja', 'coruja', coruja, corte, 'A coruja de asas abertas (atrás da foto).')
+    gravar('familia-coruja', 'fita', fita, corte, 'A fita, lisa (na frente da foto; o texto da fita é do site).', base=True)
+    # A linha de baixo ("Corujando desde 2019 · Não tem cura") é escrita pelo site, por causa do ano.
+
+
+def chefe_da_casa():
+    print('Chefe da Casa')
+    itens = ler('chefe-da-casa')
+    # A faixa "Chefe da casa" (de 112 a 1248) toma a largura da arte, com uma margem
+    # de 10 de cada lado.
+    corte = (102, 38, 1156)
+    cordao = [i for i in itens if i['caixa'][3] < 392]
+    frase = [i for i in itens if 392 <= i['caixa'][1] and i['caixa'][3] < 480]
+    linha = [i for i in itens if i['caixa'][1] >= 1865]
+    meio = [i for i in itens if i not in cordao and i not in frase and i not in linha]
+    # O crachá e a faixa vêm do vetor numa forma só. Ela inteira vai atrás da foto; a
+    # faixa, tirada dela com a "caixa", é pintada de novo na frente, para a foto acabar
+    # atrás da faixa.
+    cracha = next(i for i in meio if i['tipo'] == 'W' and i['caixa'][2] - i['caixa'][0] > 1100)
+    # A faixa começa onde a forma alarga (o crachá é mais estreito que ela).
+    y0 = min(y for x, y in cracha['pontos'] if x < cracha['caixa'][0] + 60)
+    letras = [i for i in meio if i['tipo'] == 'K' and i['caixa'][1] >= y0]
+    print(f'  faixa: de {y0} a {cracha["caixa"][3]}, {len(letras)} furos')
+    gravar('chefe-da-casa', 'cordao', cordao, corte, 'O cordão do crachá, com o fecho.')
+    gravar('chefe-da-casa', 'frase', frase, corte, 'A linha "Quem manda aqui".')
+    gravar('chefe-da-casa', 'cracha', meio, corte, 'O crachá, com as listras, e a faixa (atrás da foto).')
+    gravar('chefe-da-casa', 'faixa', [cracha] + letras, corte, 'A faixa "Chefe da casa" (na frente da foto).', base=True, caixa=(cracha['caixa'][0] - 6, y0, cracha['caixa'][2] + 6, cracha['caixa'][3] + 6))
+    gravar('chefe-da-casa', 'linha', linha, corte, 'A linha "Cargo: dono de tudo | Expediente: 24 horas".')
+    # A linha de baixo ("No comando desde 2019 · Equipe: a família inteira") é escrita pelo site, por causa do ano.
+
+
+def centro_do_universo():
+    print('Centro do Universo')
+    itens = ler('centro-do-universo')
+    # A faixa "Centro do meu universo" (de 81 a 1278) toma a largura da arte, com uma
+    # margem de 10 de cada lado.
+    corte = (71, 150, 1217)
+    topo = [i for i in itens if i['caixa'][3] < 300]
+    orbitas = [i for i in itens if 300 <= i['caixa'][1] and i['caixa'][3] < 1560]
+    faixa = [i for i in itens if i['caixa'][1] >= 1560]
+    gravar('centro-do-universo', 'topo', topo, corte, 'A linha "O mundo gira em torno de".')
+    gravar('centro-do-universo', 'orbitas', orbitas, corte, 'As órbitas, os planetas, a lua e as estrelas (atrás da foto).')
+    gravar('centro-do-universo', 'faixa', faixa, corte, 'A faixa "Centro do meu universo" (na frente da foto).', base=True)
+    # A linha de baixo ("Em órbita desde 2019 · Amor infinito") é escrita pelo site, por causa do ano.
+
+
 if __name__ == '__main__':
     turne_mundial()
     ao_vivo()
@@ -609,3 +689,7 @@ if __name__ == '__main__':
     previsao_do_tempo()
     conexao_surreal()
     modo_casal()
+    obra_prima()
+    familia_coruja()
+    chefe_da_casa()
+    centro_do_universo()

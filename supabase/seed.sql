@@ -767,6 +767,131 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
+-- Design Obra-Prima: quadro de museu, estampa grande, para filhos (quem veste é o pai, a mãe, a avó...). A
+-- arte vem do Higgsfield ("Minha obra-prima", a moldura de museu, a placa "Valor incalculável" e a linha
+-- "Técnica: amor e noites sem dormir"); o site põe o nome na letra de cinema (Bodoni Moda 900), a foto
+-- dentro da moldura, com a cabeça passando por cima da borda, e a linha "Acervo da família · Desde {ano}".
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('obra-prima', 'Obra-Prima', 'ativo', 23, '2026-11-11', '{
+    "versao": 1,
+    "proporcao": 0.66,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/obra-prima/topo.svg", "x": 499.8, "topo": 0.4, "largura": 890.1, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/obra-prima/moldura.svg", "x": 497.7, "topo": 345, "largura": 983.2, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "cinema-preta", "x": 500, "topo": 78, "largura_maxima": 970, "altura_no_centro": 258, "arco": 1, "compressao_maxima": 0.5, "expansao_maxima": 1.25, "engrossa": 3, "folga": 9, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 499.2, "topo": 420, "largura": 747, "altura": 710, "janela": {"largura": 820, "altura": 1000, "y": 905}},
+      {"tipo": "arte", "arquivo": "/designs/obra-prima/placa.svg", "x": 499.8, "topo": 1234.9, "largura": 994.3, "folga": 0, "base": "/designs/obra-prima/placa-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/obra-prima/linha.svg", "x": 500.0, "topo": 1401.9, "largura": 933.4, "folga": 0},
+      {"tipo": "texto", "texto": "ACERVO DA FAMÍLIA · DESDE {desde}", "fonte": "cinema-forte", "x": 500, "base": 1501, "largura": 930, "altura": 27, "espaco": 0.3}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 14, "caixa": "alta"}, {"chave": "desde", "rotulo": "Nasceu em que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["filhos"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Família Coruja: a coruja de asas abertas, estampa grande, para filhos. A arte vem do Higgsfield
+-- (o arco "Com muito orgulho", a coruja e a fita lisa); o site põe o nome na letra de placa (Alfa Slab
+-- One), a foto na frente da coruja, o texto da fita, que o cliente escolhe ("Mãe coruja", "Pai coruja",
+-- "Vó coruja", "Vô coruja", "Tia", "Tio", "Dinda" ou "Dindo"), e a linha "Corujando desde {ano} · Não
+-- tem cura", em Inter.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('familia-coruja', 'Família Coruja', 'ativo', 24, '2026-11-11', '{
+    "versao": 1,
+    "proporcao": 0.672,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/familia-coruja/topo.svg", "x": 499.8, "topo": 0.4, "largura": 878.0, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/familia-coruja/coruja.svg", "x": 500.0, "topo": 338, "largura": 993.8, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "bloco", "x": 500, "topo": 128, "largura_maxima": 900, "altura_no_centro": 212, "arco": 1, "compressao_maxima": 0.5, "expansao_maxima": 1.2, "engrossa": 2, "folga": 9, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 420, "largura": 790, "altura": 802, "janela": {"largura": 780, "altura": 1000, "y": 1030}},
+      {"tipo": "arte", "arquivo": "/designs/familia-coruja/fita.svg", "x": 499.2, "topo": 1157.5, "largura": 985.3, "folga": 0, "base": "/designs/familia-coruja/fita-base.svg"},
+      {"tipo": "nome", "campo": "titulo", "fonte": "bloco", "x": 500, "topo": 1250, "largura_maxima": 640, "altura_no_centro": 98, "arco": 1, "compressao_maxima": 0.55, "curva": -14, "vazado": true, "acento_dentro": true},
+      {"tipo": "texto", "texto": "CORUJANDO DESDE {desde} · NÃO TEM CURA", "fonte": "texto", "x": 500, "base": 1463, "largura": 960, "altura": 26, "espaco": 0.3}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 14, "caixa": "alta"}, {"chave": "titulo", "rotulo": "Quem é coruja?", "resumo": "Na fita", "max": 12, "caixa": "alta", "opcoes": ["MÃE CORUJA", "PAI CORUJA", "VÓ CORUJA", "VÔ CORUJA", "TIA CORUJA", "TIO CORUJA", "DINDA CORUJA", "DINDO CORUJA"]}, {"chave": "desde", "rotulo": "Nasceu em que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["filhos"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Chefe da Casa: crachá, estampa grande, para filhos. A arte vem do Higgsfield (o cordão do
+-- crachá, "Quem manda aqui", o crachá com as listras, a faixa "Chefe da casa" e a linha "Cargo: dono de
+-- tudo | Expediente: 24 horas"); o site põe o nome enorme (Anton, alargada), com a base em arco, a foto
+-- na frente do crachá e a linha "No comando desde {ano} · Equipe: a família inteira", em Inter.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('chefe-da-casa', 'Chefe da Casa', 'ativo', 25, '2026-11-11', '{
+    "versao": 1,
+    "proporcao": 0.609,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/chefe-da-casa/cordao.svg", "x": 500.0, "topo": 0, "largura": 200, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/chefe-da-casa/frase.svg", "x": 497.2, "topo": 195, "largura": 888.8, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/chefe-da-casa/cracha.svg", "x": 500.2, "topo": 540, "largura": 993.5, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 288, "largura_maxima": 985, "altura_no_centro": 280, "arco": 1.15, "compressao_maxima": 0.5, "expansao_maxima": 1.9, "engrossa": 4, "folga": 10, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 470, "largura": 1000, "altura": 840, "janela": {"largura": 900, "altura": 1000, "y": 990}},
+      {"tipo": "arte", "arquivo": "/designs/chefe-da-casa/faixa.svg", "x": 500.2, "topo": 1302.1, "largura": 993.5, "folga": 0, "base": "/designs/chefe-da-casa/faixa-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/chefe-da-casa/linha.svg", "x": 502.6, "topo": 1526.3, "largura": 912.6, "folga": 0},
+      {"tipo": "texto", "texto": "NO COMANDO DESDE {desde} · EQUIPE: A FAMÍLIA INTEIRA", "fonte": "texto", "x": 500, "base": 1633, "largura": 960, "altura": 26, "espaco": 0.3}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 14, "caixa": "alta"}, {"chave": "desde", "rotulo": "Nasceu em que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["filhos"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Centro do Universo: órbitas e planetas, estampa grande, para filhos. A arte vem do Higgsfield
+-- ("O mundo gira em torno de", as órbitas com os planetas, a lua e as estrelas, e a faixa "Centro do meu
+-- universo"); o site põe o nome enorme (Anton, alargada), com a base em arco, a foto na frente das
+-- órbitas e a linha "Em órbita desde {ano} · Amor infinito", em Inter.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('centro-do-universo', 'Centro do Universo', 'ativo', 26, '2026-11-11', '{
+    "versao": 1,
+    "proporcao": 0.757,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/centro-do-universo/topo.svg", "x": 500.2, "topo": 2.5, "largura": 882.1, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/centro-do-universo/orbitas.svg", "x": 489.5, "topo": 440, "largura": 980.7, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 78, "largura_maxima": 985, "altura_no_centro": 300, "arco": 1.2, "compressao_maxima": 0.5, "expansao_maxima": 1.7, "engrossa": 4, "folga": 10, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 300, "largura": 1000, "altura": 812, "janela": {"largura": 980, "altura": 1020, "y": 815}},
+      {"tipo": "arte", "arquivo": "/designs/centro-do-universo/faixa.svg", "x": 500.0, "topo": 1100, "largura": 993.4, "folga": 0, "base": "/designs/centro-do-universo/faixa-base.svg"},
+      {"tipo": "texto", "texto": "EM ÓRBITA DESDE {desde} · AMOR INFINITO", "fonte": "texto", "x": 500, "base": 1304, "largura": 960, "altura": 26, "espaco": 0.3}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 14, "caixa": "alta"}, {"chave": "desde", "rotulo": "Nasceu em que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["filhos"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
 -- O Letreiro (letreiro de cinema, conceito Bia & Caio) saiu da linha por decisão do Lucas
 -- (10/11/2026). Onde ele já existir no banco, fica encerrado.
 update public.designs set status = 'encerrado' where slug = 'letreiro';
