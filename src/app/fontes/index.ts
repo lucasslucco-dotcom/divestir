@@ -144,6 +144,17 @@ export const handjet = localFont({
   preload: false,
 });
 
+// Bagel Fat One: a letra gorda e arredondada de rótulo de doce antigo (o nome do Mãe com
+// Açúcar). Só de estampa, de licença aberta (OFL).
+export const bagelFatOne = localFont({
+  src: './bagel-fat-one-400.woff2',
+  weight: '400',
+  style: 'normal',
+  variable: '--font-bagel-fat-one',
+  display: 'swap',
+  preload: false,
+});
+
 // Textos e botões.
 export const inter = localFont({
   src: './inter-variavel.woff2',
@@ -153,4 +164,4 @@ export const inter = localFont({
   display: 'swap',
 });
 
-export const variaveisDeFonte = `${anton.variable} ${instrumentSerif.variable} ${inter.variable} ${bodoniModa.variable} ${shrikhand.variable} ${passionOne.variable} ${alfaSlabOne.variable} ${graduate.variable} ${cinzel.variable} ${cinzelDecorative.variable} ${grenzeGotisch.variable} ${poppins.variable} ${lilitaOne.variable} ${handjet.variable}`;
+export const variaveisDeFonte = `${anton.variable} ${instrumentSerif.variable} ${inter.variable} ${bodoniModa.variable} ${shrikhand.variable} ${passionOne.variable} ${alfaSlabOne.variable} ${graduate.variable} ${cinzel.variable} ${cinzelDecorative.variable} ${grenzeGotisch.variable} ${poppins.variable} ${lilitaOne.variable} ${handjet.variable} ${bagelFatOne.variable}`;

@@ -667,6 +667,78 @@ def centro_do_universo():
     # A linha de baixo ("Em órbita desde 2019 · Amor infinito") é escrita pelo site, por causa do ano.
 
 
+def mae_com_acucar():
+    print('Mãe com Açúcar')
+    itens = ler('mae-com-acucar')
+    # A fita "Mãe com açúcar" (de 26 a 1332, com as pontas) toma a largura da arte, com
+    # uma margem de 10 de cada lado.
+    corte = (16, 100, 1326)
+    topo = [i for i in itens if i['caixa'][3] < 300]
+    selo = [i for i in itens if 300 <= i['caixa'][1] < 1400]
+    # Dois pontinhos soltos acima da fita (sujeira do vetor) ficam de fora.
+    fita = [i for i in itens if 1400 <= i['caixa'][1] and i['caixa'][3] < 1740 and i['caixa'][3] > 1470]
+    linha = [i for i in itens if i['caixa'][1] >= 1740]
+    gravar('mae-com-acucar', 'topo', topo, corte, 'A linha "Receita original".')
+    gravar('mae-com-acucar', 'selo', selo, corte, 'O selo oval de borda ondulada, com os raios (atrás da foto).')
+    gravar('mae-com-acucar', 'fita', fita, corte, 'A fita "Mãe com açúcar" (na frente da foto).', base=True)
+    gravar('mae-com-acucar', 'linha', linha, corte, 'A linha "Extra doce · Sem contraindicação".')
+    # A linha de baixo ("Adoçando a vida desde 1998") é escrita pelo site, por causa do ano.
+
+
+def cinco_estrelas():
+    print('Cinco Estrelas')
+    itens = ler('cinco-estrelas')
+    # O balão (de 26 a 1334) toma a largura da arte, com uma margem de 10 de cada lado.
+    corte = (16, 70, 1328)
+    topo = [i for i in itens if i['caixa'][3] < 300]
+    estrelas = [i for i in itens if 300 <= i['caixa'][1] and i['caixa'][3] < 1200]
+    balao = [i for i in itens if 1500 <= i['caixa'][1] and i['caixa'][3] < 1806]
+    linha = [i for i in itens if i['caixa'][1] >= 1806]
+    gravar('cinco-estrelas', 'topo', topo, corte, 'A linha "Avaliação dos netos".')
+    gravar('cinco-estrelas', 'estrelas', estrelas, corte, 'As cinco estrelas em arco e o selo "5,0" (atrás da foto).')
+    gravar('cinco-estrelas', 'balao', balao, corte, 'O balão "Comi três vezes e ainda levei pote" (na frente da foto).', base=True)
+    gravar('cinco-estrelas', 'linha', linha, corte, 'A linha "Cozinha afetiva · Porção: sempre mais um pouquinho".')
+
+
+def feita_a_mao():
+    print('Feita à Mão')
+    itens = ler('feita-a-mao')
+    # A etiqueta "Colo sob medida" (de 50 a 1309) toma a largura da arte, com uma margem
+    # de 10 de cada lado.
+    corte = (40, 30, 1279)
+    topo = [i for i in itens if i['caixa'][3] < 300]
+    # Os pontinhos soltos dentro dos furos da toalhinha (sujeira do vetor, menores que
+    # 12 medidas) ficam de fora: não sairiam na estampa e só pesam no arquivo.
+    toalha = [
+        i
+        for i in itens
+        if 300 <= i['caixa'][1]
+        and i['caixa'][3] < 1590
+        and not (i['tipo'] == 'W' and i['caixa'][2] - i['caixa'][0] < 12 and i['caixa'][3] - i['caixa'][1] < 12)
+    ]
+    etiqueta = [i for i in itens if 1590 <= i['caixa'][1] and i['caixa'][3] < 1842]
+    linha = [i for i in itens if i['caixa'][1] >= 1842]
+    gravar('feita-a-mao', 'topo', topo, corte, 'A linha "Feita à mão".')
+    gravar('feita-a-mao', 'toalha', toalha, corte, 'A toalhinha de crochê (atrás da foto).')
+    gravar('feita-a-mao', 'etiqueta', etiqueta, corte, 'A etiqueta costurada "Colo sob medida" (na frente da foto).', base=True)
+    gravar('feita-a-mao', 'linha', linha, corte, 'A linha "Modo de usar: abraçar sem moderação".')
+
+
+def casa_da_vo():
+    print('Casa da Vó')
+    itens = ler('casa-da-vo')
+    # A faixa "Aqui pode tudo" (de 40 a 1323) toma a largura da arte, com uma margem de
+    # 10 de cada lado.
+    corte = (30, 150, 1303)
+    topo = [i for i in itens if i['caixa'][3] < 400]
+    casa = [i for i in itens if 400 <= i['caixa'][1] and i['caixa'][3] < 1600]
+    faixa = [i for i in itens if i['caixa'][1] >= 1600]
+    gravar('casa-da-vo', 'topo', topo, corte, 'A linha "Bem-vindo à casa da".')
+    gravar('casa-da-vo', 'casa', casa, corte, 'A casinha, com a fumaça em coração e as nuvens (atrás da foto).')
+    gravar('casa-da-vo', 'faixa', faixa, corte, 'A faixa "Aqui pode tudo" (na frente da foto).', base=True)
+    # A linha de baixo ("Porta aberta desde 1998") é escrita pelo site, por causa do ano.
+
+
 if __name__ == '__main__':
     turne_mundial()
     ao_vivo()
@@ -693,3 +765,7 @@ if __name__ == '__main__':
     familia_coruja()
     chefe_da_casa()
     centro_do_universo()
+    mae_com_acucar()
+    cinco_estrelas()
+    feita_a_mao()
+    casa_da_vo()

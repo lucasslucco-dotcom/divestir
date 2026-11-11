@@ -19,7 +19,8 @@ export type Lado = 'frente' | 'costas';
 // camiseta de rua); geometrica: Poppins Black (a letra geométrica bem grossa, de
 // embalagem: o nome do Alto Em); redonda: Lilita One (a letra gorda de cantos redondos:
 // o nome do Previsão do Tempo); pixel: Handjet Black (a letra de pixel de fliperama: o
-// Modo Casal). Essas só existem nas estampas. texto: Inter em negrito, a fonte de
+// Modo Casal); doce: Bagel Fat One (a letra gorda e arredondada de rótulo de doce
+// antigo: o nome do Mãe com Açúcar). Essas só existem nas estampas. texto: Inter em negrito, a fonte de
 // texto do site, para as linhas pequenas que o site escreve numa estampa de cara
 // atual (o "No repete desde 2012" do Tocando Agora).
 export type FonteDoMolde =
@@ -39,7 +40,8 @@ export type FonteDoMolde =
   | 'gotica'
   | 'geometrica'
   | 'redonda'
-  | 'pixel';
+  | 'pixel'
+  | 'doce';
 
 // Giro de uma camada, em graus (positivo: sentido horário), em volta de um ponto.
 export type Giro = { graus: number; x: number; y: number };

@@ -892,6 +892,127 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
+-- Design Mãe com Açúcar: rótulo de doce antigo, estampa grande, para avós. A arte vem do Higgsfield
+-- ("Receita original", o selo oval de borda ondulada com os raios, a fita "Mãe com açúcar" e a linha
+-- "Extra doce · Sem contraindicação"); o site põe o nome na letra gorda de rótulo de doce (Bagel Fat
+-- One), a foto na frente do selo e a linha "Adoçando a vida desde {ano}", em Inter.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('mae-com-acucar', 'Mãe com Açúcar', 'ativo', 27, '2026-11-11', '{
+    "versao": 1,
+    "proporcao": 0.669,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/mae-com-acucar/topo.svg", "x": 500.9, "topo": 20.7, "largura": 808.1, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/mae-com-acucar/selo.svg", "x": 497.0, "topo": 416.9, "largura": 923.1, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "doce", "x": 500, "topo": 96, "largura_maxima": 900, "altura_no_centro": 365, "arco": 1.08, "compressao_maxima": 0.5, "expansao_maxima": 1.2, "engrossa": 4, "folga": 10, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 250, "largura": 800, "altura": 985, "janela": {"largura": 840, "altura": 1000, "y": 870}},
+      {"tipo": "arte", "arquivo": "/designs/mae-com-acucar/fita.svg", "x": 500.2, "topo": 1125.0, "largura": 994.3, "folga": 0, "base": "/designs/mae-com-acucar/fita-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/mae-com-acucar/linha.svg", "x": 499.8, "topo": 1390, "largura": 862.4, "folga": 0},
+      {"tipo": "texto", "texto": "ADOÇANDO A VIDA DESDE {desde}", "fonte": "texto", "x": 500, "base": 1481, "largura": 900, "altura": 24, "espaco": 0.42}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}, {"chave": "desde", "rotulo": "Desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "1998"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["avos-ela"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Cinco Estrelas: avaliação de restaurante, estampa grande, para avós. A arte vem do Higgsfield
+-- ("Avaliação dos netos", as cinco estrelas em arco com o selo "5,0", o balão "Comi três vezes e ainda
+-- levei pote" e a linha "Cozinha afetiva · Porção: sempre mais um pouquinho"); o site põe o nome enorme
+-- (Anton, alargada), com a base em arco, e a foto na frente das estrelas. Não pede o ano.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('cinco-estrelas', 'Cinco Estrelas', 'ativo', 28, '2026-11-11', '{
+    "versao": 1,
+    "proporcao": 0.67,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/cinco-estrelas/topo.svg", "x": 501.9, "topo": 18.4, "largura": 822.3, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/cinco-estrelas/estrelas.svg", "x": 539.9, "topo": 430.8, "largura": 839.6, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 96, "largura_maxima": 880, "altura_no_centro": 350, "arco": 1.22, "compressao_maxima": 0.5, "expansao_maxima": 1.6, "engrossa": 4, "folga": 10, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 330, "largura": 940, "altura": 976, "janela": {"largura": 900, "altura": 1080, "y": 976}},
+      {"tipo": "arte", "arquivo": "/designs/cinco-estrelas/balao.svg", "x": 499.6, "topo": 1216.5, "largura": 994.0, "folga": 0, "base": "/designs/cinco-estrelas/balao-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/cinco-estrelas/linha.svg", "x": 497.0, "topo": 1440, "largura": 908.9, "folga": 0}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["avos-ela"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Feita à Mão: toalhinha de crochê, estampa grande, para avós. A arte vem do Higgsfield ("Feita
+-- à mão", a toalhinha, a etiqueta costurada "Colo sob medida" e a linha "Modo de usar: abraçar sem
+-- moderação"); o site põe o nome na letra de cinema (Bodoni Moda 900, estreitada), com a base em arco
+-- forte, acompanhando a toalhinha, e a foto na frente dela. Não pede o ano.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('feita-a-mao', 'Feita à Mão', 'ativo', 29, '2026-11-11', '{
+    "versao": 1,
+    "proporcao": 0.648,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/feita-a-mao/topo.svg", "x": 500.0, "topo": 17.2, "largura": 682.6, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/feita-a-mao/toalha.svg", "x": 501.2, "topo": 345, "largura": 940, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "cinema-preta", "x": 500, "topo": 100, "largura_maxima": 900, "altura_no_centro": 255, "arco": 1.65, "compressao_maxima": 0.5, "expansao_maxima": 1.15, "engrossa": 1, "folga": 10, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 360, "largura": 900, "altura": 990, "janela": {"largura": 860, "altura": 1080, "y": 971}},
+      {"tipo": "arte", "arquivo": "/designs/feita-a-mao/etiqueta.svg", "x": 500.0, "topo": 1280, "largura": 993.7, "folga": 0, "base": "/designs/feita-a-mao/etiqueta-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/feita-a-mao/linha.svg", "x": 500.4, "topo": 1484.5, "largura": 941.4, "folga": 0}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["avos-ela"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Casa da Vó: a casinha, estampa grande, para avós. A arte vem do Higgsfield ("Bem-vindo à casa
+-- da", a casinha com a fumaça em coração e a faixa "Aqui pode tudo"); o site põe o nome na letra gorda
+-- de cantos redondos (Lilita One), a foto na frente da casinha e a linha "Porta aberta desde {ano}",
+-- em Inter.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('casa-da-vo', 'Casa da Vó', 'ativo', 30, '2026-11-11', '{
+    "versao": 1,
+    "proporcao": 0.668,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/casa-da-vo/topo.svg", "x": 500.8, "topo": 18.0, "largura": 906.4, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/casa-da-vo/casa.svg", "x": 509.0, "topo": 446.5, "largura": 893.7, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "redonda", "x": 500, "topo": 105, "largura_maxima": 930, "altura_no_centro": 330, "arco": 1.06, "compressao_maxima": 0.5, "expansao_maxima": 1.25, "engrossa": 4, "folga": 10, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 380, "largura": 1000, "altura": 958, "janela": {"largura": 980, "altura": 980, "y": 1010}},
+      {"tipo": "arte", "arquivo": "/designs/casa-da-vo/faixa.svg", "x": 500.0, "topo": 1262.3, "largura": 993.9, "folga": 0, "base": "/designs/casa-da-vo/faixa-base.svg"},
+      {"tipo": "texto", "texto": "PORTA ABERTA DESDE {desde}", "fonte": "texto", "x": 500, "base": 1484, "largura": 900, "altura": 24, "espaco": 0.42}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}, {"chave": "desde", "rotulo": "Desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "1998"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["avos-ela"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
 -- O Letreiro (letreiro de cinema, conceito Bia & Caio) saiu da linha por decisão do Lucas
 -- (10/11/2026). Onde ele já existir no banco, fica encerrado.
 update public.designs set status = 'encerrado' where slug = 'letreiro';

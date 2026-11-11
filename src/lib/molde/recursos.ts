@@ -68,6 +68,7 @@ export function fontesDaPagina(): Promise<Fontes> {
     const geometrica = estilo.getPropertyValue('--font-poppins').trim() || 'Arial Black, sans-serif';
     const redonda = estilo.getPropertyValue('--font-lilita-one').trim() || 'Arial Black, sans-serif';
     const pixel = estilo.getPropertyValue('--font-handjet').trim() || 'monospace';
+    const doce = estilo.getPropertyValue('--font-bagel-fat-one').trim() || 'Arial Black, sans-serif';
     await Promise.all([
       document.fonts.load(`400 100px ${titulo}`),
       document.fonts.load(`700 100px ${texto}`),
@@ -86,6 +87,7 @@ export function fontesDaPagina(): Promise<Fontes> {
       document.fonts.load(`900 100px ${geometrica}`),
       document.fonts.load(`400 100px ${redonda}`),
       document.fonts.load(`900 100px ${pixel}`),
+      document.fonts.load(`400 100px ${doce}`),
     ]).catch(() => undefined);
     return {
       titulo: { familia: titulo, estilo: 'normal' },
@@ -105,6 +107,7 @@ export function fontesDaPagina(): Promise<Fontes> {
       geometrica: { familia: geometrica, estilo: 'normal', peso: 900 },
       redonda: { familia: redonda, estilo: 'normal' },
       pixel: { familia: pixel, estilo: 'normal', peso: 900 },
+      doce: { familia: doce, estilo: 'normal' },
     } satisfies Fontes;
   })();
   return fontes;
