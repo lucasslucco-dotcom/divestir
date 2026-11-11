@@ -584,7 +584,7 @@ on conflict (slug) do update set
 -- "Piloto oficial do rolê · Temporada 2026"); o site põe o nome enorme e inclinado (Anton,
 -- engrossada), com o rastro de velocidade saindo da primeira letra, e a foto na frente do círculo.
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
-  ('grande-premio', 'Grande Prêmio', 'ativo', 17, '2026-11-10', '{
+  ('grande-premio', 'Grande Prêmio', 'ativo', 17, '2026-11-11', '{
     "versao": 1,
     "proporcao": 0.661,
     "posicao": "costas",
@@ -617,7 +617,7 @@ on conflict (slug) do update set
 -- site põe o nome na letra de placa (Alfa Slab One), a foto na frente do emblema e a linha
 -- "No comando da grelha desde {ano}", em Inter.
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
-  ('mestre-da-brasa', 'Mestre da Brasa', 'ativo', 18, '2026-11-10', '{
+  ('mestre-da-brasa', 'Mestre da Brasa', 'ativo', 18, '2026-11-11', '{
     "versao": 1,
     "proporcao": 0.635,
     "posicao": "costas",
