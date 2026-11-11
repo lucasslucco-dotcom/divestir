@@ -670,16 +670,29 @@ def centro_do_universo():
 def mae_com_acucar():
     print('Mãe com Açúcar')
     itens = ler('mae-com-acucar')
-    # A fita "Mãe com açúcar" (de 26 a 1332, com as pontas) toma a largura da arte, com
-    # uma margem de 10 de cada lado.
-    corte = (16, 100, 1326)
-    topo = [i for i in itens if i['caixa'][3] < 300]
-    selo = [i for i in itens if 300 <= i['caixa'][1] < 1400]
-    # Dois pontinhos soltos acima da fita (sujeira do vetor) ficam de fora.
-    fita = [i for i in itens if 1400 <= i['caixa'][1] and i['caixa'][3] < 1740 and i['caixa'][3] > 1470]
-    linha = [i for i in itens if i['caixa'][1] >= 1740]
+    # A fita "Mãe com açúcar" (de 162 a 1210, com as pontas dobradas) toma a largura da
+    # arte, com uma margem de 10 de cada lado.
+    corte = (152, 186, 1068)
+    topo = [i for i in itens if i['caixa'][3] < 400]
+    linha = [i for i in itens if i['caixa'][1] >= 1715]
+    meio = [i for i in itens if i['caixa'][3] >= 400 and i['caixa'][1] < 1715]
+    # A fita é a forma grande que começa em 1402; o que cai dentro dela (as letras, os
+    # riscos) é dela. Fora dela, o que acaba antes de 1470 é do selo (os raios que chegam
+    # até a beirada da fita); o resto (os riscos das dobras e o pedaço do selo que aparece
+    # embaixo da fita) vai com a fita.
+    corpo = next(i for i in meio if i['tipo'] == 'W' and i['caixa'][1] > 1390 and i['caixa'][2] - i['caixa'][0] > 900)
+    fita, selo = [], []
+    for i in meio:
+        if i is corpo or dentro(centro(i), corpo['pontos']):
+            fita.append(i)
+        elif i['caixa'][3] <= 1470:
+            selo.append(i)
+        else:
+            fita.append(i)
+    # A forma grande da fita vem primeiro, para os furos dela valerem.
+    fita.sort(key=lambda i: i is not corpo)
     gravar('mae-com-acucar', 'topo', topo, corte, 'A linha "Receita original".')
-    gravar('mae-com-acucar', 'selo', selo, corte, 'O selo oval de borda ondulada, com os raios (atrás da foto).')
+    gravar('mae-com-acucar', 'selo', selo, corte, 'O selo de borda ondulada, com o anel de raios (atrás da foto).')
     gravar('mae-com-acucar', 'fita', fita, corte, 'A fita "Mãe com açúcar" (na frente da foto).', base=True)
     gravar('mae-com-acucar', 'linha', linha, corte, 'A linha "Extra doce · Sem contraindicação".')
     # A linha de baixo ("Adoçando a vida desde 1998") é escrita pelo site, por causa do ano.
@@ -688,12 +701,13 @@ def mae_com_acucar():
 def cinco_estrelas():
     print('Cinco Estrelas')
     itens = ler('cinco-estrelas')
-    # O balão (de 26 a 1334) toma a largura da arte, com uma margem de 10 de cada lado.
-    corte = (16, 70, 1328)
-    topo = [i for i in itens if i['caixa'][3] < 300]
-    estrelas = [i for i in itens if 300 <= i['caixa'][1] and i['caixa'][3] < 1200]
-    balao = [i for i in itens if 1500 <= i['caixa'][1] and i['caixa'][3] < 1806]
-    linha = [i for i in itens if i['caixa'][1] >= 1806]
+    # O eixo da arte fica em 689 (o meio das linhas de texto e do corpo do balão). A ponta
+    # do balão sai para a esquerda (até 133), e é ela que dá a largura: 566 para cada lado.
+    corte = (123, 226, 1132)
+    topo = [i for i in itens if i['caixa'][3] < 400]
+    estrelas = [i for i in itens if 400 <= i['caixa'][1] and i['caixa'][3] < 1200]
+    balao = [i for i in itens if 1300 <= i['caixa'][1] and i['caixa'][3] < 1712]
+    linha = [i for i in itens if i['caixa'][1] >= 1712]
     gravar('cinco-estrelas', 'topo', topo, corte, 'A linha "Avaliação dos netos".')
     gravar('cinco-estrelas', 'estrelas', estrelas, corte, 'As cinco estrelas em arco e o selo "5,0" (atrás da foto).')
     gravar('cinco-estrelas', 'balao', balao, corte, 'O balão "Comi três vezes e ainda levei pote" (na frente da foto).', base=True)
@@ -727,14 +741,15 @@ def feita_a_mao():
 def casa_da_vo():
     print('Casa da Vó')
     itens = ler('casa-da-vo')
-    # A faixa "Aqui pode tudo" (de 40 a 1323) toma a largura da arte, com uma margem de
-    # 10 de cada lado.
-    corte = (30, 150, 1303)
-    topo = [i for i in itens if i['caixa'][3] < 400]
-    casa = [i for i in itens if 400 <= i['caixa'][1] and i['caixa'][3] < 1600]
-    faixa = [i for i in itens if i['caixa'][1] >= 1600]
+    # A faixa "Aqui pode tudo" (de 112 a 1253) toma a largura da arte, com uma margem de
+    # 10 de cada lado. Nesta arte a casinha e a faixa vêm separadas (a faixa abaixo da
+    # casa); no molde, a faixa sobe e cobre a base da casa, como no conceito.
+    corte = (102, 227, 1161)
+    topo = [i for i in itens if i['caixa'][3] < 500]
+    casa = [i for i in itens if 500 <= i['caixa'][1] and i['caixa'][3] < 1470]
+    faixa = [i for i in itens if i['caixa'][1] >= 1470]
     gravar('casa-da-vo', 'topo', topo, corte, 'A linha "Bem-vindo à casa da".')
-    gravar('casa-da-vo', 'casa', casa, corte, 'A casinha, com a fumaça em coração e as nuvens (atrás da foto).')
+    gravar('casa-da-vo', 'casa', casa, corte, 'A casinha, com o coração na chaminé (atrás da foto).')
     gravar('casa-da-vo', 'faixa', faixa, corte, 'A faixa "Aqui pode tudo" (na frente da foto).', base=True)
     # A linha de baixo ("Porta aberta desde 1998") é escrita pelo site, por causa do ano.
 

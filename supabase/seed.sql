@@ -893,23 +893,24 @@ on conflict (slug) do update set
   config = excluded.config;
 
 -- Design Mãe com Açúcar: rótulo de doce antigo, estampa grande, para avós. A arte vem do Higgsfield
--- ("Receita original", o selo oval de borda ondulada com os raios, a fita "Mãe com açúcar" e a linha
--- "Extra doce · Sem contraindicação"); o site põe o nome na letra gorda de rótulo de doce (Bagel Fat
--- One), a foto na frente do selo e a linha "Adoçando a vida desde {ano}", em Inter.
+-- (conceito e arte chapada no Seedream 5.5, vetor do Ideogram): "Receita original", o selo de borda
+-- ondulada com o anel de raios, a fita ondulada "Mãe com açúcar" e a linha "Extra doce · Sem
+-- contraindicação"; o site põe o nome enorme na letra gorda de rótulo de doce (Bagel Fat One,
+-- estreitada), a foto na frente do selo e a linha "Adoçando a vida desde {ano}", em Anton.
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
   ('mae-com-acucar', 'Mãe com Açúcar', 'ativo', 27, '2026-11-11', '{
     "versao": 1,
-    "proporcao": 0.669,
+    "proporcao": 0.642,
     "posicao": "costas",
     "tamanho": "grande",
     "camadas": [
-      {"tipo": "arte", "arquivo": "/designs/mae-com-acucar/topo.svg", "x": 500.9, "topo": 20.7, "largura": 808.1, "folga": 0},
-      {"tipo": "arte", "arquivo": "/designs/mae-com-acucar/selo.svg", "x": 497.0, "topo": 416.9, "largura": 923.1, "folga": 0},
-      {"tipo": "nome", "campo": "nome", "fonte": "doce", "x": 500, "topo": 96, "largura_maxima": 900, "altura_no_centro": 365, "arco": 1.08, "compressao_maxima": 0.5, "expansao_maxima": 1.2, "engrossa": 4, "folga": 10, "acento_dentro": true},
-      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 250, "largura": 800, "altura": 985, "janela": {"largura": 840, "altura": 1000, "y": 870}},
-      {"tipo": "arte", "arquivo": "/designs/mae-com-acucar/fita.svg", "x": 500.2, "topo": 1125.0, "largura": 994.3, "folga": 0, "base": "/designs/mae-com-acucar/fita-base.svg"},
-      {"tipo": "arte", "arquivo": "/designs/mae-com-acucar/linha.svg", "x": 499.8, "topo": 1390, "largura": 862.4, "folga": 0},
-      {"tipo": "texto", "texto": "ADOÇANDO A VIDA DESDE {desde}", "fonte": "texto", "x": 500, "base": 1481, "largura": 900, "altura": 24, "espaco": 0.42}
+      {"tipo": "arte", "arquivo": "/designs/mae-com-acucar/topo.svg", "x": 492.0, "topo": 20.6, "largura": 596.4, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/mae-com-acucar/selo.svg", "x": 498.6, "topo": 428.8, "largura": 927.0, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "doce", "x": 500, "topo": 98, "largura_maxima": 940, "altura_no_centro": 420, "arco": 1.06, "compressao_maxima": 0.45, "expansao_maxima": 1.1, "engrossa": 4, "folga": 10, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 330, "largura": 800, "altura": 945, "janela": {"largura": 840, "altura": 1000, "y": 890}},
+      {"tipo": "arte", "arquivo": "/designs/mae-com-acucar/fita.svg", "x": 499.5, "topo": 1133.4, "largura": 992.5, "folga": 0, "base": "/designs/mae-com-acucar/fita-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/mae-com-acucar/linha.svg", "x": 500.5, "topo": 1432.1, "largura": 843.6, "folga": 0},
+      {"tipo": "texto", "texto": "ADOÇANDO A VIDA DESDE {desde}", "fonte": "titulo", "x": 500, "base": 1546, "largura": 900, "altura": 37, "espaco": 0.11}
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}, {"chave": "desde", "rotulo": "Desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "1998"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
@@ -924,22 +925,23 @@ on conflict (slug) do update set
   config = excluded.config;
 
 -- Design Cinco Estrelas: avaliação de restaurante, estampa grande, para avós. A arte vem do Higgsfield
--- ("Avaliação dos netos", as cinco estrelas em arco com o selo "5,0", o balão "Comi três vezes e ainda
--- levei pote" e a linha "Cozinha afetiva · Porção: sempre mais um pouquinho"); o site põe o nome enorme
--- (Anton, alargada), com a base em arco, e a foto na frente das estrelas. Não pede o ano.
+-- (conceito e arte chapada no Seedream 5.5, vetor do Ideogram): "Avaliação dos netos", as cinco
+-- estrelas em arco com o selo "5,0", o balão “Comi três vezes e ainda levei pote”, em duas linhas, e a
+-- linha "Cozinha afetiva · Porção: sempre mais um pouquinho"; o site põe o nome enorme (Anton,
+-- alargada), com a base em arco forte, e a foto na frente das estrelas. Não pede o ano.
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
   ('cinco-estrelas', 'Cinco Estrelas', 'ativo', 28, '2026-11-11', '{
     "versao": 1,
-    "proporcao": 0.67,
+    "proporcao": 0.722,
     "posicao": "costas",
     "tamanho": "grande",
     "camadas": [
-      {"tipo": "arte", "arquivo": "/designs/cinco-estrelas/topo.svg", "x": 501.9, "topo": 18.4, "largura": 822.3, "folga": 0},
-      {"tipo": "arte", "arquivo": "/designs/cinco-estrelas/estrelas.svg", "x": 539.9, "topo": 430.8, "largura": 839.6, "folga": 0},
-      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 96, "largura_maxima": 880, "altura_no_centro": 350, "arco": 1.22, "compressao_maxima": 0.5, "expansao_maxima": 1.6, "engrossa": 4, "folga": 10, "acento_dentro": true},
-      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 330, "largura": 940, "altura": 976, "janela": {"largura": 900, "altura": 1080, "y": 976}},
-      {"tipo": "arte", "arquivo": "/designs/cinco-estrelas/balao.svg", "x": 499.6, "topo": 1216.5, "largura": 994.0, "folga": 0, "base": "/designs/cinco-estrelas/balao-base.svg"},
-      {"tipo": "arte", "arquivo": "/designs/cinco-estrelas/linha.svg", "x": 497.0, "topo": 1440, "largura": 908.9, "folga": 0}
+      {"tipo": "arte", "arquivo": "/designs/cinco-estrelas/topo.svg", "x": 502.2, "topo": 19.0, "largura": 566.3, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/cinco-estrelas/estrelas.svg", "x": 573.3, "topo": 424.0, "largura": 682.0, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 96, "largura_maxima": 930, "altura_no_centro": 335, "arco": 1.6, "compressao_maxima": 0.5, "expansao_maxima": 1.6, "engrossa": 4, "folga": 10, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 430, "largura": 880, "altura": 632, "janela": {"largura": 900, "altura": 820, "y": 905}},
+      {"tipo": "arte", "arquivo": "/designs/cinco-estrelas/balao.svg", "x": 481.7, "topo": 1006.6, "largura": 956.3, "folga": 0, "base": "/designs/cinco-estrelas/balao-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/cinco-estrelas/linha.svg", "x": 498.0, "topo": 1319.3, "largura": 840.5, "folga": 0}
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
@@ -983,23 +985,23 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
--- Design Casa da Vó: a casinha, estampa grande, para avós. A arte vem do Higgsfield ("Bem-vindo à casa
--- da", a casinha com a fumaça em coração e a faixa "Aqui pode tudo"); o site põe o nome na letra gorda
--- de cantos redondos (Lilita One), a foto na frente da casinha e a linha "Porta aberta desde {ano}",
--- em Inter.
+-- Design Casa da Vó: a casinha, estampa grande, para avós. A arte vem do Higgsfield (conceito e arte
+-- chapada no Seedream 5.5, vetor do Ideogram): "Bem-vindo à casa da", a casinha com o coração na
+-- chaminé e a faixa "Aqui pode tudo"; o site põe o nome na letra gorda de cantos redondos (Lilita
+-- One), a foto na frente da casinha e a linha "Porta aberta desde {ano}", em Inter.
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
   ('casa-da-vo', 'Casa da Vó', 'ativo', 30, '2026-11-11', '{
     "versao": 1,
-    "proporcao": 0.668,
+    "proporcao": 0.746,
     "posicao": "costas",
     "tamanho": "grande",
     "camadas": [
-      {"tipo": "arte", "arquivo": "/designs/casa-da-vo/topo.svg", "x": 500.8, "topo": 18.0, "largura": 906.4, "folga": 0},
-      {"tipo": "arte", "arquivo": "/designs/casa-da-vo/casa.svg", "x": 509.0, "topo": 446.5, "largura": 893.7, "folga": 0},
-      {"tipo": "nome", "campo": "nome", "fonte": "redonda", "x": 500, "topo": 105, "largura_maxima": 930, "altura_no_centro": 330, "arco": 1.06, "compressao_maxima": 0.5, "expansao_maxima": 1.25, "engrossa": 4, "folga": 10, "acento_dentro": true},
-      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 380, "largura": 1000, "altura": 958, "janela": {"largura": 980, "altura": 980, "y": 1010}},
-      {"tipo": "arte", "arquivo": "/designs/casa-da-vo/faixa.svg", "x": 500.0, "topo": 1262.3, "largura": 993.9, "folga": 0, "base": "/designs/casa-da-vo/faixa-base.svg"},
-      {"tipo": "texto", "texto": "PORTA ABERTA DESDE {desde}", "fonte": "texto", "x": 500, "base": 1484, "largura": 900, "altura": 24, "espaco": 0.42}
+      {"tipo": "arte", "arquivo": "/designs/casa-da-vo/topo.svg", "x": 501.9, "topo": 20.2, "largura": 654.2, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/casa-da-vo/casa.svg", "x": 499.6, "topo": 444.8, "largura": 884.6, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "redonda", "x": 500, "topo": 108, "largura_maxima": 940, "altura_no_centro": 328, "arco": 1.05, "compressao_maxima": 0.5, "expansao_maxima": 1.25, "engrossa": 4, "folga": 10, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 470, "largura": 1000, "altura": 665, "janela": {"largura": 980, "altura": 800, "y": 920}},
+      {"tipo": "arte", "arquivo": "/designs/casa-da-vo/faixa.svg", "x": 500.2, "topo": 1073, "largura": 992.7, "folga": 0, "base": "/designs/casa-da-vo/faixa-base.svg"},
+      {"tipo": "texto", "texto": "PORTA ABERTA DESDE {desde}", "fonte": "texto", "x": 500, "base": 1327, "largura": 900, "altura": 27, "espaco": 0.3}
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}, {"chave": "desde", "rotulo": "Desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "1998"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
