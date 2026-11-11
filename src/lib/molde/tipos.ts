@@ -113,6 +113,16 @@ export type CamadaNome = {
   // O acento de cima (Â, É, Ã) cabe dentro da altura do nome, em vez de subir além
   // do topo: a letra diminui um pouco e a base fica onde está.
   acento_dentro?: boolean;
+  // Inclina a letra para a direita, como itálico de corrida: quanto o topo da maiúscula
+  // anda para a direita, em relação à altura dela (0,3 dá uns 17 graus). A base fica
+  // onde está, e "x" continua sendo o meio do nome, já inclinado.
+  inclina?: number;
+  // "rastro": uma arte que anda junto com o nome (os riscos de velocidade do Grande
+  // Prêmio). Fica colada à esquerda dele, com a altura da maiúscula, e os dois juntos
+  // ficam centrados em "x" e cabem em "largura_maxima": nome curto ou comprido, o
+  // rastro sai sempre da primeira letra. "proporcao" é a largura da arte dividida pela
+  // altura, e "respiro", o espaço entre ela e o nome (em unidades, com o nome cheio).
+  rastro?: { arquivo: string; proporcao: number; respiro?: number };
   curva?: number;
   folga?: number;
   // "vazado": o nome fura o que está embaixo (a faixa do letreiro) e aparece o tecido.

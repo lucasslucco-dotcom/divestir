@@ -578,6 +578,71 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
+-- Design Grande Prêmio: pôster de corrida, estampa grande, para amigos. A arte vem do Higgsfield
+-- (as bandeiras quadriculadas, "Grande Prêmio da Resenha", o círculo com as faixas de
+-- velocidade, o selo "10", a faixa "Pole position na piada ruim", a fita quadriculada e a linha
+-- "Piloto oficial do rolê · Temporada 2026"); o site põe o nome enorme e inclinado (Anton,
+-- engrossada), com o rastro de velocidade saindo da primeira letra, e a foto na frente do círculo.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('grande-premio', 'Grande Prêmio', 'ativo', 17, '2026-11-10', '{
+    "versao": 1,
+    "proporcao": 0.661,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/grande-premio/bandeiras.svg", "x": 500, "topo": 0, "largura": 300, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/grande-premio/titulo.svg", "x": 500, "topo": 146, "largura": 900, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/grande-premio/circulo.svg", "x": 488.4, "topo": 527.0, "largura": 738.0, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 240, "largura_maxima": 990, "altura_no_centro": 285, "arco": 1, "compressao_maxima": 0.5, "expansao_maxima": 1.6, "engrossa": 4, "acento_dentro": true, "inclina": 0.32, "rastro": {"arquivo": "/designs/grande-premio/rastro.svg", "proporcao": 0.805, "respiro": 8}},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 300, "largura": 1000, "altura": 1035, "janela": {"largura": 1100, "altura": 1100, "y": 960}},
+      {"tipo": "arte", "arquivo": "/designs/grande-premio/selo.svg", "x": 814.7, "topo": 658.3, "largura": 287.1, "folga": 0, "base": "/designs/grande-premio/selo-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/grande-premio/faixa.svg", "x": 502.3, "topo": 1273.5, "largura": 998.5, "folga": 0, "base": "/designs/grande-premio/faixa-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/grande-premio/base.svg", "x": 504.8, "topo": 1407.9, "largura": 993.4, "folga": 0}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["amigos"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Mestre da Brasa: emblema de churrasqueiro, estampa grande, para amigos. A arte vem do
+-- Higgsfield (o arco "Mestre da Brasa" com as chamas, o emblema com os garfos cruzados, a fita
+-- "Churrasqueiro oficial" e a linha "Carne no ponto ★ Cerveja gelada ★ Resenha garantida"); o
+-- site põe o nome na letra de placa (Alfa Slab One), a foto na frente do emblema e a linha
+-- "No comando da grelha desde {ano}", em Inter.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('mestre-da-brasa', 'Mestre da Brasa', 'ativo', 18, '2026-11-10', '{
+    "versao": 1,
+    "proporcao": 0.635,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/mestre-da-brasa/topo.svg", "x": 500, "topo": 2.7, "largura": 893.1, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/mestre-da-brasa/emblema.svg", "x": 498.7, "topo": 450.0, "largura": 857.3, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "bloco", "x": 500, "topo": 212, "largura_maxima": 880, "altura_no_centro": 235, "arco": 1, "compressao_maxima": 0.5, "expansao_maxima": 1.15, "engrossa": 2},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 280, "largura": 1000, "altura": 1050, "janela": {"largura": 1100, "altura": 1150, "y": 930}},
+      {"tipo": "arte", "arquivo": "/designs/mestre-da-brasa/fita.svg", "x": 500, "topo": 1241.6, "largura": 996.2, "folga": 0, "base": "/designs/mestre-da-brasa/fita-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/mestre-da-brasa/linha.svg", "x": 498.3, "topo": 1447.0, "largura": 980.4, "folga": 0},
+      {"tipo": "texto", "texto": "NO COMANDO DA GRELHA DESDE {desde}", "fonte": "texto", "x": 500, "base": 1562, "largura": 960, "altura": 27, "espaco": 0.36}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}, {"chave": "desde", "rotulo": "Na grelha desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2005"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["amigos"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
 -- O Letreiro (letreiro de cinema, conceito Bia & Caio) saiu da linha por decisão do Lucas
 -- (10/11/2026). Onde ele já existir no banco, fica encerrado.
 update public.designs set status = 'encerrado' where slug = 'letreiro';

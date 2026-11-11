@@ -458,6 +458,56 @@ def alto_em():
     gravar('alto-em', 'linha', linha, corte, 'A linha "Contém amiga de verdade".')
 
 
+def grande_premio():
+    print('Grande Prêmio')
+    itens = ler('grande-premio')
+    # A faixa "Pole position na piada ruim" (de 43 a 1323) toma a largura da arte, com
+    # uma margem de 10 de cada lado.
+    corte = (33, 40, 1294)
+    bandeiras = [i for i in itens if i['caixa'][3] < 245]
+    titulo = [i for i in itens if 245 <= i['caixa'][1] and i['caixa'][3] < 340]
+    # O rastro de velocidade: os riscos à esquerda do nome, que o site escreve inclinado
+    # logo depois deles.
+    rastro = [i for i in itens if 340 <= i['caixa'][1] and i['caixa'][3] < 760 and i['caixa'][2] < 380]
+    # O selo "10" é o disco à direita do círculo, e o que está dentro dele.
+    disco = next(i for i in itens if i['tipo'] == 'W' and 880 < i['caixa'][0] < 940 and 780 < i['caixa'][1] < 860)
+    a, b, c, d = disco['caixa']
+    selo = [i for i in itens if dentro(centro(i), [(a, b), (c, b), (c, d), (a, d)]) and i['caixa'][2] <= c + 2 and i['caixa'][0] >= a - 2]
+    circulo = [i for i in itens if 600 < i['caixa'][1] and i['caixa'][3] < 1612 and i not in selo and i not in rastro]
+    faixa = [i for i in itens if 1612 <= i['caixa'][1] and i['caixa'][3] < 1775]
+    base = [i for i in itens if i['caixa'][1] >= 1775]
+    gravar('grande-premio', 'bandeiras', bandeiras, corte, 'As duas bandeiras quadriculadas.')
+    gravar('grande-premio', 'titulo', titulo, corte, 'A linha "Grande Prêmio da Resenha".')
+    # O rastro anda com o nome (o molde põe à esquerda dele, na altura da letra): sai
+    # justo, sem folga, e o que importa é a proporção (largura dividida pela altura).
+    lugar = gravar('grande-premio', 'rastro', rastro, corte, 'O rastro de velocidade, que anda com o nome.', folga=0)
+    x0, y0 = min(i['caixa'][0] for i in rastro), min(i['caixa'][1] for i in rastro)
+    x1, y1 = max(i['caixa'][2] for i in rastro), max(i['caixa'][3] for i in rastro)
+    pontas = sorted(rastro, key=lambda i: i['caixa'][1])
+    print(f'  rastro: proporção {(x1 - x0) / (y1 - y0):.3f}; inclinação {(pontas[0]["caixa"][2] - pontas[-1]["caixa"][2]) / (pontas[-1]["caixa"][3] - pontas[0]["caixa"][1]):.3f}')
+    gravar('grande-premio', 'circulo', circulo, corte, 'O círculo com as faixas de velocidade (atrás da foto).')
+    gravar('grande-premio', 'selo', selo, corte, 'O selo "10" (na frente da foto).', base=True)
+    gravar('grande-premio', 'faixa', faixa, corte, 'A faixa "Pole position na piada ruim" (na frente da foto).', base=True)
+    gravar('grande-premio', 'base', base, corte, 'A fita quadriculada e a linha "Piloto oficial do rolê · Temporada 2026".')
+
+
+def mestre_da_brasa():
+    print('Mestre da Brasa')
+    itens = ler('mestre-da-brasa')
+    # A fita "Churrasqueiro oficial" (de 38 a 1322) toma a largura da arte, com uma
+    # margem de 8 de cada lado.
+    corte = (30, 66, 1300)
+    topo = [i for i in itens if i['caixa'][3] < 300]
+    emblema = [i for i in itens if 300 <= i['caixa'][1] < 1500]
+    fita = [i for i in itens if 1500 <= i['caixa'][1] and i['caixa'][3] < 1822]
+    linha = [i for i in itens if i['caixa'][1] >= 1822]
+    gravar('mestre-da-brasa', 'topo', topo, corte, 'O arco "Mestre da Brasa", com uma chama de cada lado.')
+    gravar('mestre-da-brasa', 'emblema', emblema, corte, 'O emblema: o círculo, as chamas e os dois garfos cruzados (atrás da foto).')
+    gravar('mestre-da-brasa', 'fita', fita, corte, 'A fita "Churrasqueiro oficial" (na frente da foto).', base=True)
+    gravar('mestre-da-brasa', 'linha', linha, corte, 'A linha "Carne no ponto ★ Cerveja gelada ★ Resenha garantida".')
+    # A linha de baixo ("No comando da grelha desde 2005") é escrita pelo site, por causa do ano.
+
+
 if __name__ == '__main__':
     turne_mundial()
     ao_vivo()
@@ -474,3 +524,5 @@ if __name__ == '__main__':
     figurinha_rara()
     tocando_agora()
     alto_em()
+    grande_premio()
+    mestre_da_brasa()

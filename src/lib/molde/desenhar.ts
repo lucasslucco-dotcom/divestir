@@ -257,9 +257,15 @@ function rascunharNome(
   medida.font = fonteCss(fonte, px);
   let largura = medida.measureText(texto).width;
   const maxima = c.largura_maxima * escala;
-  const estreita = Math.min(Math.max(1, c.expansao_maxima ?? 1), Math.max(c.compressao_maxima, maxima / largura));
-  if (largura * estreita > maxima) {
-    px *= maxima / (largura * estreita);
+  // "inclina" e "rastro" tomam um pedaço da largura, na proporção da altura do nome:
+  // a letra deitada passa da base para a direita, e o rastro vem antes do nome.
+  const inclina = Math.max(0, Math.min(0.6, c.inclina ?? 0));
+  const antes = c.rastro ? c.rastro.proporcao + (c.rastro.respiro ?? 0) / c.altura_no_centro : inclina;
+  const reservado = antes * px * capa;
+  const livre = Math.max(1, maxima - reservado);
+  const estreita = Math.min(Math.max(1, c.expansao_maxima ?? 1), Math.max(c.compressao_maxima, livre / largura));
+  if (largura * estreita > livre) {
+    px *= maxima / (largura * estreita + reservado);
     medida.font = fonteCss(fonte, px);
     largura = medida.measureText(texto).width;
   }
@@ -274,13 +280,19 @@ function rascunharNome(
   // menor e mais estreito, engrossa na mesma proporção (senão as letras se fecham).
   const grossura = Math.max(0, (c.engrossa ?? 0) * escala * (px / pxCheio) * Math.min(1, estreita));
   const margem = Math.ceil(grossura);
-  const w = Math.max(1, Math.ceil(largura * estreita) + 2 + 2 * margem);
+  // "inclina": a letra deita para a direita a partir da linha de base. O que fica acima
+  // da base anda para a direita e o que desce dela (a cedilha), para a esquerda: o
+  // rascunho ganha essa sobra dos dois lados.
+  const sobraEsquerda = Math.ceil(inclina * abaixo);
+  const sobraDireita = Math.ceil(inclina * (acima + alturaDaCapa));
+  const w = Math.max(1, Math.ceil(largura * estreita) + 2 + 2 * margem + sobraEsquerda + sobraDireita);
   const h = Math.ceil(acima + alturaDaCapa + abaixo);
   const tela = criarTela(w, h);
   const r = contexto(tela, { willReadFrequently: true });
   r.font = fonteCss(fonte, px);
   r.fillStyle = tinta;
   r.textBaseline = 'alphabetic';
+  if (inclina > 0) r.transform(1, 0, -inclina, 1, inclina * (acima + alturaDaCapa) + sobraEsquerda, 0);
   r.scale(estreita, 1);
   const passos = Math.max(1, Math.ceil(grossura));
   for (let i = -passos; i <= passos; i++) {
@@ -292,7 +304,19 @@ function rascunharNome(
   }
   // Com o acento dentro, o topo da maiúscula desce o tamanho do acento.
   const topo = c.topo * escala + px * (subida - capa);
-  return { tela, w, h, acima, alturaDaCapa, x0: Math.round(c.x * escala - w / 2), topo };
+  // O meio do nome é o meio do que vai da base ao topo da maiúscula (com a inclinação,
+  // um paralelogramo), e não o do rascunho, que tem sobras diferentes de cada lado.
+  // Com o rastro, o meio é o dos dois juntos: ele acaba onde começa o topo da
+  // primeira letra.
+  const inicio = sobraEsquerda + 1 + margem;
+  const larguraDoRastro = c.rastro ? alturaDaCapa * c.rastro.proporcao : 0;
+  const respiro = c.rastro ? ((c.rastro.respiro ?? 0) * alturaDaCapa) / c.altura_no_centro : 0;
+  const esquerda = inicio + (c.rastro ? inclina * alturaDaCapa - respiro - larguraDoRastro : 0);
+  const direita = inicio + largura * estreita + inclina * alturaDaCapa;
+  const meio = inclina > 0 || c.rastro ? (esquerda + direita) / 2 : w / 2;
+  const x0 = Math.round(c.x * escala - meio);
+  const rastro = c.rastro ? { x: x0 + esquerda, y: topo, w: larguraDoRastro, h: alturaDaCapa } : null;
+  return { tela, w, h, acima, alturaDaCapa, x0, topo, rastro };
 }
 
 // Quanto a coluna do nome estica do topo da maiúscula para baixo: nada no meio da
@@ -324,14 +348,30 @@ function desenharNome(
   escala: number,
   fontes: Fontes,
   criarTela: CriarTela,
+  // A arte do "rastro" do nome, já na tinta: entra à esquerda dele, na mesma altura.
+  arteDoRastro?: ImagemDaArte | null,
 ) {
   if (!texto) return;
-  const { tela: rascunho, w, h, acima, x0, topo } = rascunharNome(ctx, c, texto, tinta, escala, fontes, criarTela);
+  const {
+    tela: rascunho,
+    w,
+    h,
+    acima,
+    x0,
+    topo,
+    rastro,
+  } = rascunharNome(ctx, c, texto, tinta, escala, fontes, criarTela);
   for (let x = 0; x < w; x++) {
     const s = esticar(c, x, x0, escala);
     const d = descer(c, x, x0, escala);
     ctx.drawImage(rascunho, x, 0, 1, acima, x0 + x, topo - acima + d, 1, acima);
     ctx.drawImage(rascunho, x, acima, 1, h - acima, x0 + x, topo + d, 1, (h - acima) * s);
+  }
+  if (rastro && arteDoRastro) {
+    ctx.save();
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(arteDoRastro, rastro.x, rastro.y, rastro.w, rastro.h);
+    ctx.restore();
   }
   liberarTelas(rascunho);
 }
@@ -667,6 +707,7 @@ export async function prepararArte(pedido: Omit<Pedido, 'foto'>, escala: number)
     else if (camada.tipo === 'nome') {
       const texto = textoDoCampo(config, camada.campo, pedido.valores);
       const tintaDoNome = (camada.tinta && TINTAS[camada.tinta]) || tinta;
+      const rastro = camada.rastro && texto ? await pedido.carregarArte(camada.rastro.arquivo, tintaDoNome) : null;
       if (camada.vazado) {
         // O nome fura o que está embaixo (a faixa do letreiro): aparece o tecido.
         const mascara = criarTela(W, H);
@@ -675,7 +716,7 @@ export async function prepararArte(pedido: Omit<Pedido, 'foto'>, escala: number)
         fixa = null;
       } else if ((camada.folga ?? 0) > 0 || camada.desgaste) {
         const tela = criarTela(W, H);
-        desenharNome(contexto(tela), camada, texto, tintaDoNome, escala, pedido.fontes, criarTela);
+        desenharNome(contexto(tela), camada, texto, tintaDoNome, escala, pedido.fontes, criarTela, rastro);
         if ((camada.folga ?? 0) > 0) {
           // Respiro em volta das letras: o nome passa por cima do que está embaixo sem
           // se misturar.
@@ -686,7 +727,7 @@ export async function prepararArte(pedido: Omit<Pedido, 'foto'>, escala: number)
         if (camada.desgaste) desgastar(tela);
         telaFixa().drawImage(tela, 0, 0);
         liberarTelas(tela);
-      } else desenharNome(telaFixa(), camada, texto, tintaDoNome, escala, pedido.fontes, criarTela);
+      } else desenharNome(telaFixa(), camada, texto, tintaDoNome, escala, pedido.fontes, criarTela, rastro);
     } else if (camada.tipo === 'arte') {
       const { tela, x, y } = rasterizarArte(
         await pedido.carregarArte(camada.arquivo, tinta),
