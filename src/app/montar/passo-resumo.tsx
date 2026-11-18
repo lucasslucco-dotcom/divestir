@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { valorDoCampo } from '@/lib/molde/tipos';
 import type { Falta, Resolvida } from './estado';
-import { IconeSim } from './icones';
+import { IconeAlerta, IconeSim } from './icones';
 import { linkDeTexto } from './passo-foto';
 import { preco } from './passos';
 import { TelaDaPrevia, type FotoDaPrevia } from './tela-da-previa';
@@ -40,6 +40,9 @@ export function PassoResumo({
   aoAdicionarOutra,
   aoCriarOutra,
   aoIrPara,
+  aoAjustarFoto,
+  aoTrocarFoto,
+  fotoSemQualidade,
 }: {
   r: Resolvida;
   nomeDaPeca: string;
@@ -54,6 +57,11 @@ export function PassoResumo({
   aoAdicionarOutra: () => void;
   aoCriarOutra: () => void;
   aoIrPara: (passo: Falta['passo']) => void;
+  // Abre o ajuste da foto na prévia (só com a foto da pessoa no lugar).
+  aoAjustarFoto?: () => void;
+  aoTrocarFoto: () => void;
+  // A foto está abaixo da qualidade da estampa: dá para seguir, mas a pessoa fica sabendo.
+  fotoSemQualidade: boolean;
 }) {
   const [tentou, setTentou] = useState(false);
   const editando = situacao === 'editando';
@@ -155,6 +163,32 @@ export function PassoResumo({
         </div>
       ) : null}
 
+      {/* É aqui que a pessoa aprova a peça (versão leve, 18/11/2026): não existe mais um
+          "Ficou ótimo" só para a foto, que ninguém ia lembrar de tocar. */}
+      {foto && aoAjustarFoto ? (
+        <div className="mt-6">
+          <p className="max-w-[38ch] text-[0.9375rem] leading-snug">
+            Confere na prévia como a foto e o nome ficaram: é assim que eles vão para a estampa.
+          </p>
+          {fotoSemQualidade ? (
+            <p className="mt-3 flex max-w-[38ch] items-start gap-2 text-[0.9375rem] leading-snug font-semibold">
+              <IconeAlerta className="mt-[3px] shrink-0" />
+              Essa foto não tem qualidade para a nossa estampa: ela pode sair sem definição na peça.
+            </p>
+          ) : null}
+          <div className="flex flex-wrap gap-x-6">
+            <button type="button" onClick={aoAjustarFoto} className={linkDeTexto}>
+              Ajustar a foto
+            </button>
+            {fotoSemQualidade ? (
+              <button type="button" onClick={aoTrocarFoto} className={linkDeTexto}>
+                Trocar a foto
+              </button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
       <div className="mt-6">
         {editando ? (
           <p className="mb-4 max-w-[38ch] text-[0.9375rem] leading-snug">
@@ -172,9 +206,18 @@ export function PassoResumo({
             setTentou(true);
             aoAdicionar();
           }}
-          className="ingresso w-full sm:w-auto"
+          // O rótulo comprido ("Ficou ótimo, pôr no carrinho") cabe numa linha só no celular.
+          className="ingresso w-full px-5! max-[339px]:text-[1.0625rem]! sm:w-auto sm:px-10!"
         >
-          {editando ? 'Salvar as mudanças' : mudou ? 'Atualizar a peça do carrinho' : 'Adicionar ao carrinho'}
+          {editando
+            ? 'Salvar as mudanças'
+            : mudou
+              ? 'Atualizar a peça do carrinho'
+              : !foto
+                ? 'Adicionar ao carrinho'
+                : fotoSemQualidade
+                  ? 'Adicionar mesmo assim'
+                  : 'Ficou ótimo, pôr no carrinho'}
         </button>
         {editando ? (
           <div>

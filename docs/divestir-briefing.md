@@ -26,7 +26,7 @@ O montador é uma página só: a prévia da peça fica fixa (no topo no celular,
 
 1. **Escolher a peça.** Cards com foto de cada modelo: camiseta regular, camiseta oversized, camiseta dry-fit, moletom, moletom com capuz, jaqueta bomber. Preço "a partir de" em cada card. A prévia já aparece em preto, a cor padrão.
 2. **Escolher o design.** Primeiro, "Para quem é?" (Mães, Pais, Avôs, Avós, Filhos, Irmãos, Casal, Amigas, Amigos, Pets ou Todos). Depois, o carrossel de miniaturas dos designs. Antes de a pessoa mandar a foto, cada miniatura mostra uma foto de exemplo do tema escolhido, marcada como exemplo; depois da foto, a foto e o nome do cliente. É aqui que a pessoa se apaixona. Selo "Novo" ou "Últimos dias" nos designs de drop.
-3. **Enviar a foto.** Upload por arquivo ou câmera do celular. Antes do botão, o guia da foto perfeita em formato visual. Ao subir, o sistema confere resolução e nitidez, remove o fundo automaticamente e mostra a foto já no design escolhido. O cliente ajusta o enquadramento ali mesmo (arrastar e dar zoom), com os botões "Trocar a foto" e "Ficou ótimo" colados na prévia. Se trocar de design depois, o ajuste abre de novo no design novo, e o que já foi aprovado em cada design fica guardado.
+3. **Enviar a foto.** Upload por arquivo ou câmera do celular. Antes do botão, o guia da foto perfeita em formato visual. Ao subir, o sistema confere resolução e nitidez, remove o fundo automaticamente e mostra a foto já no design escolhido. A foto chega se mexendo um instante na prévia, com a dica "Arraste para ajustar", e o cliente ajusta o enquadramento ali mesmo (arrastar e dar zoom), com os botões "Trocar a foto" e "Continuar" colados na prévia. Nada trava: o ajuste fecha sozinho quando ele segue, e volta com um toque na prévia. Se trocar de design depois, a foto se encaixa sozinha no design novo, e o ajuste feito em cada design fica guardado. Quem aprova a peça é o botão do carrinho, "Ficou ótimo, pôr no carrinho" (versão leve, em teste desde 18/11/2026; antes havia um botão "Ficou ótimo" só para a foto, que travava o carrinho).
 4. **Dar nome.** Um campo: "Como ele(a) se chama?" (THOR, VÓ CIDA, DUDA), com o limite de caracteres do design escolhido, e os outros textos que o design pedir (o ano, por exemplo). O texto entra na prévia enquanto a pessoa digita.
 5. **Escolher a cor.** Preto, branco e creme, sempre trocáveis numa barra fixa. A tinta do design muda junto com a cor da peça.
 6. **Escolher o tamanho.** PP ao GGG, com tabela de medidas por modelo (regular e oversized vestem diferente). Fica no fim porque não muda a prévia e pedido de tamanho logo de cara é atrito.
@@ -65,7 +65,7 @@ Foto boa é 80% da peça bonita, então o guia aparece antes do upload, com exem
 | Resolução aceitável | Entre 1.000 e 2.000 px | Aviso amarelo: "Pode perder um pouco de definição" |
 | Resolução mínima | Abaixo de 1.000 px | Bloqueio: "Essa foto vai ficar pixelada. Tenta outra?" |
 | Nitidez | Detecção de desfoque | Aviso amarelo se a foto estiver tremida |
-| Recorte | Remoção de fundo automática | Cliente aprova o recorte antes de seguir |
+| Recorte | Remoção de fundo automática | Cliente aprova a peça montada (foto e nome) no botão do carrinho |
 
 Os limites de resolução são ponto de partida: validar com a estamparia o tamanho real de impressão da área da foto em cada template e ajustar.
 

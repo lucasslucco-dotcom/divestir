@@ -61,6 +61,15 @@ export function IconeMais(props: Props) {
   );
 }
 
+// Quatro setas em cruz: arrastar para qualquer lado.
+export function IconeMover(props: Props) {
+  return (
+    <Svg {...props}>
+      <path d="M8 1.75v12.5M1.75 8h12.5M6 3.75l2-2 2 2M6 12.25l2 2 2-2M3.75 6l-2 2 2 2M12.25 6l2 2-2 2" />
+    </Svg>
+  );
+}
+
 export function IconeMenos(props: Props) {
   return (
     <Svg {...props}>

@@ -16,9 +16,11 @@ export type FotoDaMontagem = {
   escalaDaOriginal: number | null;
   // O enquadramento no design escolhido agora.
   enquadramento: Enquadramento;
+  // O ajuste da foto está fechado (false: aberto na prévia, com o zoom e "Trocar a
+  // foto"). Não trava nada desde 18/11/2026: quem aprova a peça é o botão do carrinho.
   aprovada: boolean;
-  // Cada design enquadra a foto do seu jeito (círculo, moldura, pôster): os ajustes já
-  // aprovados ficam guardados aqui, por design, para voltarem quando a pessoa volta a ele.
+  // Cada design enquadra a foto do seu jeito (círculo, moldura, pôster): o ajuste de
+  // cada um fica guardado aqui, por design, para voltar quando a pessoa volta a ele.
   enquadramentos?: Record<string, Enquadramento>;
   // Recorte feito no modo de teste do Photoroom (sai com marca d'água).
   teste: boolean;
@@ -156,15 +158,16 @@ function enquadramentos(valor: unknown): Record<string, Enquadramento> | undefin
   return Object.keys(saida).length ? saida : undefined;
 }
 
-// A foto num design: ao trocar de design, o ajuste aprovado no anterior fica guardado e o
-// do novo volta, se a pessoa já tinha aprovado; senão o ajuste recomeça, para ela conferir
-// como a foto ficou nele (pedido do Lucas, 10/11/2026).
+// A foto num design: ao trocar de design, o ajuste do anterior fica guardado e o do novo
+// volta, se a pessoa já passou por ele; senão a foto se encaixa sozinha no design novo.
+// O ajuste continua como estava, aberto ou fechado: trocar de design não pede mais
+// para aprovar a foto de novo (versão leve, 18/11/2026).
 export function fotoNoDesign(foto: FotoDaMontagem, de: string | null, para: string | null): FotoDaMontagem {
   if (de === para) return foto;
   const guardados = { ...foto.enquadramentos };
-  if (de && foto.aprovada) guardados[de] = foto.enquadramento;
+  if (de) guardados[de] = foto.enquadramento;
   const salvo = para ? guardados[para] : undefined;
-  return { ...foto, enquadramentos: guardados, enquadramento: salvo ?? ENQUADRAMENTO_INICIAL, aprovada: !!salvo };
+  return { ...foto, enquadramentos: guardados, enquadramento: salvo ?? ENQUADRAMENTO_INICIAL };
 }
 
 export function fotoVencida(foto: FotoDaMontagem, agora = Date.now()) {

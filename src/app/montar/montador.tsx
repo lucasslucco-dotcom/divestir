@@ -80,6 +80,11 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   const [aviso, setAviso] = useState<string | null>(null);
   const [vista, setVista] = useState<Vista | null>(null);
   const [compacta, setCompacta] = useState(false);
+  // A dica do ajuste, em cima da prévia ("Arraste para ajustar"), para a foto desta
+  // chave. Com "movimento", a foto ainda se mexe sozinha um instante, mostrando que dá
+  // para arrastar e aproximar (pedido do Lucas, 16/11/2026): é o que acontece com cada
+  // foto recém-mandada.
+  const [dica, setDica] = useState<{ chave: string; movimento: boolean } | null>(null);
   const processo = useRef<Processo | null>(null);
   const recorteAtual = useRef<RecorteEmUso | null>(null);
   const raiz = useRef<HTMLDivElement>(null);
@@ -252,6 +257,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
       }
       setEnvio((e) => (e?.id === id ? { ...e, etapa: 'pronta' } : e));
       setVista('perto');
+      setDica({ chave, movimento: true });
       // O ajuste acontece na prévia: o passo da foto para logo abaixo dela.
       irPara('foto');
     } catch (motivo) {
@@ -297,27 +303,39 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
     if (arquivo) void escolherArquivo(arquivo);
   }
 
-  function aprovar() {
-    // Foto recém-mandada: o próximo passo é o nome. Quem só trocou de design e aprovou
-    // o ajuste de novo fica onde está, a não ser que o design novo peça mais um texto.
-    const acabouDeMandar = !!envio;
-    const faltaTexto = r?.design?.config.campos.some((campo) => !valorDoCampo(campo, montagem.campos)) ?? false;
-    despachar({ tipo: 'aprovar' });
-    limparEnvio();
-    if (acabouDeMandar || faltaTexto) irPara('nome');
+  // O ajuste da foto não trava nada (versão leve, 18/11/2026): ele fecha com o botão
+  // da prévia, quando a pessoa segue para os passos seguintes ou quando a peça vai para
+  // o carrinho, que é onde ela diz "Ficou ótimo".
+  function fecharAjuste() {
+    if (!montagem.foto || montagem.foto.aprovada) return;
+    despachar({ tipo: 'fechar-ajuste' });
+    setDica(null);
+    // O veredito da foto recém-mandada sai junto (uma foto nova ainda a caminho, não).
+    if (envio?.etapa === 'pronta') limparEnvio();
   }
 
-  // Trocar de design leva a foto junto: o ajuste é guardado por design e, num design
-  // novo, abre de novo ali mesmo, na prévia.
+  // Foto recém-mandada: o próximo passo é o nome. Quem reabriu o ajuste fica onde
+  // está, a não ser que o design peça um texto que ainda falta.
+  const faltaTexto = r?.design?.config.campos.some((campo) => !valorDoCampo(campo, montagem.campos)) ?? false;
+  const segueParaONome = envio?.etapa === 'pronta' || faltaTexto;
+  function continuar() {
+    fecharAjuste();
+    if (segueParaONome) irPara('nome');
+  }
+
+  // Trocar de design leva a foto junto: ela se encaixa sozinha no design novo (ou volta
+  // com o ajuste que a pessoa já tinha feito nele), sem pedir nada.
   function escolherDesign(slug: string) {
     despachar({ tipo: 'design', slug, de: r?.design?.slug ?? null });
     if (montagem.foto) setVista('perto');
   }
 
+  // Abre o ajuste de novo, na própria prévia (ela está sempre à vista).
   function ajustar() {
-    despachar({ tipo: 'ajustar' });
+    if (!montagem.foto) return;
+    despachar({ tipo: 'abrir-ajuste' });
     setVista('perto');
-    irPara('foto');
+    setDica({ chave: montagem.foto.chave, movimento: false });
   }
 
   async function reaproveitar(item: FotoReaproveitavel) {
@@ -335,15 +353,25 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
       url: URL.createObjectURL(arquivo),
       inteira: inteira ? URL.createObjectURL(inteira) : null,
     });
-    // O ajuste que vem com a foto é o do design da peça de onde ela saiu.
+    // O ajuste que vem com a foto é o do design da peça de onde ela saiu; num design
+    // diferente, ela se encaixa sozinha.
     const foto = fotoNoDesign({ ...item.foto, aprovada: true }, item.design, r?.design?.slug ?? null);
     despachar({ tipo: 'foto', foto, campos: item.campos });
     setVista('perto');
-    // Num design diferente, o ajuste abre de novo: o passo da foto para logo abaixo da prévia.
-    if (!foto.aprovada) irPara('foto');
   }
 
-  const enquadrar = useCallback<MudarEnquadramento>((mudanca) => despachar({ tipo: 'enquadrar', mudanca }), []);
+  const enquadrar = useCallback<MudarEnquadramento>((mudanca) => {
+    setDica(null);
+    despachar({ tipo: 'enquadrar', mudanca });
+  }, []);
+  const esconderDica = useCallback(() => setDica(null), []);
+
+  // A dica some sozinha depois de um tempo, se a pessoa não tocar na prévia.
+  useEffect(() => {
+    if (!dica) return;
+    const espera = setTimeout(() => setDica(null), dica.movimento ? 8000 : 4000);
+    return () => clearTimeout(espera);
+  }, [dica]);
 
   const fotoDaPrevia = useMemo<FotoDaPrevia | null>(
     () =>
@@ -366,7 +394,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
 
   // A peça como ela vai para o carrinho, se já estiver completa.
   function pecaPronta(): Omit<ItemDoCarrinho, 'id' | 'criadoEm' | 'presente'> | null {
-    if (!r || !r.design || !r.tamanho || !montagem.foto?.aprovada) return null;
+    if (!r || !r.design || !r.tamanho || !montagem.foto) return null;
     if (oQueFalta(montagem, r).length) return null;
     return {
       peca: r.peca.slug,
@@ -375,7 +403,8 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
       lado: r.lado,
       campos: Object.fromEntries(r.design.config.campos.map((c) => [c.chave, valorDoCampo(c, montagem.campos)])),
       tamanho: r.tamanho,
-      foto: montagem.foto,
+      // No carrinho, a foto vai como a pessoa viu na prévia ao tocar no botão.
+      foto: { ...montagem.foto, aprovada: true },
     };
   }
 
@@ -404,6 +433,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
     };
     guardarCarrinho(novo);
     setCarrinho(novo);
+    fecharAjuste();
     if (anterior && montagem.editando) {
       // Editou do carrinho: a peça volta para lá já com as mudanças, e o montador
       // fica livre para a próxima.
@@ -624,7 +654,10 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
           aoVer={setVista}
           cores={coresDaPeca(catalogo, r.peca)}
           cor={r.cor}
-          aoEscolherCor={(slug) => despachar({ tipo: 'cor', slug })}
+          aoEscolherCor={(slug) => {
+            fecharAjuste();
+            despachar({ tipo: 'cor', slug });
+          }}
           ajuste={
             ajustando && montagem.foto
               ? {
@@ -633,10 +666,14 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
                   enquadramento: montagem.foto.enquadramento,
                   definicao: definicao?.nivel ?? null,
                   aoTrocarFoto: escolherFoto,
-                  aoAprovar: aprovar,
+                  aoContinuar: continuar,
+                  rotuloDeContinuar: segueParaONome ? 'Continuar' : 'Pronto',
+                  dica: dica?.chave === montagem.foto.chave ? { movimento: dica.movimento } : null,
+                  aoTocar: esconderDica,
                 }
               : undefined
           }
+          aoAjustar={montagem.foto && fotoDaPrevia && !ajustando ? ajustar : undefined}
           exemplo={comExemplo}
           compacta={compacta}
         />
@@ -686,7 +723,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
           id={ID_DOS_PASSOS.foto}
           numero={3}
           titulo="A foto"
-          resumo={montagem.foto?.aprovada && fotoDaPrevia ? 'Foto aprovada' : null}
+          resumo={montagem.foto && fotoDaPrevia ? 'Foto escolhida' : null}
         >
           <PassoFoto
             envio={envio}
@@ -714,7 +751,10 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
             extras={camposExtras}
             valores={valores}
             casal={!!r.design?.config.temas?.includes('casal')}
-            aoMudar={(chave, valor) => despachar({ tipo: 'campo', chave, valor })}
+            aoMudar={(chave, valor) => {
+              fecharAjuste();
+              despachar({ tipo: 'campo', chave, valor });
+            }}
           />
         </Passo>
 
@@ -725,7 +765,10 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
             peca={r.peca}
             lado={r.lado}
             arte={arteDaPeca}
-            aoEscolher={(slug) => despachar({ tipo: 'cor', slug })}
+            aoEscolher={(slug) => {
+              fecharAjuste();
+              despachar({ tipo: 'cor', slug });
+            }}
             rotuloDaCor={(cor) => (r.design ? descreverDesign(r.design, cor, ', de perto') : cor.nome)}
           />
         </Passo>
@@ -734,7 +777,10 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
           <PassoTamanho
             peca={r.peca}
             tamanho={r.tamanho}
-            aoEscolher={(tamanho) => despachar({ tipo: 'tamanho', tamanho })}
+            aoEscolher={(tamanho) => {
+              fecharAjuste();
+              despachar({ tipo: 'tamanho', tamanho });
+            }}
           />
         </Passo>
 
@@ -753,6 +799,9 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
             aoAdicionarOutra={() => adicionar(true)}
             aoCriarOutra={criarOutra}
             aoIrPara={irPara}
+            aoAjustarFoto={montagem.foto && fotoDaPrevia ? ajustar : undefined}
+            aoTrocarFoto={escolherFoto}
+            fotoSemQualidade={definicao?.nivel === 'baixa'}
           />
         </Passo>
       </ol>

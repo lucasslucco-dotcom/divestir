@@ -13,7 +13,7 @@ import {
 } from '@/lib/foto/enquadramento';
 import type { AreaNaFoto } from '@/lib/molde/tipos';
 import { IconeAlerta, IconeMais, IconeMenos } from './icones';
-import { TelaDaPrevia, type ArteDaPrevia, type MudarEnquadramento } from './tela-da-previa';
+import { TelaDaPrevia, type ArteDaPrevia, type DicaDoAjuste, type MudarEnquadramento } from './tela-da-previa';
 
 // A prévia fixa do montador (briefing: "a prévia da peça fica fixa, no topo no
 // celular, à esquerda no desktop"). A vista grande e, ao lado, as outras vistas
@@ -33,9 +33,11 @@ export type DescricaoDaVista = {
   rotulo: string;
 };
 
-// O ajuste da foto, colado na prévia (pedido do Lucas, 10/11/2026, e caminho novo de
-// 11/11/2026): o zoom, "Trocar a foto" e "Ficou ótimo" ficam sempre à mão, em qualquer
-// passo, porque trocar de design abre o ajuste de novo.
+// O ajuste da foto, colado na prévia (pedido do Lucas, 10/11/2026): o zoom, "Trocar a
+// foto" e "Continuar" ficam à mão enquanto ele está aberto. Desde 18/11/2026 (versão
+// leve, depois de o Lucas dizer que ninguém ia lembrar de tocar em "Ficou ótimo"), ele
+// não trava nada: abre com a foto recém-mandada, fecha sozinho quando a pessoa segue
+// e volta com um toque na prévia. Quem diz "Ficou ótimo" é o botão do carrinho.
 export type AjusteDaDoca = {
   mudar: MudarEnquadramento;
   // O texto que explica o ajuste (id do elemento), para o leitor de tela.
@@ -43,7 +45,14 @@ export type AjusteDaDoca = {
   enquadramento: Enquadramento;
   definicao: Definicao['nivel'] | null;
   aoTrocarFoto: () => void;
-  aoAprovar: () => void;
+  aoContinuar: () => void;
+  // "Continuar" (segue para o nome) ou "Pronto" (só fecha o ajuste).
+  rotuloDeContinuar: string;
+  // A dica em cima da prévia ("Arraste para ajustar"); com "movimento", a foto se mexe
+  // sozinha um instante, mostrando o que dá para fazer.
+  dica: DicaDoAjuste | null;
+  // A pessoa tocou na prévia: a dica já cumpriu o papel dela.
+  aoTocar: () => void;
 };
 
 const porcentagem = new Intl.NumberFormat('pt-BR', { style: 'percent', maximumFractionDigits: 0 });
@@ -108,15 +117,15 @@ function Ajuste({ ajuste }: { ajuste: AjusteDaDoca }) {
       </div>
       {/* Abaixo da qualidade da estampa, o caminho principal é mandar outra foto. */}
       <div className="mt-2 flex items-stretch gap-2.5">
-        <button type="button" onClick={baixa ? ajuste.aoAprovar : ajuste.aoTrocarFoto} className={botaoDeContorno}>
+        <button type="button" onClick={baixa ? ajuste.aoContinuar : ajuste.aoTrocarFoto} className={botaoDeContorno}>
           {baixa ? 'Usar essa mesmo assim' : 'Trocar a foto'}
         </button>
         <button
           type="button"
-          onClick={baixa ? ajuste.aoTrocarFoto : ajuste.aoAprovar}
+          onClick={baixa ? ajuste.aoTrocarFoto : ajuste.aoContinuar}
           className="ingresso min-w-0 flex-1 px-3! text-center"
         >
-          {baixa ? 'Escolher outra foto' : 'Ficou ótimo'}
+          {baixa ? 'Escolher outra foto' : ajuste.rotuloDeContinuar}
         </button>
       </div>
     </div>
@@ -131,6 +140,7 @@ export function Doca({
   cor,
   aoEscolherCor,
   ajuste,
+  aoAjustar,
   exemplo,
   compacta,
 }: {
@@ -140,8 +150,10 @@ export function Doca({
   cores: Cor[];
   cor: Cor;
   aoEscolherCor: (slug: string) => void;
-  // Com a foto esperando o "Ficou ótimo": a prévia vira o ajuste, com os controles embaixo.
+  // Com o ajuste da foto aberto: a prévia vira o ajuste, com os controles embaixo.
   ajuste?: AjusteDaDoca;
+  // Com a foto da pessoa e o ajuste fechado: tocar na vista grande abre o ajuste de novo.
+  aoAjustar?: () => void;
   // A prévia está com uma foto de exemplo (a pessoa ainda não mandou a dela).
   exemplo: boolean;
   // Enquanto a pessoa digita no celular, a prévia encolhe para o campo caber na tela.
@@ -155,17 +167,31 @@ export function Doca({
     <>
       <div className="mx-auto w-fit">
         <div className="flex items-start justify-center gap-2 sm:gap-3">
-          <TelaDaPrevia
-            base={principal.base}
-            area={principal.area}
-            corDaPeca={cor.slug}
-            arte={principal.arte}
-            perto={principal.perto}
-            rotulo={principal.rotulo}
-            ajuste={ajuste?.mudar}
-            descricao={ajuste?.descricao}
-            className="w-[calc(var(--altura-da-vista)*0.8)] shrink-0 rounded-2xl transition-[width] duration-200 ease-saida motion-reduce:transition-none"
-          />
+          <div className="relative shrink-0">
+            <TelaDaPrevia
+              base={principal.base}
+              area={principal.area}
+              corDaPeca={cor.slug}
+              arte={principal.arte}
+              perto={principal.perto}
+              rotulo={principal.rotulo}
+              ajuste={ajuste?.mudar}
+              dica={ajuste?.dica}
+              aoTocar={ajuste?.aoTocar}
+              descricao={ajuste?.descricao}
+              className="w-[calc(var(--altura-da-vista)*0.8)] rounded-2xl transition-[width] duration-200 ease-saida motion-reduce:transition-none"
+            />
+            {/* Nenhum botão desenhado por cima da prévia: a vista inteira é o botão. */}
+            {aoAjustar && !ajuste && !compacta && principal.arte?.tipo === 'design' ? (
+              <button
+                type="button"
+                onClick={aoAjustar}
+                aria-label="Ajustar a foto"
+                title="Ajustar a foto"
+                className="absolute inset-0 cursor-pointer rounded-2xl outline-offset-2 focus-visible:outline-2 focus-visible:outline-verde"
+              />
+            ) : null}
+          </div>
           {outras.length && !compacta ? (
             <ul
               aria-label="Outras vistas"

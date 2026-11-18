@@ -17,8 +17,9 @@ export type Acao =
   | { tipo: 'tamanho'; tamanho: string }
   | { tipo: 'foto'; foto: FotoDaMontagem; campos?: Record<string, string> }
   | { tipo: 'enquadrar'; mudanca: (atual: Enquadramento) => Enquadramento }
-  | { tipo: 'aprovar' }
-  | { tipo: 'ajustar' }
+  // O ajuste da foto na prévia (zoom, "Trocar a foto"): fecha e abre, sem travar nada.
+  | { tipo: 'fechar-ajuste' }
+  | { tipo: 'abrir-ajuste' }
   | { tipo: 'original'; chave: string; original: FotoDaMontagem['original'] }
   | { tipo: 'sem-foto' }
   | { tipo: 'no-carrinho'; id: string | null }
@@ -33,8 +34,8 @@ export function reduzir(m: Montagem, acao: Acao): Montagem {
     case 'cor':
       return { ...m, cor: acao.slug };
     case 'design':
-      // A foto vai junto para o design novo: com o ajuste que a pessoa já aprovou nele
-      // ou, na primeira vez, com o ajuste aberto de novo.
+      // A foto vai junto para o design novo: com o ajuste que a pessoa já fez nele ou,
+      // na primeira vez, encaixada sozinha.
       return { ...m, design: acao.slug, foto: m.foto ? fotoNoDesign(m.foto, acao.de, acao.slug) : null };
     case 'tema':
       return { ...m, tema: acao.tema };
@@ -57,10 +58,10 @@ export function reduzir(m: Montagem, acao: Acao): Montagem {
       return m.foto && !m.foto.aprovada
         ? { ...m, foto: { ...m.foto, enquadramento: acao.mudanca(m.foto.enquadramento) } }
         : m;
-    case 'aprovar':
-      return m.foto ? { ...m, foto: { ...m.foto, aprovada: true } } : m;
-    case 'ajustar':
-      return m.foto ? { ...m, foto: { ...m.foto, aprovada: false } } : m;
+    case 'fechar-ajuste':
+      return m.foto && !m.foto.aprovada ? { ...m, foto: { ...m.foto, aprovada: true } } : m;
+    case 'abrir-ajuste':
+      return m.foto?.aprovada ? { ...m, foto: { ...m.foto, aprovada: false } } : m;
     case 'original':
       return m.foto?.chave === acao.chave ? { ...m, foto: { ...m.foto, original: acao.original } } : m;
     case 'sem-foto':
@@ -153,8 +154,8 @@ export type Falta = { texto: string; passo: keyof typeof ID_DOS_PASSOS };
 export function oQueFalta(m: Montagem, r: Resolvida | null): Falta[] {
   const falta: Falta[] = [];
   if (!r?.design) falta.push({ texto: 'escolher um design', passo: 'design' });
+  // A foto não precisa de um "aprovar" à parte: quem aprova a peça é o botão do carrinho.
   if (!m.foto) falta.push({ texto: 'mandar a foto', passo: 'foto' });
-  else if (!m.foto.aprovada) falta.push({ texto: 'aprovar a foto', passo: 'foto' });
   const campos: Campo[] = r?.design?.config.campos ?? [];
   for (const campo of campos) {
     if (valorDoCampo(campo, m.campos)) continue;

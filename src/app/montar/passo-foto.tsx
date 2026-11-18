@@ -272,14 +272,13 @@ export function PassoFoto({
             </div>
           ) : null}
           <p id={idDaDica} className="max-w-[38ch] text-[0.9375rem] leading-snug">
+            Sua foto já está no design.{' '}
             <span className="pointer-coarse:hidden">
-              Ajuste na própria prévia: arraste a foto para mover e use os botões para dar zoom.
+              Se quiser, ajuste na própria prévia: arraste a foto para mover e use os botões para dar zoom.
             </span>
             <span className="hidden pointer-coarse:inline">
-              Ajuste na própria prévia: arraste a foto para mover e use dois dedos para dar zoom.
-            </span>{' '}
-            Quando gostar, toque em &ldquo;{definicao === 'baixa' ? 'Usar essa mesmo assim' : 'Ficou ótimo'}&rdquo;,
-            logo abaixo dela.
+              Se quiser, ajuste na própria prévia: arraste a foto para mover e use dois dedos para dar zoom.
+            </span>
             <span className="sr-only"> No teclado, use as setas para mover e as teclas + e − para o zoom.</span>
           </p>
           <div aria-live="polite">
@@ -294,7 +293,7 @@ export function PassoFoto({
       {aprovada && foto && !envio ? (
         <div className="flex flex-wrap gap-x-6">
           <button type="button" onClick={aoAjustar} className={linkDeTexto}>
-            Ajustar o enquadramento
+            Ajustar a foto
           </button>
           <button type="button" onClick={escolher} className={linkDeTexto}>
             Trocar a foto

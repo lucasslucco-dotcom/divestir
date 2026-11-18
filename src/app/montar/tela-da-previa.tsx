@@ -23,7 +23,7 @@ import {
 } from '@/lib/molde/desenhar';
 import { carregarArte, carregarImagem, fontesDaPagina } from '@/lib/molde/recursos';
 import { LARGURA_DA_ARTE, areaDoDesign, type AreaNaFoto, type Design } from '@/lib/molde/tipos';
-import { IconeCarregando } from './icones';
+import { IconeCarregando, IconeMover } from './icones';
 
 // Uma prévia desenhada: a foto de base da peça e, por cima, o design com a foto e o
 // nome do cliente (ou a marca no peito). Serve para a prévia grande, as vistas
@@ -43,6 +43,23 @@ export type ArteDaPrevia =
 
 export type MudarEnquadramento = (mudanca: (atual: Enquadramento) => Enquadramento) => void;
 
+// A dica do ajuste, em cima da prévia: "Arraste para ajustar". Com "movimento", a foto
+// se mexe sozinha um instante (vai para um lado, para o outro e chega mais perto),
+// para a pessoa ver que dá para arrastar e aproximar (pedido do Lucas, 16/11/2026).
+export type DicaDoAjuste = { movimento: boolean };
+
+// O passeio da foto na dica, em milissegundos, e a espera antes de ele começar.
+const DURACAO_DO_PASSEIO = 2400;
+const ESPERA_DO_PASSEIO = 450;
+
+// t vai de 0 a 1: nos primeiros 60%, a foto balança para os lados; no fim, chega mais
+// perto e volta. Começa e termina exatamente onde a foto está.
+function passeio(e: Enquadramento, t: number): Enquadramento {
+  const lados = t < 0.6 ? Math.sin((t / 0.6) * Math.PI * 2) : 0;
+  const perto = t >= 0.6 ? Math.sin(((t - 0.6) / 0.4) * Math.PI) ** 2 : 0;
+  return zoomEm(mover(e, 0.09 * lados, 0), 1 + 0.12 * perto);
+}
+
 type Props = {
   base: string;
   area: AreaNaFoto | null;
@@ -53,6 +70,10 @@ type Props = {
   rotulo: string;
   // Com isto, a própria prévia vira o ajuste do enquadramento (arrastar e dar zoom).
   ajuste?: MudarEnquadramento;
+  // A dica do ajuste, por cima da prévia (só com o ajuste aberto).
+  dica?: DicaDoAjuste | null;
+  // A pessoa encostou na prévia do ajuste.
+  aoTocar?: () => void;
   // Prévias secundárias esperam um instante e só desenham quando aparecem na tela.
   adiar?: boolean;
   // O texto que explica o ajuste (id do elemento), para o leitor de tela.
@@ -134,6 +155,8 @@ export function TelaDaPrevia({
   perto = false,
   rotulo,
   ajuste,
+  dica,
+  aoTocar: avisarToque,
   adiar = false,
   descricao,
   className,
@@ -275,36 +298,70 @@ export function TelaDaPrevia({
     };
   }, [chave, tamanho, visivel, adiar]);
 
-  // Desenho: rápido, a cada mudança do enquadramento.
+  // Desenho: rápido, a cada mudança do enquadramento. "passo" desenha a foto um pouco
+  // fora do lugar, só na tela (o passeio da dica): o enquadramento guardado não muda.
   const enquadramento = foto?.enquadramento;
   const geometria = foto?.geometria;
+  const pintar = useEffectEvent((passo?: (atual: Enquadramento) => Enquadramento) => {
+    // O preparo é lido na hora de desenhar: pode ter acabado de ser trocado.
+    const p = preparo.current;
+    const canvas = tela.current;
+    if (!p || !canvas) return;
+    try {
+      if (canvas.width !== p.peca.largura) canvas.width = p.peca.largura;
+      if (canvas.height !== p.peca.altura) canvas.height = p.peca.altura;
+      let arteNaTela: Tela | null = p.marca;
+      if (p.arte) {
+        const fotoNoMolde =
+          p.foto && geometria && enquadramento
+            ? {
+                imagem: p.foto,
+                geometria,
+                enquadramento: passo ? passo(enquadramento) : enquadramento,
+                inteira: p.fotoInteira,
+              }
+            : null;
+        arteNaTela = p.arte.desenhar(fotoNoMolde, p.telaDaArte ?? undefined);
+        p.telaDaArte = arteNaTela;
+      }
+      p.peca.aplicar(canvas, arteNaTela);
+      setSituacao('pronta');
+    } catch {
+      setSituacao('falhou');
+    }
+  });
+
   useEffect(() => {
     if (!versao) return;
-    const quadro = requestAnimationFrame(() => {
-      // O preparo é lido na hora de desenhar: pode ter acabado de ser trocado.
-      const p = preparo.current;
-      const canvas = tela.current;
-      if (!p || !canvas) return;
-      try {
-        if (canvas.width !== p.peca.largura) canvas.width = p.peca.largura;
-        if (canvas.height !== p.peca.altura) canvas.height = p.peca.altura;
-        let arteNaTela: Tela | null = p.marca;
-        if (p.arte) {
-          const fotoNoMolde =
-            p.foto && geometria && enquadramento
-              ? { imagem: p.foto, geometria, enquadramento, inteira: p.fotoInteira }
-              : null;
-          arteNaTela = p.arte.desenhar(fotoNoMolde, p.telaDaArte ?? undefined);
-          p.telaDaArte = arteNaTela;
-        }
-        p.peca.aplicar(canvas, arteNaTela);
-        setSituacao('pronta');
-      } catch {
-        setSituacao('falhou');
-      }
-    });
+    const quadro = requestAnimationFrame(() => pintar());
     return () => cancelAnimationFrame(quadro);
   }, [versao, enquadramento, geometria]);
+
+  // O passeio da dica: com a foto recém-mandada, ela se mexe sozinha uma vez. Para no
+  // primeiro toque (a dica sai) e não acontece para quem pediu menos movimento.
+  const passear = !!ajuste && !!dica?.movimento;
+  const fotoDoPasseio = foto?.url ?? null;
+  const passeada = useRef<string | null>(null);
+  useEffect(() => {
+    if (!passear || !versao || !fotoDoPasseio || passeada.current === fotoDoPasseio) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const inicio = performance.now() + ESPERA_DO_PASSEIO;
+    let quadro = requestAnimationFrame(function andar(agora: number) {
+      const t = (agora - inicio) / DURACAO_DO_PASSEIO;
+      if (t >= 1) {
+        passeada.current = fotoDoPasseio;
+        pintar();
+        return;
+      }
+      if (t > 0) pintar((atual) => passeio(atual, t));
+      quadro = requestAnimationFrame(andar);
+    });
+    return () => {
+      cancelAnimationFrame(quadro);
+      // Interrompido no meio: a foto volta para o lugar dela.
+      quadro = requestAnimationFrame(() => pintar());
+    };
+  }, [passear, versao, fotoDoPasseio]);
 
   // Zoom pela rodinha do mouse com Ctrl (ou ⌘) e pela pinça do trackpad.
   useEffect(() => {
@@ -332,6 +389,9 @@ export function TelaDaPrevia({
 
   function aoTocar(evento: PointerEvent<HTMLCanvasElement>) {
     if (!ajuste || (evento.pointerType === 'mouse' && evento.button !== 0)) return;
+    // Quem tocou já entendeu: o passeio para e a dica sai.
+    if (foto) passeada.current = foto.url;
+    avisarToque?.();
     evento.currentTarget.setPointerCapture(evento.pointerId);
     toques.current.set(evento.pointerId, { x: evento.clientX, y: evento.clientY });
   }
@@ -403,6 +463,19 @@ export function TelaDaPrevia({
             : ''
         }`}
       />
+      {ajuste ? (
+        <p
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-x-0 bottom-3 flex justify-center transition-opacity duration-300 ease-saida motion-reduce:transition-none ${
+            dica && situacao === 'pronta' ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-verde px-3 py-1.5 text-[0.8125rem] leading-4 font-semibold text-creme">
+            <IconeMover className="shrink-0" />
+            Arraste para ajustar
+          </span>
+        </p>
+      ) : null}
       {situacao !== 'pronta' ? (
         <p className="absolute inset-0 flex items-center justify-center gap-2 p-3 text-center text-sm leading-snug font-semibold">
           {situacao === 'falhou' ? (
