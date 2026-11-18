@@ -1016,6 +1016,39 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
+-- Design Segundo Lugar: prêmio de consolação, estampa grande, para irmãos (zoação de irmão). A arte vem do
+-- Higgsfield (conceito no Seedream 5.5, arte chapada no gpt_image_2_6, vetor do Ideogram): "Prêmio de consolação", a
+-- roseta de prêmio, a medalha "2º lugar", a fita lisa e a linha "O 1º lugar está usando esta camiseta". O site põe o
+-- nome enorme em Anton, com a base em arco, a foto na frente da roseta e o texto da fita, que o cliente escolhe
+-- (filho ou filha, da mãe ou do pai), vazado e em curva.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('segundo-lugar', 'Segundo Lugar', 'ativo', 31, '2026-11-18', '{
+    "versao": 1,
+    "proporcao": 0.592,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/segundo-lugar/topo.svg", "x": 506.4, "topo": 17.4, "largura": 745.8, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/segundo-lugar/roseta.svg", "x": 496.7, "topo": 482.4, "largura": 911.0, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 99, "largura_maxima": 930, "altura_no_centro": 420, "arco": 1.26, "compressao_maxima": 0.5, "expansao_maxima": 1.9, "engrossa": 4, "folga": 10, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 470, "largura": 820, "altura": 1001, "janela": {"largura": 900, "altura": 1140, "y": 1050}},
+      {"tipo": "arte", "arquivo": "/designs/segundo-lugar/medalha.svg", "x": 711.5, "topo": 1038.1, "largura": 350.7, "folga": 0, "base": "/designs/segundo-lugar/medalha-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/segundo-lugar/fita.svg", "x": 499.8, "topo": 1365.9, "largura": 993.8, "folga": 0, "base": "/designs/segundo-lugar/fita-base.svg"},
+      {"tipo": "nome", "campo": "titulo", "fonte": "titulo", "x": 500, "topo": 1400, "largura_maxima": 760, "altura_no_centro": 96, "arco": 1, "compressao_maxima": 0.5, "curva": 19, "vazado": true, "acento_dentro": true},
+      {"tipo": "arte", "arquivo": "/designs/segundo-lugar/linha.svg", "x": 501.0, "topo": 1597.6, "largura": 899.8, "folga": 0}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}, {"chave": "titulo", "rotulo": "O que vai na fita?", "resumo": "Na fita", "max": 24, "caixa": "alta", "opcoes": ["FILHO PREFERIDO DA MÃE", "FILHA PREFERIDA DA MÃE", "FILHO PREFERIDO DO PAI", "FILHA PREFERIDA DO PAI"]}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["irmaos"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
 -- O Letreiro (letreiro de cinema, conceito Bia & Caio) saiu da linha por decisão do Lucas
 -- (10/11/2026). Onde ele já existir no banco, fica encerrado.
 update public.designs set status = 'encerrado' where slug = 'letreiro';

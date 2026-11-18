@@ -758,6 +758,30 @@ def casa_da_vo():
     # A linha de baixo ("Porta aberta desde 1998") é escrita pelo site, por causa do ano.
 
 
+def segundo_lugar():
+    print('Segundo Lugar')
+    itens = ler('segundo-lugar')
+    # A fita (de 88 a 1270, com as pontas dobradas) toma a largura da arte, com uma
+    # margem de 10 de cada lado.
+    corte = (78, 70, 1202)
+    topo = [i for i in itens if i['caixa'][3] < 300]
+    linha = [i for i in itens if i['caixa'][1] >= 1870]
+    fita = [i for i in itens if 1595 <= i['caixa'][1] and i['caixa'][3] < 1870]
+    meio = [i for i in itens if i not in topo and i not in linha and i not in fita]
+    # A medalha "2º lugar" é o disco de 408 de largura, embaixo e à direita da roseta: o
+    # que cai dentro da caixa dele é dela. Ela e a fita ficam na frente da foto; a
+    # roseta inteira, com as duas pontas, atrás.
+    disco = next(i for i in meio if i['tipo'] == 'W' and 380 < i['caixa'][2] - i['caixa'][0] < 430)
+    a, b, c, d = disco['caixa']
+    medalha = [i for i in meio if i['caixa'][0] >= a - 2 and i['caixa'][1] >= b - 2 and i['caixa'][2] <= c + 2 and i['caixa'][3] <= d + 2]
+    roseta = [i for i in meio if i not in medalha]
+    gravar('segundo-lugar', 'topo', topo, corte, 'A linha "Prêmio de consolação".')
+    gravar('segundo-lugar', 'roseta', roseta, corte, 'A roseta de prêmio, com as duas pontas (atrás da foto).')
+    gravar('segundo-lugar', 'medalha', medalha, corte, 'A medalha "2º lugar" (na frente da foto).', base=True)
+    gravar('segundo-lugar', 'fita', fita, corte, 'A fita, lisa (na frente da foto; o texto da fita é do site).', base=True)
+    gravar('segundo-lugar', 'linha', linha, corte, 'A linha "O 1º lugar está usando esta camiseta".')
+
+
 if __name__ == '__main__':
     turne_mundial()
     ao_vivo()
@@ -788,3 +812,4 @@ if __name__ == '__main__':
     cinco_estrelas()
     feita_a_mao()
     casa_da_vo()
+    segundo_lugar()
