@@ -12,7 +12,7 @@ import {
   type PedidoDoCheckout,
 } from '@/lib/checkout';
 import { codigoNovo } from '@/lib/foto/guardar';
-import { MAX_PARCELAS, PRAZO_DE_PERSONALIZACAO, precoDoPresente, reais, somar } from '@/lib/loja';
+import { PRAZO_DE_PERSONALIZACAO, precoDoPresente, reais, somar } from '@/lib/loja';
 import {
   chaveDaInteira,
   chavesDasFotos,
@@ -625,7 +625,7 @@ export function Checkout({
                 rotulo="CPF"
                 valor={form.cpf}
                 erro={mostrar('cpf')}
-                ajuda="O Mercado Pago pede no pagamento."
+                ajuda="É pedido no pagamento."
                 aoMudar={(v) => mudar('cpf', mascararCpf(v))}
                 aoSair={sair('cpf')}
                 inputMode="numeric"
@@ -949,7 +949,7 @@ export function Checkout({
                 </div>
               ) : null}
               <p className="mt-4 text-[0.9375rem] leading-snug">
-                No próximo passo: Pix ou cartão em até {MAX_PARCELAS} vezes, pelo Mercado Pago.
+                No próximo passo: Pix ou cartão de crédito parcelado.
               </p>
             </div>
             <MensagemDoPrazo className="mt-8" />

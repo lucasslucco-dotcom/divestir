@@ -5,7 +5,7 @@ import { erro, veioDeFora } from '@/lib/api';
 import { carregarCatalogo } from '@/lib/catalogo';
 import { cotarFrete, FreteIndisponivel } from '@/lib/frete';
 import { MAX_PECAS_POR_PEDIDO, precoDaPeca, precoDoPresente, somar } from '@/lib/loja';
-import { pagamentoEmTeste } from '@/lib/mercadopago';
+import { pagamentoEmTeste } from '@/lib/pagamento';
 import { cepValido, soDigitos } from '@/lib/validar';
 
 export async function POST(request: Request) {

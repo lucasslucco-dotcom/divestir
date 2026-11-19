@@ -3,7 +3,7 @@ import { connection } from 'next/server';
 import { Suspense } from 'react';
 import { carregarCatalogo } from '@/lib/catalogo';
 import { carregarDesigns } from '@/lib/designs';
-import { pagamentoEmTeste } from '@/lib/mercadopago';
+import { pagamentoEmTeste } from '@/lib/pagamento';
 import { Cabecalho } from '../cabecalho';
 import { Checkout } from './checkout';
 

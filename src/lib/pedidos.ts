@@ -4,13 +4,7 @@ import type { PecaDoCheckout, PedidoCriado, PedidoDoCheckout, SituacaoDoPedido }
 import { ESPACO_DAS_FOTOS, ehCodigo } from './foto/espaco';
 import { cotarFrete, FreteIndisponivel } from './frete';
 import { MAX_PECAS_POR_PEDIDO, PRAZO_EM_TEXTO, precoDaPeca, precoDoPresente, somar } from './loja';
-import {
-  buscarPagamento,
-  devolverPagamento,
-  pagamentoEmTeste,
-  situacaoDoPagamento,
-  type SituacaoDoPagamento,
-} from './mercadopago';
+import { buscarPagamento, devolverPagamento, pagamentoEmTeste, type SituacaoDoPagamento } from './pagamento';
 import { LIMITE_DO_CARTAO } from './montagem/tipos';
 import {
   ehConfigDoMolde,
@@ -417,7 +411,7 @@ export async function lerPedidoPorNumero(numero: number): Promise<LinhaDoPedido 
   return (data as LinhaDoPedido | null) ?? null;
 }
 
-// Registra o que o Mercado Pago disse sobre um pagamento. "novo": é a tentativa que
+// Registra o que o meio de pagamento disse sobre um pagamento. "novo": é a tentativa que
 // o site acabou de criar. Devolve o status do pedido depois do registro.
 export async function registrarPagamento(
   pedido: Pick<LinhaDoPedido, 'id' | 'numero'>,
@@ -438,17 +432,17 @@ export async function registrarPagamento(
 
 // O cliente pagou duas vezes o mesmo pedido (por exemplo, o Pix caiu depois de ele
 // já ter pago com o cartão): o segundo pagamento volta para ele na hora, sozinho
-// (decisão do Lucas, 10/11/2026). Antes de devolver, o site confere no Mercado Pago
+// (decisão do Lucas, 10/11/2026). Antes de devolver, o site confere no meio de pagamento
 // que o pagamento que vale para o pedido continua aprovado; se não estiver, não
 // devolve nada e deixa o caso nos registros para a equipe olhar.
 async function devolverEmDobro(numero: number, pagamentoRepetido: string) {
   try {
     const pedido = await lerPedidoPorNumero(numero);
     const queVale = pedido?.pagamento_id && pedido.pagamento_id !== pagamentoRepetido ? pedido.pagamento_id : null;
-    const aprovado = queVale ? (await buscarPagamento(queVale))?.status === 'approved' : false;
+    const aprovado = queVale ? (await buscarPagamento(queVale))?.situacao.situacao === 'approved' : false;
     if (!aprovado) {
       console.error(
-        `pedidos: COBRANÇA EM DOBRO no pedido ${numero} (pagamento ${pagamentoRepetido}), mas não consegui confirmar o pagamento que vale. NÃO devolvi: conferir no Mercado Pago.`,
+        `pedidos: COBRANÇA EM DOBRO no pedido ${numero} (pagamento ${pagamentoRepetido}), mas não consegui confirmar o pagamento que vale. NÃO devolvi: conferir no painel do meio de pagamento.`,
       );
       return;
     }
@@ -458,24 +452,24 @@ async function devolverEmDobro(numero: number, pagamentoRepetido: string) {
       );
     } else {
       console.error(
-        `pedidos: COBRANÇA EM DOBRO no pedido ${numero}: o Mercado Pago não aceitou devolver o pagamento ${pagamentoRepetido}. Devolver por lá.`,
+        `pedidos: COBRANÇA EM DOBRO no pedido ${numero}: o meio de pagamento não aceitou devolver o pagamento ${pagamentoRepetido}. Devolver por lá.`,
       );
     }
   } catch (motivo) {
     console.error(
-      `pedidos: COBRANÇA EM DOBRO no pedido ${numero} (pagamento ${pagamentoRepetido}): a devolução falhou. Devolver pelo Mercado Pago.`,
+      `pedidos: COBRANÇA EM DOBRO no pedido ${numero} (pagamento ${pagamentoRepetido}): a devolução falhou. Devolver pelo painel do meio de pagamento.`,
       motivo,
     );
   }
 }
 
-// Pergunta ao Mercado Pago como está o pagamento atual de um pedido ainda não pago
-// (para quando o aviso do Mercado Pago atrasa ou não chega).
+// Pergunta ao meio de pagamento como está o pagamento atual de um pedido ainda não pago
+// (para quando o aviso dele atrasa ou não chega).
 export async function conferirPagamento(pedido: LinhaDoPedido) {
   if (pedido.pago_em || !pedido.pagamento_id) return false;
   const pagamento = await buscarPagamento(pedido.pagamento_id).catch(() => null);
   if (!pagamento) return false;
-  const situacao = situacaoDoPagamento(pagamento);
+  const situacao = pagamento.situacao;
   if (situacao.situacao === pedido.pagamento_situacao) return false;
   await registrarPagamento(pedido, situacao);
   return true;

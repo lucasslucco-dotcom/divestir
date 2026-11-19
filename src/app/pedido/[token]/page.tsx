@@ -3,7 +3,7 @@ import { connection } from 'next/server';
 import { Suspense } from 'react';
 import { carregarCatalogo } from '@/lib/catalogo';
 import { carregarDesigns } from '@/lib/designs';
-import { chavePublica } from '@/lib/mercadopago';
+import { chavePublica, provedor } from '@/lib/pagamento';
 import { Cabecalho } from '../../cabecalho';
 import { Pedido } from './pedido';
 
@@ -21,7 +21,9 @@ async function PedidoComDados({ params }: { params: Promise<{ token: string }> }
   const { token } = await params;
   await connection();
   const [catalogo, designs] = await Promise.all([carregarCatalogo(), carregarDesigns()]);
-  return <Pedido token={token} catalogo={catalogo} designs={designs} chavePublica={chavePublica()} />;
+  return (
+    <Pedido token={token} catalogo={catalogo} designs={designs} provedor={provedor()} chavePublica={chavePublica()} />
+  );
 }
 
 export default function PaginaDoPedido({ params }: { params: Promise<{ token: string }> }) {

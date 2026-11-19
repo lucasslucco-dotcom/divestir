@@ -2,11 +2,11 @@
 // token_acompanhamento, que só quem fez o pedido tem). Não devolve endereço, CPF
 // nem contato.
 //   ?leve=1     só o status e o pagamento (para a página perguntar de tempos em tempos)
-//   ?conferir=1 pergunta também ao Mercado Pago, se o aviso dele ainda não chegou
+//   ?conferir=1 pergunta também ao meio de pagamento, se o aviso dele ainda não chegou
 //   ?pix=1      traz o código e o QR do Pix que está aguardando
 
 import { erro } from '@/lib/api';
-import { buscarPagamento, dadosDoPix } from '@/lib/mercadopago';
+import { buscarPagamento } from '@/lib/pagamento';
 import { conferirPagamento, lerPedido, PedidoRecusado, situacaoDoPedido } from '@/lib/pedidos';
 
 const SEM_GUARDAR = { 'Cache-Control': 'no-store' };
@@ -28,8 +28,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ toke
     const pixAguardando =
       !pedido.pago_em && pedido.pagamento_metodo === 'pix' && pedido.pagamento_situacao === 'pending';
     if (pergunta.has('pix') && pixAguardando && pedido.pagamento_id) {
-      const doMercadoPago = await buscarPagamento(pedido.pagamento_id).catch(() => null);
-      pix = doMercadoPago ? dadosDoPix(doMercadoPago) : null;
+      pix = (await buscarPagamento(pedido.pagamento_id).catch(() => null))?.pix ?? null;
     }
     return Response.json({ ...(await situacaoDoPedido(pedido)), pix }, { headers: SEM_GUARDAR });
   } catch (motivo) {

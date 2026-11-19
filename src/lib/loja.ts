@@ -45,9 +45,19 @@ export function precoDoPresente(modoDeTeste: boolean): Preco | null {
 // operação quiser"). Ainda não decidido, então fica sem desconto.
 export const DESCONTO_NO_PIX = 0;
 
-// Cartão parcelado: até 12 vezes, com os juros do Mercado Pago pagos por quem compra
-// (o padrão da conta, até a operação decidir outra coisa).
+// Cartão parcelado no Mercado Pago (desligado desde 19/11/2026): até 12 vezes, com os
+// juros pagos por quem compra.
 export const MAX_PARCELAS = 12;
+
+// Cartão parcelado no Pagar.me: sem juros para quem compra (a taxa do parcelamento
+// fica com a loja), em até PARCELAS_SEM_JUROS vezes e com parcela de pelo menos
+// PARCELA_MINIMA reais. Os dois números são da operação: o Lucas ainda vai fechar.
+export const PARCELAS_SEM_JUROS = 6;
+export const PARCELA_MINIMA = 30;
+
+export function parcelasPossiveis(total: number) {
+  return Math.max(1, Math.min(PARCELAS_SEM_JUROS, Math.floor(total / PARCELA_MINIMA)));
+}
 
 export const MAX_PECAS_POR_PEDIDO = 10;
 

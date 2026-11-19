@@ -8,7 +8,9 @@ const DESCRICAO =
 
 export const metadata: Metadata = {
   // Endereço do site no ar. Trocar quando a Divestir ganhar domínio próprio.
-  metadataBase: new URL('https://divestir.vercel.app'),
+  // O endereço principal do site: o domínio próprio, assim que ele estiver ligado na
+  // Vercel (a Vercel informa qual é); até lá, o endereço da Vercel.
+  metadataBase: new URL(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL || 'divestir.vercel.app'}`),
   title: TITULO,
   description: DESCRICAO,
   // Como o link aparece quando é compartilhado no WhatsApp e nas redes.

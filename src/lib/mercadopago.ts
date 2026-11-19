@@ -1,6 +1,10 @@
 import 'server-only';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 
+// DESLIGADO desde 19/11/2026: o meio de pagamento da loja passou a ser o Pagar.me
+// (src/lib/pagarme.ts; quem escolhe é src/lib/pagamento.ts). Este arquivo só volta a
+// valer se as chaves do Mercado Pago estiverem na Vercel e as do Pagar.me não.
+//
 // Pagamento pelo Mercado Pago (decisão do Lucas, 08/11/2026): Pix e cartão, pelo
 // formulário do próprio Mercado Pago dentro da página (Payment Brick). Os dados do
 // cartão vão direto do navegador para o Mercado Pago, que devolve um código de uso
@@ -11,10 +15,6 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 //   MERCADOPAGO_ACCESS_TOKEN  chave secreta, só no servidor
 //   MERCADOPAGO_ASSINATURA    assinatura secreta dos avisos (webhooks), só no servidor
 //   PAGAMENTO_MODO            "producao" = vendas de verdade; vazio = modo de teste
-
-export function pagamentoEmTeste() {
-  return process.env.PAGAMENTO_MODO !== 'producao';
-}
 
 export function chavePublica() {
   return process.env.MERCADOPAGO_PUBLIC_KEY || null;

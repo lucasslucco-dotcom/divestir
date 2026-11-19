@@ -1,21 +1,15 @@
-// Cria o pagamento de um pedido no Mercado Pago, com o que o formulário do Mercado
-// Pago (Payment Brick) devolveu no navegador: o código de uso único do cartão, ou o
-// pedido de Pix. O valor é sempre o total do pedido no banco, nunca o do navegador.
-// O resultado já fica registrado no pedido; o aviso do Mercado Pago (webhook)
-// confirma depois.
+// Cria o pagamento de um pedido no meio de pagamento da loja (o Pagar.me; o Mercado
+// Pago continua aqui, desligado), com o que o formulário devolveu no navegador: o
+// código de uso único do cartão, ou o pedido de Pix. O valor é sempre o total do pedido
+// no banco, nunca o do navegador. O resultado já fica registrado no pedido; o aviso do
+// meio de pagamento (webhook) confirma depois.
 
 import { erro, veioDeFora } from '@/lib/api';
 import { ehCodigo } from '@/lib/foto/espaco';
-import { MAX_PARCELAS, MINUTOS_DO_PIX } from '@/lib/loja';
-import {
-  cancelarPagamento,
-  criarPagamento,
-  dadosDoPix,
-  ErroDoMercadoPago,
-  mercadoPagoLigado,
-  situacaoDoPagamento,
-  validadeDoPix,
-} from '@/lib/mercadopago';
+import { MAX_PARCELAS, MINUTOS_DO_PIX, parcelasPossiveis } from '@/lib/loja';
+import { criarPagamento, ErroDoMercadoPago, validadeDoPix } from '@/lib/mercadopago';
+import { cancelarPagamento, lerDoMercadoPago, lerDoPagarme, nomeDoProvedor, provedor } from '@/lib/pagamento';
+import { criarPedido, detalheDaRecusa, ErroDoPagarme, montarPedido, type FormaDePagar } from '@/lib/pagarme';
 import { lerPedido, PedidoRecusado, registrarPagamento, type LinhaDoPedido } from '@/lib/pedidos';
 import { emailValido, separarNome, soDigitos } from '@/lib/validar';
 
@@ -109,9 +103,29 @@ function montarPagamento(pedido: LinhaDoPedido, formulario: Record<string, unkno
   };
 }
 
+// O que o formulário da loja manda para o Pagar.me: Pix, ou o código do cartão (token,
+// que vale uma vez só e vem do próprio Pagar.me) com o número de parcelas.
+function formaDePagar(pedido: LinhaDoPedido, formulario: Record<string, unknown>): FormaDePagar {
+  if (formulario.metodo === 'pix') return { metodo: 'pix' };
+  const cartao =
+    typeof formulario.token === 'string' && /^token_[\w-]{6,200}$/.test(formulario.token) ? formulario.token : null;
+  const parcelas = Number(formulario.parcelas);
+  if (
+    formulario.metodo !== 'cartao' ||
+    !cartao ||
+    !Number.isInteger(parcelas) ||
+    parcelas < 1 ||
+    parcelas > parcelasPossiveis(Number(pedido.total))
+  ) {
+    throw new PedidoRecusado('Os dados do cartão não chegaram direito. Tenta de novo?');
+  }
+  return { metodo: 'cartao', token: cartao, parcelas };
+}
+
 export async function POST(request: Request, { params }: { params: Promise<{ token: string }> }) {
   if (veioDeFora(request)) return erro('Pedido de fora do site.', 403);
-  if (!mercadoPagoLigado()) return erro('O pagamento ainda não está ligado.', 503);
+  const qual = provedor();
+  if (!qual) return erro('O pagamento ainda não está ligado.', 503);
   const { token } = await params;
 
   let dados: Record<string, unknown>;
@@ -147,24 +161,29 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
       await cancelarPagamento(pedido.pagamento_id);
     }
 
-    const pagamento = await criarPagamento(montarPagamento(pedido, formulario), dados.tentativa);
-    const status = await registrarPagamento(pedido, situacaoDoPagamento(pagamento), true);
+    let lido;
+    let detalhe: string | null;
+    if (qual === 'pagarme') {
+      const criado = await criarPedido(montarPedido(pedido, formaDePagar(pedido, formulario)), dados.tentativa);
+      lido = lerDoPagarme(criado);
+      detalhe = detalheDaRecusa(criado);
+    } else {
+      const criado = await criarPagamento(montarPagamento(pedido, formulario), dados.tentativa);
+      lido = lerDoMercadoPago(criado);
+      detalhe = criado.status_detail ?? null;
+    }
+    const status = await registrarPagamento(pedido, lido.situacao, true);
     return Response.json(
-      {
-        situacao: pagamento.status,
-        detalhe: pagamento.status_detail ?? null,
-        status,
-        pix: dadosDoPix(pagamento),
-      },
+      { situacao: lido.situacao.situacao, detalhe, status, pix: lido.pix },
       { headers: SEM_GUARDAR },
     );
   } catch (motivo) {
     if (motivo instanceof PedidoRecusado) return erro(motivo.message, motivo.status);
-    if (motivo instanceof ErroDoMercadoPago) {
+    if (motivo instanceof ErroDoMercadoPago || motivo instanceof ErroDoPagarme) {
       return erro(
         motivo.status === 400
-          ? 'O Mercado Pago não aceitou esse pagamento. Confere os dados ou tenta outro jeito de pagar?'
-          : 'O Mercado Pago não respondeu agora. Tenta de novo em instantes?',
+          ? `O ${nomeDoProvedor(qual)} não aceitou esse pagamento. Confere os dados ou tenta outro jeito de pagar?`
+          : `O ${nomeDoProvedor(qual)} não respondeu agora. Tenta de novo em instantes?`,
         motivo.status,
       );
     }

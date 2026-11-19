@@ -19,16 +19,18 @@ import { AvisoDeTeste, linhasDoCarrinho, MiniaturaDaPeca, useRecortes } from '..
 import { IconeAlerta, IconeCarregando, IconeCopiar, IconeSim } from '../../montar/icones';
 import { linkDeTexto } from '../../montar/passo-foto';
 import { PagamentoMercadoPago, type Envio } from './pagamento-mp';
+import { PagamentoPagarme } from './pagamento-pagarme';
 
 // A página do pedido, pelo link com o código do pedido (sem login): o pagamento
-// (Pix ou cartão, pelo Mercado Pago), o Pix aguardando, o pagamento em análise e,
+// (Pix ou cartão, pelo Pagar.me), o Pix aguardando, o pagamento em análise e,
 // depois de pago, a confirmação com a prévia das peças e o número do pedido
 // (briefing, "Depois do pagamento").
 
 type Situacao = SituacaoDoPedido;
 type Leve = { status: string; pago: boolean; pagamento: Situacao['pagamento'] };
 
-// Por que o cartão foi recusado, nas palavras do cliente (status_detail do Mercado Pago).
+// Por que o cartão foi recusado, nas palavras do cliente (os motivos do Mercado Pago; os
+// códigos de banco do Pagar.me são traduzidos para eles em src/lib/pagarme.ts).
 const RECUSAS: Record<string, string> = {
   cc_rejected_bad_filled_card_number: 'Confere o número do cartão.',
   cc_rejected_bad_filled_date: 'Confere a validade do cartão.',
@@ -77,7 +79,18 @@ async function buscar(
   }
 }
 
-function AjudaDoTeste() {
+function AjudaDoTeste({ provedor }: { provedor: 'pagarme' | 'mercadopago' | null }) {
+  if (provedor === 'pagarme') {
+    return (
+      <div className="mt-6 rounded-md border border-dashed border-verde px-4 py-3 text-[0.9375rem] leading-snug">
+        <p className="font-semibold">Pagamento em modo de teste: nada é cobrado.</p>
+        <p className="mt-1">
+          O Pix de teste é pago sozinho em alguns segundos (em pedidos de até R$ 500). Para o cartão, use um dos cartões
+          de teste do Pagar.me.
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="mt-6 rounded-md border border-dashed border-verde px-4 py-3 text-[0.9375rem] leading-snug">
       <p className="font-semibold">Pagamento em modo de teste: nada é cobrado.</p>
@@ -90,7 +103,7 @@ function AjudaDoTeste() {
   );
 }
 
-// O e-mail digitado no checkout (só nesta aba), para o Mercado Pago não pedir de novo.
+// O e-mail digitado no checkout (só nesta aba), para o formulário do Mercado Pago não pedir de novo.
 function emailDoCheckout() {
   try {
     const rascunho = JSON.parse(sessionStorage.getItem('divestir:checkout') ?? 'null') as { email?: unknown } | null;
@@ -104,11 +117,13 @@ export function Pedido({
   token,
   catalogo,
   designs,
+  provedor,
   chavePublica,
 }: {
   token: string;
   catalogo: Catalogo;
   designs: Design[];
+  provedor: 'pagarme' | 'mercadopago' | null;
   chavePublica: string | null;
 }) {
   const [situacao, setSituacao] = useState<Situacao | null>(null);
@@ -159,7 +174,7 @@ export function Pedido({
   }, [pago, guardado]);
 
   // Esperando o Pix cair (ou o cartão sair da análise): pergunta de tempos em tempos
-  // e, a cada meio minuto, confere também com o Mercado Pago. Ao voltar para a aba
+  // e, a cada meio minuto, confere também com o meio de pagamento. Ao voltar para a aba
   // (depois de pagar no app do banco), confere na hora.
   const pixAguardando =
     !!situacao && !situacao.pago && situacao.pagamento.metodo === 'pix' && situacao.pagamento.situacao === 'pending';
@@ -399,17 +414,17 @@ export function Pedido({
     </>
   );
 
-  // Pagamento em análise no Mercado Pago.
+  // Pagamento do cartão em análise.
   if (emAnalise) {
     return (
       <div className="mt-8 max-w-xl">
         {cabecalho('Pagamento em análise')}
         <p className="mt-6 leading-relaxed">
-          O Mercado Pago está conferindo o pagamento do cartão. Costuma levar poucos minutos, e esta página muda sozinha
-          quando ele terminar.
+          O pagamento do cartão está sendo conferido. Costuma levar poucos minutos, e esta página muda sozinha quando
+          terminar.
         </p>
         <p role="status" className="mt-4 flex items-center gap-2 text-[0.9375rem]">
-          <IconeCarregando /> Esperando a resposta do Mercado Pago…
+          <IconeCarregando /> Esperando a resposta do cartão…
         </p>
       </div>
     );
@@ -429,7 +444,7 @@ export function Pedido({
               sozinha.
             </p>
             {pix.imagem ? (
-              // eslint-disable-next-line @next/next/no-img-element -- imagem que o Mercado Pago gera na hora
+              // eslint-disable-next-line @next/next/no-img-element -- imagem que o meio de pagamento gera na hora
               <img
                 src={pix.imagem}
                 alt="QR do Pix para pagar o pedido"
@@ -484,12 +499,12 @@ export function Pedido({
         >
           {pixVencido ? 'Gerar outro Pix ou pagar com cartão' : 'Prefiro pagar com cartão'}
         </button>
-        {situacao.teste ? <AjudaDoTeste /> : null}
+        {situacao.teste ? <AjudaDoTeste provedor={provedor} /> : null}
       </div>
     );
   }
 
-  // Ainda sem pagamento (ou o último não deu certo): o formulário do Mercado Pago.
+  // Ainda sem pagamento (ou o último não deu certo): o formulário de pagamento.
   const ultima = situacao.pagamento.situacao;
   const naoDeu = !aviso && (ultima === 'rejected' || ultima === 'cancelled' || ultima === 'valor_divergente');
   return (
@@ -503,7 +518,9 @@ export function Pedido({
           </p>
         ) : null}
         <div className="mt-6">
-          {chavePublica ? (
+          {chavePublica && provedor === 'pagarme' ? (
+            <PagamentoPagarme key={rodada} chavePublica={chavePublica} total={situacao.total} aoPagar={pagar} />
+          ) : chavePublica ? (
             <PagamentoMercadoPago
               key={rodada}
               chavePublica={chavePublica}
@@ -517,7 +534,7 @@ export function Pedido({
             </p>
           )}
         </div>
-        {situacao.teste ? <AjudaDoTeste /> : null}
+        {situacao.teste ? <AjudaDoTeste provedor={provedor} /> : null}
       </div>
       <aside aria-label="Resumo do pedido" className="mt-10 border-t border-verde pt-6 lg:mt-0 lg:border-t-0 lg:pt-0">
         <h2 className="text-lg leading-snug font-semibold">Seu pedido</h2>
