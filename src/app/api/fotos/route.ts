@@ -9,6 +9,7 @@
 import { randomUUID } from 'node:crypto';
 import { erro, veioDeFora } from '@/lib/api';
 import { ESPACO_DAS_FOTOS, LIMITE_DO_ESPACO, caminhoDaFoto, ehCodigo, extensaoDoTipo } from '@/lib/foto/espaco';
+import { passouDoLimite } from '@/lib/limite';
 import { criarClienteAdmin } from '@/lib/supabase/admin';
 
 // Briefing ("Segurança desde o primeiro dia"): fotos de montagens nunca compradas
@@ -23,6 +24,8 @@ export async function POST(request: Request) {
   if (veioDeFora(request)) return erro('Pedido de fora do site.', 403);
   const admin = criarClienteAdmin();
   if (!admin) return erro('Ainda não dá para guardar a foto.', 503);
+  const demais = await passouDoLimite(request, 'fotos');
+  if (demais) return demais;
 
   let dados: Record<string, unknown>;
   try {

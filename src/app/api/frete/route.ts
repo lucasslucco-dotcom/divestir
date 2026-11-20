@@ -4,12 +4,15 @@
 import { erro, veioDeFora } from '@/lib/api';
 import { carregarCatalogo } from '@/lib/catalogo';
 import { cotarFrete, FreteIndisponivel } from '@/lib/frete';
+import { passouDoLimite } from '@/lib/limite';
 import { MAX_PECAS_POR_PEDIDO, precoDaPeca, precoDoPresente, somar } from '@/lib/loja';
 import { pagamentoEmTeste } from '@/lib/pagamento';
 import { cepValido, soDigitos } from '@/lib/validar';
 
 export async function POST(request: Request) {
   if (veioDeFora(request)) return erro('Pedido de fora do site.', 403);
+  const demais = await passouDoLimite(request, 'frete');
+  if (demais) return demais;
 
   let dados: Record<string, unknown>;
   try {

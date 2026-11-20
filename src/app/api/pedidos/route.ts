@@ -3,6 +3,7 @@
 // criar_pedido. O pedido nasce aguardando o pagamento.
 
 import { erro, veioDeFora } from '@/lib/api';
+import { passouDoLimite } from '@/lib/limite';
 import { criarPedido, lerPedidoDoCheckout, PedidoRecusado } from '@/lib/pedidos';
 
 export const maxDuration = 30;
@@ -11,6 +12,8 @@ const SEM_GUARDAR = { 'Cache-Control': 'no-store' };
 
 export async function POST(request: Request) {
   if (veioDeFora(request)) return erro('Pedido de fora do site.', 403);
+  const demais = await passouDoLimite(request, 'pedidos');
+  if (demais) return demais;
 
   const corpo = await request.text();
   if (corpo.length > 64_000) return erro('Pedido grande demais.', 413);

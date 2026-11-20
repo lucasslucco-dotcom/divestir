@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from '
 import type { Catalogo } from '@/lib/catalogo';
 import type { SituacaoDoPedido } from '@/lib/checkout';
 import { codigoNovo } from '@/lib/foto/guardar';
-import { MINUTOS_DO_PIX, PRAZO_DE_PERSONALIZACAO, reais } from '@/lib/loja';
+import { DIAS_SEM_PAGAR, MINUTOS_DO_PIX, PRAZO_DE_PERSONALIZACAO, reais } from '@/lib/loja';
 import {
   chaveDaInteira,
   chavesDasFotos,
@@ -397,6 +397,12 @@ export function Pedido({
     return (
       <div className="mt-10 max-w-md">
         <p className="text-lg leading-snug font-semibold">Esse pedido foi cancelado.</p>
+        {situacao.pago ? null : (
+          <p className="mt-3 leading-relaxed">
+            O pagamento não chegou em {DIAS_SEM_PAGAR} dias. Se as peças ainda estão no seu carrinho, é só fechar o
+            pedido de novo.
+          </p>
+        )}
         <Link href="/carrinho" className="ingresso mt-8">
           Voltar ao carrinho
         </Link>

@@ -169,9 +169,13 @@ createServer(async (pedido, resposta) => {
       const argumentos = JSON.parse((await lerCorpo(pedido)).toString() || '{}');
       const nomes = Object.keys(argumentos);
       if (!nomes.every((n) => NOME.test(n))) return responder(resposta, 400, { message: 'argumento inválido' });
-      const valores = nomes.map((n) =>
-        typeof argumentos[n] === 'object' ? JSON.stringify(argumentos[n]) : String(argumentos[n]),
-      );
+      // Uma lista simples (de códigos, por exemplo) vai como lista do banco; o resto, como JSON.
+      const lista = (v) => Array.isArray(v) && v.every((x) => typeof x === 'string' || typeof x === 'number');
+      const valores = nomes.map((n) => {
+        const v = argumentos[n];
+        if (lista(v)) return `{${v.map((x) => JSON.stringify(String(x))).join(',')}}`;
+        return typeof v === 'object' ? JSON.stringify(v) : String(v);
+      });
       const chamada = `public.${rotina}(${nomes.map((n, i) => `${n} => $${i + 1}`).join(', ')})`;
       const tipo = await db.query(
         'select proretset, prorettype::regtype::text as tipo from pg_proc where proname = $1',
@@ -258,6 +262,21 @@ createServer(async (pedido, resposta) => {
       await db.query('delete from storage.objects where bucket_id = $1 and name = $2', [envio[1], nome]);
       await db.query('insert into storage.objects (bucket_id, name) values ($1, $2)', [envio[1], nome]);
       return responder(resposta, 200, { Key: `${envio[1]}/${nome}` });
+    }
+    // ...apagar arquivos (a faxina das fotos vencidas).
+    const faxina = url.pathname.match(/^\/storage\/v1\/object\/([a-z_]+)$/);
+    if (faxina && pedido.method === 'DELETE') {
+      if (papel !== 'service_role') return responder(resposta, 403, { message: 'sem permissão' });
+      const { prefixes = [] } = JSON.parse((await lerCorpo(pedido)).toString() || '{}');
+      const apagados = [];
+      for (const nome of prefixes) {
+        const fora = await db.query('delete from storage.objects where bucket_id = $1 and name = $2 returning name', [
+          faxina[1],
+          String(nome),
+        ]);
+        apagados.push(...fora.rows.map((linha) => ({ name: linha.name, bucket_id: faxina[1] })));
+      }
+      return responder(resposta, 200, apagados);
     }
     // ...listar os arquivos de uma pasta.
     const lista = url.pathname.match(/^\/storage\/v1\/object\/list\/([a-z_]+)$/);

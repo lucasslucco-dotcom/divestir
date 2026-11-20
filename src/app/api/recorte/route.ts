@@ -10,6 +10,7 @@
 
 import { erro, veioDeFora } from '@/lib/api';
 import { ESPACO_DAS_FOTOS, caminhoDaFoto, ehCodigo, extensaoDoTipo } from '@/lib/foto/espaco';
+import { passouDoLimite } from '@/lib/limite';
 import { criarClienteAdmin } from '@/lib/supabase/admin';
 
 export const maxDuration = 30;
@@ -52,6 +53,8 @@ export async function POST(request: Request) {
   const chave = process.env.PHOTOROOM_API_KEY;
   if (!chave) return erro('O recorte ainda não está ligado.', 503);
   if (veioDeFora(request)) return erro('Pedido de fora do site.', 403);
+  const demais = await passouDoLimite(request, 'recorte');
+  if (demais) return demais;
 
   let dados: FormData;
   try {

@@ -6,6 +6,7 @@
 
 import { erro, veioDeFora } from '@/lib/api';
 import { ehCodigo } from '@/lib/foto/espaco';
+import { passouDoLimite } from '@/lib/limite';
 import { MAX_PARCELAS, MINUTOS_DO_PIX, parcelasPossiveis } from '@/lib/loja';
 import { criarPagamento, ErroDoMercadoPago, validadeDoPix } from '@/lib/mercadopago';
 import { cancelarPagamento, lerDoMercadoPago, lerDoPagarme, nomeDoProvedor, provedor } from '@/lib/pagamento';
@@ -126,6 +127,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   if (veioDeFora(request)) return erro('Pedido de fora do site.', 403);
   const qual = provedor();
   if (!qual) return erro('O pagamento ainda não está ligado.', 503);
+  const demais = await passouDoLimite(request, 'pagamento');
+  if (demais) return demais;
   const { token } = await params;
 
   let dados: Record<string, unknown>;
@@ -144,7 +147,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     if (!pedido) return erro('Não encontrei esse pedido.', 404);
     if (pedido.pago_em || pedido.status !== 'aguardando_pagamento') {
       return Response.json(
-        { erro: 'Esse pedido já foi pago.', status: pedido.status },
+        {
+          erro: pedido.status === 'cancelado' ? 'Esse pedido foi cancelado.' : 'Esse pedido já foi pago.',
+          status: pedido.status,
+        },
         { status: 409, headers: SEM_GUARDAR },
       );
     }

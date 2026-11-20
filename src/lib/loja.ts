@@ -64,6 +64,10 @@ export const MAX_PECAS_POR_PEDIDO = 10;
 // O Pix vale por 30 minutos: depois disso, o pedido pede um código novo.
 export const MINUTOS_DO_PIX = 30;
 
+// Pedido que fica sem pagamento por mais que isso é cancelado pela faxina diária
+// (src/app/api/faxina). Um pagamento aprovado que chegue depois traz o pedido de volta.
+export const DIAS_SEM_PAGAR = 3;
+
 // Contas em centavos, para não perder um centavo no caminho.
 export function somar(...valores: number[]) {
   return valores.reduce((total, valor) => total + Math.round(valor * 100), 0) / 100;

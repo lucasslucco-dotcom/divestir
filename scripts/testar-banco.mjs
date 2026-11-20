@@ -446,5 +446,80 @@ await confere(
   1,
 );
 
+console.log('\nFaxina e limite de uso');
+await db.exec(`
+  insert into public.pedidos (nome, email, whatsapp, endereco, total, criado_em) values
+    ('Velho sem pagar', 'a@exemplo.com', '34999998888', '{}'::jsonb, 100, now() - interval '5 days'),
+    ('Velho em analise', 'b@exemplo.com', '34999998888', '{}'::jsonb, 100, now() - interval '5 days'),
+    ('Novo sem pagar', 'c@exemplo.com', '34999998888', '{}'::jsonb, 100, now() - interval '1 day');
+  update public.pedidos set pagamento_situacao = 'in_process', pagamento_id = 'or_analise' where nome = 'Velho em analise';
+  insert into public.fotos (id, sessao_id, original_url, apagar_em) values
+    ('33333333-3333-4333-8333-333333333333', 's', 's/vencida/original.jpg', now() - interval '1 day'),
+    ('44444444-4444-4444-8444-444444444444', 's', 's/no-prazo/original.jpg', now() + interval '10 days'),
+    ('55555555-5555-4555-8555-555555555555', 's', 's/em-pedido/original.jpg', now() - interval '1 day');
+  insert into public.itens_pedido (pedido_id, peca_id, cor_id, design_id, tamanho, foto_id, preco)
+  select (select id from public.pedidos where nome = 'Novo sem pagar'), i.peca_id, i.cor_id, i.design_id, i.tamanho, '55555555-5555-4555-8555-555555555555', i.preco
+  from public.itens_pedido i limit 1;
+`);
+const usar = "select * from (select public.contar_uso('teste:visitante', 2, 3600) as cabe) r where r.cabe";
+await confere('visitante NÃO conta uso', 'anon', null, usar, 'negado');
+await confere('equipe logada NÃO conta uso', 'authenticated', ADMIN, usar, 'negado');
+await confere('visitante NÃO lê as contagens de uso', 'anon', null, 'select * from public.uso', 'negado');
+await confere('visitante NÃO vê as fotos vencidas', 'anon', null, 'select * from public.fotos_vencidas()', 'negado');
+await confere('visitante NÃO cancela pedidos', 'anon', null, 'select public.cancelar_pedidos_nao_pagos()', 'negado');
+await confere('servidor: a 1ª chamada cabe no limite de 2', 'service_role', null, usar, 1);
+await confere('...a 2ª também', 'service_role', null, usar, 1);
+await confere('...a 3ª NÃO cabe', 'service_role', null, usar, 0);
+await confere(
+  'a faxina acha só a foto vencida (a de um pedido que ainda pode ser pago fica)',
+  'service_role',
+  null,
+  'select * from public.fotos_vencidas()',
+  1,
+);
+await confere(
+  '...e apaga só ela, mesmo pedindo as três',
+  'service_role',
+  null,
+  "select * from (select public.apagar_fotos(array['33333333-3333-4333-8333-333333333333', '44444444-4444-4444-8444-444444444444', '55555555-5555-4555-8555-555555555555']::uuid[]) as n) r where r.n = 1",
+  1,
+);
+await confere(
+  '...a foto no prazo continua lá',
+  'service_role',
+  null,
+  "select * from public.fotos where id = '44444444-4444-4444-8444-444444444444'",
+  1,
+);
+await confere(
+  'a faxina cancela só o pedido velho e sem pagamento',
+  'service_role',
+  null,
+  'select * from (select public.cancelar_pedidos_nao_pagos(3) as n) r where r.n = 1',
+  1,
+);
+await confere(
+  '...o pedido com cartão em análise e o de ontem continuam aguardando',
+  'service_role',
+  null,
+  "select * from public.pedidos where nome in ('Velho em analise', 'Novo sem pagar') and status = 'aguardando_pagamento'",
+  2,
+);
+await confere(
+  '...e o cancelamento entra no histórico',
+  'service_role',
+  null,
+  "select * from public.status_historico h join public.pedidos p on p.id = h.pedido_id where p.nome = 'Velho sem pagar' and h.para = 'cancelado'",
+  1,
+);
+await confere(
+  'pagamento aprovado que chega para o pedido cancelado traz o pedido de volta',
+  'service_role',
+  null,
+  `select * from (select public.registrar_pagamento((select id from public.pedidos where nome = 'Velho sem pagar'), '{"id": "or_atrasado", "situacao": "approved", "valor": 100, "metodo": "cartao"}') as status) r where r.status = 'revisao_arte'`,
+  1,
+);
+await confere('a faxina das contagens não apaga as de hoje', 'service_role', null, 'select * from public.uso', 1);
+
 console.log(falhas === 0 ? '\nTudo certo: as regras de acesso estão funcionando.' : `\n${falhas} teste(s) falharam.`);
 process.exit(falhas === 0 ? 0 : 1);
