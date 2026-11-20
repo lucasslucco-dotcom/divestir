@@ -189,7 +189,13 @@ await confere(
 console.log('\nEquipe: operação');
 await confere('vê os pedidos', 'authenticated', OPERACAO, 'select * from public.pedidos', 1);
 await confere('vê todas as peças, inclusive inativas', 'authenticated', OPERACAO, 'select * from public.pecas', 2);
-await confere('vê só a própria linha da equipe', 'authenticated', OPERACAO, 'select * from public.equipe', 1);
+await confere(
+  'vê os colegas da equipe (o nome aparece no histórico dos pedidos)',
+  'authenticated',
+  OPERACAO,
+  'select * from public.equipe',
+  2,
+);
 await confere(
   'NÃO adiciona gente na equipe',
   'authenticated',
@@ -520,6 +526,74 @@ await confere(
   1,
 );
 await confere('a faxina das contagens não apaga as de hoje', 'service_role', null, 'select * from public.uso', 1);
+
+console.log('\nPainel da equipe');
+await db.exec(`
+  insert into public.pedidos (nome, email, whatsapp, endereco, total, status, pago_em)
+    values ('Painel Teste', 'painel@exemplo.com', '34988887777', '{}'::jsonb, 100, 'revisao_arte', now());
+`);
+const NUMERO = "(select numero from public.pedidos where nome = 'Painel Teste')";
+const mover = (para, extra = '') =>
+  `select * from (select public.painel_mover_pedido(${NUMERO}, '${para}'${extra}) as status) r where r.status = '${para}'`;
+await confere('visitante NÃO chama a lista do painel', 'anon', null, 'select public.painel_pedidos()', 'negado');
+await confere('visitante NÃO muda o status de um pedido', 'anon', null, mover('em_producao'), 'negado');
+await confere(
+  'pessoa logada que não é da equipe recebe a lista vazia',
+  'authenticated',
+  CLIENTE,
+  'select * from (select public.painel_pedidos() as l) r where jsonb_array_length(r.l) = 0',
+  1,
+);
+await confere(
+  '...não abre um pedido',
+  'authenticated',
+  CLIENTE,
+  `select * from (select public.painel_pedido(${NUMERO}) as p) r where r.p is not null`,
+  0,
+);
+await confere('...e NÃO muda o status', 'authenticated', CLIENTE, mover('em_producao'), 'negado');
+await confere(
+  'equipe: a lista traz os pedidos em andamento (sem os que aguardam pagamento e os cancelados)',
+  'authenticated',
+  OPERACAO,
+  "select * from jsonb_array_elements(public.painel_pedidos()) e where e->>'status' in ('aguardando_pagamento', 'cancelado')",
+  0,
+);
+await confere(
+  '...acha o pedido pelo nome, pelo e-mail e pelo WhatsApp',
+  'authenticated',
+  OPERACAO,
+  "select * from (values ('painel tes'), ('painel@exemplo'), ('(34) 98888-7777')) b(texto) where jsonb_array_length(public.painel_pedidos(b.texto)) = 1",
+  3,
+);
+await confere(
+  '...abre o pedido inteiro',
+  'authenticated',
+  OPERACAO,
+  `select * from (select public.painel_pedido(${NUMERO}) as p) r where r.p->>'email' = 'painel@exemplo.com' and r.p->>'status' = 'revisao_arte'`,
+  1,
+);
+await confere('...NÃO pula de revisão de arte para entregue', 'authenticated', OPERACAO, mover('entregue'), 'negado');
+await confere('...NÃO cancela (só o admin)', 'authenticated', OPERACAO, mover('cancelado'), 'negado');
+await confere('...aprova a arte: em produção', 'authenticated', OPERACAO, mover('em_producao'), 1);
+await confere('...NÃO marca enviado sem o rastreio', 'authenticated', OPERACAO, mover('enviado'), 'negado');
+await confere('...com o rastreio, enviado', 'authenticated', OPERACAO, mover('enviado', ", 'BR123456789BR'"), 1);
+await confere('...corrige o rastreio', 'authenticated', OPERACAO, mover('enviado', ", 'BR999999999BR'"), 1);
+await confere('...entregue', 'authenticated', OPERACAO, mover('entregue'), 1);
+await confere(
+  '...e o histórico guarda quem mudou e o rastreio que vale',
+  'authenticated',
+  OPERACAO,
+  `select * from (select public.painel_pedido(${NUMERO}) as p) r
+   where r.p->>'rastreio' = 'BR999999999BR'
+     and jsonb_array_length(r.p->'historico') = 3
+     and r.p->'historico'->0->>'por' = 'Operacao de teste'`,
+  1,
+);
+await confere('admin: volta para enviado', 'authenticated', ADMIN, mover('enviado'), 1);
+await confere('admin: de volta à produção e cancela', 'authenticated', ADMIN, mover('em_producao'), 1);
+await confere('...com o motivo guardado', 'authenticated', ADMIN, mover('cancelado', ", null, 'Cliente desistiu'"), 1);
+await confere('pedido cancelado não anda mais', 'authenticated', ADMIN, mover('revisao_arte'), 'negado');
 
 console.log(falhas === 0 ? '\nTudo certo: as regras de acesso estão funcionando.' : `\n${falhas} teste(s) falharam.`);
 process.exit(falhas === 0 ? 0 : 1);

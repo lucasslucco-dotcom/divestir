@@ -305,6 +305,30 @@
       "description": "Na confirmação: pílula verde cheia com texto creme, visto e o número do pedido, abaixo do \"Recebemos seu pedido!\" em Anton.",
       "html": "<span class=\"ds-selo-pedido\">✓ Pedido nº 1001</span>",
       "css": ".ds-selo-pedido{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1rem;border-radius:9999px;background:var(--color-verde);color:var(--color-creme);font:600 1rem var(--font-inter),system-ui,sans-serif}"
+    },
+    {
+      "name": "Botão de trabalho (painel)",
+      "kind": "custom",
+      "refersTo": "botao-de-trabalho",
+      "description": "O segundo nível do painel da equipe: contorno verde de 1px, canto de 6px, 44px de altura, Inter 600; no hover fica verde com texto creme. O ingresso continua sendo a ação principal.",
+      "html": "<button class=\"ds-botao-trabalho\">Pedir outra foto</button>",
+      "css": ".ds-botao-trabalho{display:inline-flex;align-items:center;min-height:44px;padding:0 1rem;border:1px solid var(--color-verde);border-radius:6px;background:transparent;color:var(--color-verde);font:600 .9375rem var(--font-inter),system-ui,sans-serif}.ds-botao-trabalho:hover{background:var(--color-verde);color:var(--color-creme)}"
+    },
+    {
+      "name": "Cartão do pedido (painel)",
+      "kind": "custom",
+      "refersTo": "cartao-do-pedido",
+      "description": "No quadro de pedidos do painel: contorno verde de 1px e canto de 12px, com o número, há quantos dias está na etapa, o cliente, o design com o nome da estampa, a peça e as etiquetas.",
+      "html": "<a class=\"ds-cartao-pedido\"><b>Nº 1042</b> <small>há 2 dias</small><br>Marina Alves<br><b>Fã-Clube</b> · THOR<br>Camiseta oversized · Preto · G</a>",
+      "css": ".ds-cartao-pedido{display:block;padding:1rem;border:1px solid var(--color-verde);border-radius:12px;background:var(--color-creme);color:var(--color-verde);font:400 .9375rem/1.4 var(--font-inter),system-ui,sans-serif;text-decoration:none}"
+    },
+    {
+      "name": "Etiqueta (painel)",
+      "kind": "custom",
+      "refersTo": "etiqueta",
+      "description": "Pílula pequena com contorno verde (Presente, Teste, Cancelado); cheia, é o status de um pedido em andamento.",
+      "html": "<span class=\"ds-etiqueta\">Presente</span> <span class=\"ds-etiqueta ds-etiqueta-cheia\">Em produção</span>",
+      "css": ".ds-etiqueta{display:inline-flex;padding:.25rem .625rem;border:1px solid var(--color-verde);border-radius:9999px;color:var(--color-verde);font:600 .8125rem/1 var(--font-inter),system-ui,sans-serif}.ds-etiqueta-cheia{background:var(--color-verde);color:var(--color-creme)}"
     }
   ],
   "narrative": {

@@ -4,8 +4,13 @@
 //   * leituras e gravações nas tabelas (só colunas simples, com os filtros eq, in e
 //     is, order e limit), com as regras de acesso (RLS) do papel de quem chama;
 //   * as rotinas do banco (/rest/v1/rpc/...), como criar_pedido;
-//   * o espaço das fotos: vaga assinada, envio pela vaga e lista de arquivos.
-// Chave que começa com "sb_secret" vale como a chave secreta (service_role); as
+//   * o espaço das fotos: vaga assinada, envio pela vaga, lista de arquivos, apagar e
+//     endereço assinado para ver (FOTO_ORIGINAL_DE_TESTE e FOTO_RECORTE_DE_TESTE dizem
+//     qual arquivo do computador aparece no lugar da original e do recorte);
+//   * o login da equipe (e-mail e senha), para o painel: entrar, quem sou eu, trocar
+//     a senha, sair, e criar, apagar e mudar usuários com a chave secreta.
+// Chave que começa com "sb_secret" vale como a chave secreta (service_role); quem
+// manda o código de um login feito aqui vale como a pessoa logada (authenticated); as
 // outras valem como visitante (anon). O recorte (/api/recorte) ainda precisa ser
 // simulado no teste, porque chama o Photoroom.
 //
@@ -30,13 +35,18 @@ const { PGlite } = await import(requerer.resolve('@electric-sql/pglite'));
 const db = new PGlite();
 await db.exec(`
   create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
-  create schema auth; create table auth.users (id uuid primary key);
-  create function auth.uid() returns uuid language sql stable as $$ select null::uuid $$;
+  create schema auth; create table auth.users (id uuid primary key default gen_random_uuid(), email text unique, senha text);
+  create function auth.uid() returns uuid language sql stable as $$
+    select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid
+  $$;
   grant usage on schema auth to anon, authenticated, service_role;
   create schema storage;
   create table storage.buckets (id text primary key, name text not null, public boolean default false, file_size_limit bigint, allowed_mime_types text[]);
   create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text references storage.buckets (id), name text, owner uuid);
   alter table storage.objects enable row level security;
+  grant usage on schema storage to anon, authenticated, service_role;
+  grant select on storage.buckets to anon, authenticated, service_role;
+  grant select, insert, update, delete on storage.objects to anon, authenticated, service_role;
 `);
 const pasta = join(raiz, 'supabase', 'migrations');
 for (const arquivo of readdirSync(pasta)
@@ -78,14 +88,65 @@ function comoJson(resultado) {
   );
 }
 
-async function comoPapel(papel, consulta, parametros = []) {
-  await db.exec(`set role ${papel};`);
-  try {
-    return await db.query(consulta, parametros);
-  } finally {
-    await db.exec('reset role;');
-  }
+// Uma consulta de cada vez: o banco é um só, e o papel (e quem está logado) vale só
+// durante a consulta.
+let fila = Promise.resolve();
+function comoPapel(papel, consulta, parametros = [], usuario = '') {
+  const vez = fila.then(async () => {
+    await db.query("select set_config('request.jwt.claim.sub', $1, false)", [usuario ?? '']);
+    await db.exec(`set role ${papel};`);
+    try {
+      return await db.query(consulta, parametros);
+    } finally {
+      await db.exec('reset role;');
+      await db.query("select set_config('request.jwt.claim.sub', '', false)");
+    }
+  });
+  fila = vez.catch(() => {});
+  return vez;
 }
+
+// Logins feitos aqui: o código de acesso de cada um e de quem ele é.
+const logins = new Map();
+const renovacoes = new Map();
+const b64 = (objeto) => Buffer.from(JSON.stringify(objeto)).toString('base64url');
+function abrirLogin(usuario) {
+  const agora = Math.floor(Date.now() / 1000);
+  const acesso = `${b64({ alg: 'HS256', typ: 'JWT' })}.${b64({
+    sub: usuario.id,
+    email: usuario.email,
+    role: 'authenticated',
+    aud: 'authenticated',
+    iat: agora,
+    exp: agora + 3600,
+    session_id: randomUUID(),
+  })}.${randomUUID().replaceAll('-', '')}`;
+  const renovacao = randomUUID();
+  logins.set(acesso, usuario.id);
+  renovacoes.set(renovacao, usuario.id);
+  return {
+    access_token: acesso,
+    token_type: 'bearer',
+    expires_in: 3600,
+    expires_at: agora + 3600,
+    refresh_token: renovacao,
+    user: usuarioDoLogin(usuario),
+  };
+}
+const usuarioDoLogin = (usuario) => ({
+  id: usuario.id,
+  aud: 'authenticated',
+  role: 'authenticated',
+  email: usuario.email,
+  email_confirmed_at: '2026-01-01T00:00:00Z',
+  app_metadata: { provider: 'email', providers: ['email'] },
+  user_metadata: {},
+  identities: [],
+  created_at: '2026-01-01T00:00:00Z',
+  updated_at: '2026-01-01T00:00:00Z',
+});
+const lerUsuario = async (id) =>
+  (await db.query('select id, email from auth.users where id = $1', [id])).rows[0] ?? null;
 
 // Filtros do PostgREST na URL: coluna=eq.valor, coluna=in.(a,b), coluna=is.null.
 function filtros(busca, parametros) {
@@ -154,9 +215,85 @@ const tabelaPublica = (nome) => (NOME.test(nome) ? `public.${nome}` : null);
 createServer(async (pedido, resposta) => {
   const url = new URL(pedido.url, 'http://localhost');
   const chave = String(pedido.headers.apikey ?? '');
-  const papel = chave.startsWith('sb_secret') ? 'service_role' : 'anon';
+  const portador = String(pedido.headers.authorization ?? '').replace(/^Bearer /i, '');
+  const logado = logins.get(portador) ?? '';
+  const papel = logado ? 'authenticated' : chave.startsWith('sb_secret') ? 'service_role' : 'anon';
   try {
     if (pedido.method === 'OPTIONS') return responder(resposta, 204);
+
+    // Login da equipe (e-mail e senha).
+    if (url.pathname === '/auth/v1/token' && pedido.method === 'POST') {
+      const corpo = JSON.parse((await lerCorpo(pedido)).toString() || '{}');
+      if (url.searchParams.get('grant_type') === 'refresh_token') {
+        const dono = renovacoes.get(corpo.refresh_token);
+        const usuario = dono ? await lerUsuario(dono) : null;
+        if (!usuario)
+          return responder(resposta, 400, { error_code: 'refresh_token_not_found', msg: 'Invalid Refresh Token' });
+        renovacoes.delete(corpo.refresh_token);
+        return responder(resposta, 200, abrirLogin(usuario));
+      }
+      const achado = await db.query('select id, email from auth.users where lower(email) = lower($1) and senha = $2', [
+        String(corpo.email ?? ''),
+        String(corpo.password ?? ''),
+      ]);
+      if (!achado.rows[0]) {
+        return responder(resposta, 400, { error_code: 'invalid_credentials', msg: 'Invalid login credentials' });
+      }
+      return responder(resposta, 200, abrirLogin(achado.rows[0]));
+    }
+    if (url.pathname === '/auth/v1/user') {
+      const usuario = logado ? await lerUsuario(logado) : null;
+      if (!usuario) return responder(resposta, 403, { error_code: 'bad_jwt', msg: 'invalid JWT' });
+      if (pedido.method === 'PUT') {
+        const corpo = JSON.parse((await lerCorpo(pedido)).toString() || '{}');
+        if (typeof corpo.password === 'string') {
+          if (corpo.password.length < 6)
+            return responder(resposta, 422, { error_code: 'weak_password', msg: 'Password too short' });
+          await db.query('update auth.users set senha = $1 where id = $2', [corpo.password, usuario.id]);
+        }
+      }
+      return responder(resposta, 200, usuarioDoLogin(usuario));
+    }
+    if (url.pathname === '/auth/v1/logout' && pedido.method === 'POST') {
+      logins.delete(portador);
+      return responder(resposta, 204);
+    }
+    // ...e a gestão de usuários, só com a chave secreta.
+    const usuarioAdmin = url.pathname.match(/^\/auth\/v1\/admin\/users(?:\/([0-9a-f-]+))?$/);
+    if (usuarioAdmin) {
+      if (papel !== 'service_role') return responder(resposta, 403, { msg: 'sem permissão' });
+      const corpo = pedido.method === 'GET' ? {} : JSON.parse((await lerCorpo(pedido)).toString() || '{}');
+      if (pedido.method === 'POST' && !usuarioAdmin[1]) {
+        const ja = await db.query('select 1 from auth.users where lower(email) = lower($1)', [
+          String(corpo.email ?? ''),
+        ]);
+        if (ja.rows.length) {
+          return responder(resposta, 422, {
+            error_code: 'email_exists',
+            msg: 'A user with this email address has already been registered',
+          });
+        }
+        const novo = await db.query('insert into auth.users (email, senha) values ($1, $2) returning id, email', [
+          String(corpo.email ?? ''),
+          String(corpo.password ?? ''),
+        ]);
+        return responder(resposta, 200, usuarioDoLogin(novo.rows[0]));
+      }
+      const alvo = usuarioAdmin[1] ? await lerUsuario(usuarioAdmin[1]) : null;
+      if (!alvo) return responder(resposta, 404, { error_code: 'user_not_found', msg: 'User not found' });
+      if (pedido.method === 'PUT') {
+        if (typeof corpo.password === 'string') {
+          await db.query('update auth.users set senha = $1 where id = $2', [corpo.password, alvo.id]);
+        }
+        return responder(resposta, 200, usuarioDoLogin(alvo));
+      }
+      if (pedido.method === 'DELETE') {
+        await db.query('delete from auth.users where id = $1', [alvo.id]);
+        for (const [codigo, dono] of logins) if (dono === alvo.id) logins.delete(codigo);
+        return responder(resposta, 200, {});
+      }
+      return responder(resposta, 200, usuarioDoLogin(alvo));
+    }
 
     // Só para o teste: uma consulta como dono do banco.
     if (url.pathname === '/teste/sql') {
@@ -173,6 +310,7 @@ createServer(async (pedido, resposta) => {
       const lista = (v) => Array.isArray(v) && v.every((x) => typeof x === 'string' || typeof x === 'number');
       const valores = nomes.map((n) => {
         const v = argumentos[n];
+        if (v === null) return null;
         if (lista(v)) return `{${v.map((x) => JSON.stringify(String(x))).join(',')}}`;
         return typeof v === 'object' ? JSON.stringify(v) : String(v);
       });
@@ -182,7 +320,7 @@ createServer(async (pedido, resposta) => {
         [rotina],
       );
       const tabela = tipo.rows[0]?.proretset || tipo.rows[0]?.tipo === 'record';
-      const resultado = await comoPapel(papel, `select * from ${chamada}`, valores);
+      const resultado = await comoPapel(papel, `select * from ${chamada}`, valores, logado);
       const linhas = comoJson(resultado);
       return responder(resposta, 200, tabela ? linhas : (Object.values(linhas[0] ?? {})[0] ?? null));
     }
@@ -194,7 +332,7 @@ createServer(async (pedido, resposta) => {
       const parametros = [];
       if (pedido.method === 'GET') {
         const consulta = `select ${colunas(url.searchParams.get('select'))} from ${tabela}${filtros(url.searchParams, parametros)}${ordem(url.searchParams)}${url.searchParams.get('limit') ? ` limit ${Number(url.searchParams.get('limit'))}` : ''}`;
-        const linhas = comoJson(await comoPapel(papel, consulta, parametros));
+        const linhas = comoJson(await comoPapel(papel, consulta, parametros, logado));
         const umSo = String(pedido.headers.accept ?? '').includes('vnd.pgrst.object');
         if (umSo && linhas.length !== 1)
           return responder(resposta, 406, { message: 'JSON object requested, multiple (or no) rows returned' });
@@ -218,6 +356,7 @@ createServer(async (pedido, resposta) => {
           papel,
           `insert into ${tabela} (${nomes.join(', ')}) values ${grupos.join(', ')} returning *`,
           valores,
+          logado,
         );
         const minimo = String(pedido.headers.prefer ?? '').includes('return=minimal');
         return responder(resposta, 201, minimo ? undefined : comoJson(resultado));
@@ -233,6 +372,7 @@ createServer(async (pedido, resposta) => {
           papel,
           `update ${tabela} set ${conjunto}${filtros(url.searchParams, parametros)} returning *`,
           parametros,
+          logado,
         );
         return responder(resposta, 200, comoJson(resultado));
       }
@@ -255,7 +395,12 @@ createServer(async (pedido, resposta) => {
     }
     // ...enviar um arquivo direto (o recorte guardado pelo servidor).
     const envio = url.pathname.match(/^\/storage\/v1\/object\/([a-z_]+)\/(.+)$/);
-    if (envio && (pedido.method === 'POST' || pedido.method === 'PUT') && !envio[1].startsWith('list')) {
+    if (
+      envio &&
+      (pedido.method === 'POST' || pedido.method === 'PUT') &&
+      !envio[1].startsWith('list') &&
+      envio[1] !== 'sign'
+    ) {
       if (papel !== 'service_role') return responder(resposta, 403, { message: 'sem permissão' });
       await lerCorpo(pedido);
       const nome = decodeURIComponent(envio[2]);
@@ -263,6 +408,47 @@ createServer(async (pedido, resposta) => {
       await db.query('insert into storage.objects (bucket_id, name) values ($1, $2)', [envio[1], nome]);
       return responder(resposta, 200, { Key: `${envio[1]}/${nome}` });
     }
+    // ...endereços assinados para ver arquivos (a equipe, no painel), um ou vários.
+    const assinar = url.pathname.match(/^\/storage\/v1\/object\/sign\/([a-z_]+)(?:\/(.+))?$/);
+    if (assinar && pedido.method === 'POST') {
+      if (papel === 'anon') return responder(resposta, 403, { message: 'sem permissão' });
+      const corpo = JSON.parse((await lerCorpo(pedido)).toString() || '{}');
+      const assinado = (nome) => `/object/sign/${assinar[1]}/${nome}?token=${randomUUID()}`;
+      const existe = async (nome) =>
+        (
+          await comoPapel(
+            papel,
+            'select 1 from storage.objects where bucket_id = $1 and name = $2',
+            [assinar[1], nome],
+            logado,
+          )
+        ).rows.length > 0;
+      if (assinar[2]) {
+        const nome = decodeURIComponent(assinar[2]);
+        if (!(await existe(nome))) return responder(resposta, 404, { message: 'Object not found' });
+        return responder(resposta, 200, { signedURL: assinado(nome) });
+      }
+      const lista = [];
+      for (const nome of corpo.paths ?? []) {
+        const tem = await existe(String(nome));
+        lista.push({
+          path: nome,
+          signedURL: tem ? assinado(nome) : null,
+          error: tem ? null : 'Either the object does not exist or you do not have access',
+        });
+      }
+      return responder(resposta, 200, lista);
+    }
+    // ...e o arquivo em si: como o de mentira não guarda arquivo, aparece a foto de teste.
+    if (assinar && assinar[2] && pedido.method === 'GET') {
+      const recorte = decodeURIComponent(assinar[2]).includes('recorte');
+      const arquivo = recorte ? process.env.FOTO_RECORTE_DE_TESTE : process.env.FOTO_ORIGINAL_DE_TESTE;
+      if (!arquivo) return responder(resposta, 404, { message: 'sem foto de teste' });
+      const tipo = arquivo.endsWith('.png') ? 'image/png' : arquivo.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
+      resposta.writeHead(200, { 'content-type': tipo, ...CORS });
+      return resposta.end(readFileSync(arquivo));
+    }
+
     // ...apagar arquivos (a faxina das fotos vencidas).
     const faxina = url.pathname.match(/^\/storage\/v1\/object\/([a-z_]+)$/);
     if (faxina && pedido.method === 'DELETE') {

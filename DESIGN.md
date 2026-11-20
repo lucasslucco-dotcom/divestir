@@ -354,6 +354,21 @@ A compra continua no papel creme, com as mesmas peças do montador: lista com fi
 - **Pix:** título em Anton ("Falta só o Pix"), o QR, o "Pix copia e cola" num campo de leitura e o ingresso "Copiar o código Pix" (que vira "Código copiado!" com um visto), a hora em que o código vence e "Esperando o Pix…" com o ícone girando. A página muda sozinha quando o Pix cai.
 - **Confirmação (signature):** "Valeu, Lucas!" em Instrument Serif itálica, "Recebemos seu pedido!" em Anton gigante, "Agora é com a gente." e o selo do pedido: pílula verde cheia com texto creme, visto e "Pedido nº 1001". As prévias das peças compradas aparecem com o nome em Inter 600; no computador, ficam à direita do texto. Depois vêm "E agora?", os valores e o link do pedido para guardar.
 
+### Painel da equipe
+
+O painel (`/painel`) é a tela de trabalho da equipe: o mesmo papel creme, a mesma tinta verde cheia e as mesmas fontes do site, sem nenhum enfeite a mais. Ele pode ser mais denso que a loja, porque quem usa é a equipe, no computador; no celular, tudo continua funcionando numa coluna.
+
+- **Topo:** a marca em Anton à esquerda, as telas ao lado (Pedidos e, para o administrador, Equipe) em Inter 600, com a tela aberta sublinhada (2px), e à direita o primeiro nome de quem está logado (leva a "Minha senha") e "Sair". Um fio verde de 1px separa o topo da página.
+- **Título:** Anton caixa-alta, de 2.25rem a 4rem, como no carrinho. Os títulos de bloco dentro da tela do pedido são Anton de 1.875rem.
+- **Botão de trabalho:** o segundo nível do painel. Contorno verde de 1px, canto de 6px, 44px de altura, Inter 600 de 0.9375rem; no hover, fica verde com texto creme. Nas janelas de pergunta, o que confirma é o mesmo botão, já cheio. O ingresso continua sendo a ação principal, um por tela ("Aprovar a arte", "Informar o rastreio", "Criar o acesso").
+- **Etiqueta:** pílula pequena (0.8125rem, Inter 600) com contorno verde: "Presente", "Teste", "Cancelado". O status de um pedido em andamento é a mesma pílula, cheia (verde com texto creme).
+- **Quadro de pedidos (signature):** cinco colunas, uma por etapa (Revisão de arte, Ajuste de foto, Em produção, Enviado, Entregue), cada uma com o nome em Inter 600, a contagem e uma frase do que fazer ali. O cartão do pedido tem contorno verde de 1px e canto de 12px: número e há quantos dias está na etapa, o nome do cliente, o design com o nome da estampa, a peça e as etiquetas. Quem está parado há mais tempo fica em cima. No computador, arrastar o cartão muda a etapa: as colunas que aceitam o cartão ganham contorno tracejado, e a que está embaixo dele, contorno cheio. No celular, as colunas deslizam de lado (78% da largura cada) e o cartão abre o pedido.
+- **Lista de pedidos:** os filtros em cima (busca, status, peça, design, de, até) com os campos do checkout, e as linhas separadas por fios verdes de 1px: número e data, cliente, peças, status e total em números tabulares.
+- **Tela do pedido:** o título com o número, o status e "Teste"; um quadro de contorno verde (canto de 12px) com o que fazer agora e os botões da etapa; as peças, cada uma com quatro imagens lado a lado em 4:5 e canto de 12px (a estampa de perto e a peça inteira, desenhadas pelo mesmo motor do site, o recorte e a foto original) e legendas de 0.8125rem; e, em duas colunas, cliente e entrega, pagamento, histórico e avisos, com o rótulo pequeno em cima e o valor em Inter 600.
+- **Janela de pergunta:** para o rastreio, o recado da foto, o cancelamento, a senha provisória e remover alguém. Papel creme com contorno verde de 1px e canto de 12px, até 32rem, por cima de um véu verde; título em Inter 600, o campo e dois botões de trabalho ("Agora não" sempre é o segundo).
+- **Entrada:** a marca, "Painel da equipe" em Anton, e-mail, senha e o ingresso "Entrar", numa coluna de 24rem no meio da tela.
+
+
 ### Páginas de erro
 No papel creme, com a marca no topo: título em Anton ("Essa página saiu de cena", "Ops, travou aqui"), uma frase em Instrument Serif itálica, um ingresso (voltar a montar ou tentar de novo) e um link de texto. Nenhuma tela padrão do navegador ou em inglês.
 
