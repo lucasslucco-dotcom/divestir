@@ -2,7 +2,9 @@
 
 import { randomInt } from 'node:crypto';
 import { headers } from 'next/headers';
+import { after } from 'next/server';
 import { redirect } from 'next/navigation';
+import { avisarCliente, type Aviso } from '@/lib/avisos';
 import { estourouOLimite, MUITAS_TENTATIVAS } from '@/lib/limite';
 import { exigirAdmin, exigirEquipe } from '@/lib/painel/sessao';
 import { ehStatus, limparRastreio, nomeDoStatus } from '@/lib/painel/status';
@@ -85,6 +87,10 @@ export async function moverPedido(
   const rastreio = extras.rastreio ? limparRastreio(extras.rastreio) : '';
   if (para === 'enviado' && extras.rastreio !== undefined && !rastreio) return { erro: 'Falta o código de rastreio.' };
 
+  // De onde o pedido está saindo: o aviso ao cliente só vai quando ele anda para a frente.
+  const { data: antes } = await supabase.from('pedidos').select('status').eq('numero', numero).maybeSingle();
+  const de = (antes as { status?: string } | null)?.status ?? '';
+
   const { error } = await supabase.rpc('painel_mover_pedido', {
     p_numero: numero,
     p_para: para,
@@ -96,7 +102,27 @@ export async function moverPedido(
     if (!motivo) console.error(`painel: pedido ${numero} não foi para ${para}`, error.message);
     return { erro: motivo ?? `Não consegui levar o pedido para "${nomeDoStatus(para)}". Tenta de novo?` };
   }
+
+  // O aviso da etapa vai por e-mail depois da resposta, sem segurar a tela da equipe.
+  const aviso = avisoDaMudanca(de, para);
+  if (aviso) {
+    const vez = String(Date.now());
+    after(() => avisarCliente(numero, aviso, { nota: extras.nota, vez }));
+  }
   return { ok: true };
+}
+
+// Qual aviso o cliente recebe quando o pedido muda de etapa (briefing, "Status do
+// pedido e aviso automático"). Voltar uma etapa (corrigir um engano) não avisa ninguém;
+// corrigir o rastreio manda o código novo.
+const ORDEM = ['revisao_arte', 'em_producao', 'enviado', 'entregue'];
+function avisoDaMudanca(de: string, para: string): Aviso | null {
+  if (para === 'ajuste_foto') return 'ajuste_foto';
+  if (para === 'enviado' && de === 'enviado') return 'enviado';
+  if (para === 'em_producao' || para === 'enviado' || para === 'entregue') {
+    return ORDEM.indexOf(para) > ORDEM.indexOf(de) && de !== 'ajuste_foto' ? para : null;
+  }
+  return null;
 }
 
 // --- Equipe (só o administrador) ---

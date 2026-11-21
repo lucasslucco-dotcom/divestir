@@ -1,3 +1,5 @@
+import { after } from 'next/server';
+import { avisarCliente } from './avisos';
 import 'server-only';
 import { lerPacote } from './catalogo';
 import type { PecaDoCheckout, PedidoCriado, PedidoDoCheckout, SituacaoDoPedido } from './checkout';
@@ -386,10 +388,11 @@ export type LinhaDoPedido = {
   pagamento_situacao: string | null;
   pagamento_metodo: 'pix' | 'cartao' | null;
   pago_em: string | null;
+  rastreio: string | null;
 };
 
 const COLUNAS_DO_PEDIDO =
-  'id, numero, nome, email, whatsapp, cpf, endereco, status, teste, subtotal, frete, total, frete_servico, prazo_personalizacao, pagamento_id, pagamento_situacao, pagamento_metodo, pago_em';
+  'id, numero, nome, email, whatsapp, cpf, endereco, status, teste, subtotal, frete, total, frete_servico, prazo_personalizacao, pagamento_id, pagamento_situacao, pagamento_metodo, pago_em, rastreio';
 
 export async function lerPedido(token: string): Promise<LinhaDoPedido | null> {
   if (!ehCodigo(token)) return null;
@@ -427,6 +430,11 @@ export async function registrarPagamento(
     throw new PedidoRecusado('Não consegui registrar o pagamento agora.', 502);
   }
   if (data === 'pago_em_dobro') await devolverEmDobro(pedido.numero, situacao.id);
+  // Pagamento aprovado: o "Recebemos seu pedido!" vai por e-mail, depois da resposta
+  // (o aviso sabe que sai uma vez só por pedido).
+  if (data === 'revisao_arte' && situacao.situacao === 'approved') {
+    after(() => avisarCliente(pedido.numero, 'pago'));
+  }
   return String(data);
 }
 
@@ -523,6 +531,7 @@ export async function situacaoDoPedido(pedido: LinhaDoPedido): Promise<Omit<Situ
     total: Number(pedido.total),
     freteServico: pedido.frete_servico,
     prazoPersonalizacao: pedido.prazo_personalizacao,
+    rastreio: pedido.rastreio,
     emailParcial: mascararEmail(pedido.email),
     pagamento: { situacao: pedido.pagamento_situacao, metodo: pedido.pagamento_metodo },
     pecas: linhas.map((l) => ({

@@ -86,6 +86,8 @@ export type SituacaoDoPedido = {
     simulado?: boolean;
   } | null;
   prazoPersonalizacao: string | null;
+  // O código de rastreio, quando o pedido já saiu.
+  rastreio: string | null;
   // O e-mail dos avisos, com o meio escondido (lu•••@gmail.com).
   emailParcial: string;
   pagamento: { situacao: string | null; metodo: 'pix' | 'cartao' | null };

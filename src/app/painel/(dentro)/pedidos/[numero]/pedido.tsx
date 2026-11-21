@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import { ENQUADRAMENTO_INICIAL, medirRecorte, type Geometria } from '@/lib/foto/enquadramento';
 import { reais } from '@/lib/loja';
-import { nomeDoStatus, type Status } from '@/lib/painel/status';
+import { NOME_DO_AVISO, nomeDoStatus, type Status } from '@/lib/painel/status';
 import type { FotosDoItem, ItemDoPedido, PedidoInteiro } from '@/lib/painel/tipos';
 import { IconeAlerta, IconeCopiar, IconePresente, IconeSim } from '../../../../montar/icones';
 import { TelaDaPrevia } from '../../../../montar/tela-da-previa';
@@ -234,7 +234,8 @@ const AGORA: Record<string, { titulo: string; texto: string }> = {
   },
   ajuste_foto: {
     titulo: 'Esperando uma foto melhor',
-    texto: 'Mande o recado e o link do pedido para o cliente. Quando a foto nova estiver certa, volte para a revisão.',
+    texto:
+      'O cliente já recebeu o seu recado por e-mail. Chame no WhatsApp para receber a foto nova; quando ela estiver certa, volte para a revisão.',
   },
   em_producao: {
     titulo: 'Na estamparia',
@@ -423,8 +424,8 @@ export function PedidoDoPainel({
           ) : null}
         </div>
         <p className="mt-5 max-w-[62ch] text-[0.8125rem] leading-snug">
-          O arquivo de impressão e os avisos automáticos ao cliente entram nas próximas etapas do site. Por enquanto,
-          avise o cliente pelo WhatsApp a cada mudança.
+          Cada mudança de etapa avisa o cliente por e-mail, sozinha. O arquivo de impressão entra numa próxima etapa do
+          site.
         </p>
       </section>
 
@@ -552,7 +553,7 @@ export function PedidoDoPainel({
             <ul className="mt-6 grid gap-3">
               {pedido.avisos.map((aviso, indice) => (
                 <li key={indice} className="leading-snug">
-                  <span className="font-semibold">{aviso.tipo}</span> por{' '}
+                  <span className="font-semibold">“{NOME_DO_AVISO[aviso.tipo] ?? aviso.tipo}”</span> por{' '}
                   {aviso.canal === 'email' ? 'e-mail' : 'WhatsApp'}
                   <span className="block text-[0.9375rem]">
                     {aviso.erro
@@ -566,7 +567,8 @@ export function PedidoDoPainel({
             </ul>
           ) : (
             <p className="mt-6 max-w-[48ch] leading-relaxed">
-              Nenhum aviso enviado. Os e-mails automáticos de cada etapa ainda vão ser ligados.
+              Nenhum aviso enviado ainda. O cliente recebe um e-mail a cada etapa: pagamento confirmado, em produção,
+              enviado e entregue (e quando a foto precisa ser trocada).
             </p>
           )}
         </section>

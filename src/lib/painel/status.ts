@@ -62,3 +62,12 @@ export const limparRastreio = (texto: string) =>
     .toUpperCase()
     .replace(/[^A-Z0-9-]/g, '')
     .slice(0, 60);
+
+// Os avisos que o cliente recebe por e-mail, com o nome que a equipe lê no painel.
+export const NOME_DO_AVISO: Record<string, string> = {
+  pago: 'Recebemos seu pedido',
+  ajuste_foto: 'Precisamos de uma foto melhor',
+  em_producao: 'Sua Divestir está sendo feita',
+  enviado: 'Saiu pra entrega',
+  entregue: 'Chegou',
+};

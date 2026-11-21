@@ -113,6 +113,38 @@ function emailDoCheckout() {
   }
 }
 
+// Onde o pedido está, nas palavras do cliente (depois que a arte foi conferida).
+const ONDE_ESTA: Record<
+  string,
+  { saudacao: (nome: string) => string; manchete: string; linha: string; agora: string }
+> = {
+  ajuste_foto: {
+    saudacao: (nome) => `${nome}, um minutinho`,
+    manchete: 'Precisamos de outra foto',
+    linha: 'É rapidinho, e a estampa agradece.',
+    agora:
+      'Do jeito que a foto está, a estampa não ia ficar à altura de quem você ama. A equipe vai te chamar no WhatsApp para receber a foto nova.',
+  },
+  em_producao: {
+    saudacao: (nome) => `Boa notícia, ${nome}!`,
+    manchete: 'Sua Divestir está sendo feita',
+    linha: 'Arte aprovada, peça na produção.',
+    agora: 'Quando ela sair, a gente te manda o código de rastreio por e-mail.',
+  },
+  enviado: {
+    saudacao: (nome) => `${nome}, tá chegando!`,
+    manchete: 'Saiu pra entrega!',
+    linha: 'Sua Divestir já está com a transportadora.',
+    agora: 'Com o código de rastreio você acompanha o caminho no site da transportadora.',
+  },
+  entregue: {
+    saudacao: (nome) => `${nome}, é sua!`,
+    manchete: 'Chegou!',
+    linha: 'Sua Divestir foi entregue.',
+    agora: 'Marca a gente quando vestir. A gente ama ver.',
+  },
+};
+
 export function Pedido({
   token,
   catalogo,
@@ -132,7 +164,7 @@ export function Pedido({
   const [trocar, setTrocar] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
   const [rodada, setRodada] = useState(0);
-  const [copiado, setCopiado] = useState<'pix' | 'link' | null>(null);
+  const [copiado, setCopiado] = useState<'pix' | 'link' | 'rastreio' | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const agora = useAgora();
   const atual = useRef<Situacao | null>(null);
@@ -246,7 +278,7 @@ export function Pedido({
     [token, carregar],
   );
 
-  async function copiar(texto: string, qual: 'pix' | 'link') {
+  async function copiar(texto: string, qual: 'pix' | 'link' | 'rastreio') {
     try {
       await navigator.clipboard.writeText(texto);
       setCopiado(qual);
@@ -343,16 +375,17 @@ export function Pedido({
   // Pago: a confirmação.
   if (situacao.pago) {
     const link = typeof window === 'undefined' ? '' : window.location.href;
+    const etapa = ONDE_ESTA[situacao.status];
     return (
       <div className="mt-8 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] lg:items-start lg:gap-x-14">
         <div className="lg:col-start-1 lg:row-start-1">
           <p className="font-destaque text-[clamp(1.6rem,6vw,2.4rem)] leading-tight italic">
-            Valeu, {situacao.primeiroNome}!
+            {etapa ? etapa.saudacao(situacao.primeiroNome) : `Valeu, ${situacao.primeiroNome}!`}
           </p>
           <h2 className="mt-2 font-titulo text-[clamp(2.6rem,10vw,4.75rem)] leading-none uppercase">
-            Recebemos seu pedido!
+            {etapa?.manchete ?? 'Recebemos seu pedido!'}
           </h2>
-          <p className="mt-4 text-lg leading-snug">Agora é com a gente.</p>
+          <p className="mt-4 text-lg leading-snug">{etapa?.linha ?? 'Agora é com a gente.'}</p>
           <p className="mt-6 inline-flex items-center gap-2 rounded-full bg-verde px-4 py-2 text-base font-semibold text-creme">
             <IconeSim /> Pedido nº {situacao.numero}
           </p>
@@ -364,16 +397,30 @@ export function Pedido({
         <div className="max-w-xl lg:col-start-1 lg:row-start-2">
           <div className="mt-10 border-t border-verde pt-6">
             <h3 className="text-lg leading-snug font-semibold">E agora?</h3>
-            <p className="mt-2 leading-relaxed">
-              A equipe confere a arte de cada peça e já começa a produção. Sua Divestir fica pronta em{' '}
-              {situacao.prazoPersonalizacao ??
-                `${PRAZO_DE_PERSONALIZACAO.min} a ${PRAZO_DE_PERSONALIZACAO.max} dias úteis`}
-              {prazoTotal ? ` e chega em ${prazoTotal.min} a ${prazoTotal.max} dias úteis, contando a entrega` : ''}.
-            </p>
-            <p className="mt-2 leading-relaxed">
-              As novidades do pedido chegam no e-mail {situacao.emailParcial}
-              {situacao.teste ? ' (os e-mails de aviso ainda não estão ligados)' : ''}.
-            </p>
+            {etapa ? (
+              <p className="mt-2 leading-relaxed">{etapa.agora}</p>
+            ) : (
+              <p className="mt-2 leading-relaxed">
+                A equipe confere a arte de cada peça e já começa a produção. Sua Divestir fica pronta em{' '}
+                {situacao.prazoPersonalizacao ??
+                  `${PRAZO_DE_PERSONALIZACAO.min} a ${PRAZO_DE_PERSONALIZACAO.max} dias úteis`}
+                {prazoTotal ? ` e chega em ${prazoTotal.min} a ${prazoTotal.max} dias úteis, contando a entrega` : ''}.
+              </p>
+            )}
+            {situacao.rastreio && (situacao.status === 'enviado' || situacao.status === 'entregue') ? (
+              <p className="mt-2 leading-relaxed">
+                Código de rastreio{frete ? ` (${frete.transportadora})` : ''}:{' '}
+                <span className="font-semibold tabular-nums">{situacao.rastreio}</span>{' '}
+                <button
+                  type="button"
+                  onClick={() => void copiar(situacao.rastreio ?? '', 'rastreio')}
+                  className="underline underline-offset-[0.3em]"
+                >
+                  {copiado === 'rastreio' ? 'Copiado!' : 'Copiar'}
+                </button>
+              </p>
+            ) : null}
+            <p className="mt-2 leading-relaxed">As novidades do pedido chegam no e-mail {situacao.emailParcial}.</p>
             {valores}
           </div>
 

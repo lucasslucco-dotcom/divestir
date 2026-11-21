@@ -369,6 +369,20 @@ O painel (`/painel`) é a tela de trabalho da equipe: o mesmo papel creme, a mes
 - **Entrada:** a marca, "Painel da equipe" em Anton, e-mail, senha e o ingresso "Entrar", numa coluna de 24rem no meio da tela.
 
 
+### E-mails de aviso
+
+O e-mail de cada etapa do pedido é a página do pedido dentro da caixa de entrada: o papel creme inteiro, a tinta verde cheia, uma coluna de até 520px e uma ação só. Montado em `src/lib/avisos.ts` (tabelas e estilo na própria linha, porque programa de e-mail não lê folha de estilo).
+
+- **Marca:** DIVESTIR em caixa-alta no topo, 20px, com espaço entre as letras.
+- **Saudação:** a voz da marca, em serifa itálica de 26px (Instrument Serif; onde ela não existe, Georgia): "Valeu, Lucas!", "João, tá chegando!".
+- **Manchete:** caixa-alta de 44px (Anton; onde ela não existe, Impact ou a fonte estreita do aparelho). É a notícia: "Recebemos seu pedido!", "Saiu pra entrega!", "Chegou!".
+- **Texto:** Inter (ou a fonte do aparelho), 16px, entrelinha 1,6, em parágrafos curtos.
+- **Destaque:** quando há uma informação para guardar (o código de rastreio, o recado da equipe sobre a foto), ela vai num quadro de contorno verde de 1px e canto de 12px, com o rótulo pequeno em cima e o valor em negrito.
+- **Botão:** um só, o ingresso sobre o creme (verde com texto creme, canto de 6px): "Acompanhar meu pedido" ou "Ver meu pedido". Rosa nunca aparece: o e-mail é papel creme.
+- **Rodapé:** um fio verde de 1px, o número do pedido e as peças, e o endereço do pedido por extenso para quem não consegue abrir o botão.
+- Sem imagem, sem logo em arquivo e sem foto do cliente: o e-mail abre inteiro mesmo com as imagens bloqueadas, e a foto de ninguém sai do espaço privado. Todo e-mail tem a versão só de texto.
+- A página do pedido acompanha o e-mail: a saudação, a manchete e a frase de cima mudam com a etapa (as mesmas palavras do e-mail), "E agora?" diz o próximo passo, e o código de rastreio aparece com "Copiar".
+
 ### Páginas de erro
 No papel creme, com a marca no topo: título em Anton ("Essa página saiu de cena", "Ops, travou aqui"), uma frase em Instrument Serif itálica, um ingresso (voltar a montar ou tentar de novo) e um link de texto. Nenhuma tela padrão do navegador ou em inglês.
 
