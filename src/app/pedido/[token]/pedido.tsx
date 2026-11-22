@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from '
 import type { Catalogo } from '@/lib/catalogo';
 import type { SituacaoDoPedido } from '@/lib/checkout';
 import { codigoNovo } from '@/lib/foto/guardar';
-import { DIAS_SEM_PAGAR, MINUTOS_DO_PIX, PRAZO_DE_PERSONALIZACAO, reais } from '@/lib/loja';
+import { DIAS_SEM_PAGAR, INSTAGRAM, MINUTOS_DO_PIX, PRAZO_DE_PERSONALIZACAO, reais } from '@/lib/loja';
 import {
   chaveDaInteira,
   chavesDasFotos,
@@ -141,7 +141,7 @@ const ONDE_ESTA: Record<
     saudacao: (nome) => `${nome}, é sua!`,
     manchete: 'Chegou!',
     linha: 'Sua Divestir foi entregue.',
-    agora: 'Marca a gente quando vestir. A gente ama ver.',
+    agora: `Marca o ${INSTAGRAM} quando vestir. A gente ama ver.`,
   },
 };
 

@@ -68,6 +68,10 @@ export const MINUTOS_DO_PIX = 30;
 // (src/app/api/faxina). Um pagamento aprovado que chegue depois traz o pedido de volta.
 export const DIAS_SEM_PAGAR = 3;
 
+// O perfil da marca no Instagram (informado pelo Lucas em 22/11/2026): aparece no e-mail
+// e na página do pedido entregue ("Marca o @divestirbr quando vestir").
+export const INSTAGRAM = '@divestirbr';
+
 // Contas em centavos, para não perder um centavo no caminho.
 export function somar(...valores: number[]) {
   return valores.reduce((total, valor) => total + Math.round(valor * 100), 0) / 100;

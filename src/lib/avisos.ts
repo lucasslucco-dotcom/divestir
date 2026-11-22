@@ -1,5 +1,5 @@
 import 'server-only';
-import { PRAZO_DE_PERSONALIZACAO } from './loja';
+import { INSTAGRAM, PRAZO_DE_PERSONALIZACAO } from './loja';
 import { emailLigado, enviarEmail } from './resend';
 import { criarClienteAdmin } from './supabase/admin';
 
@@ -104,7 +104,7 @@ function conteudoDo(aviso: Aviso, pedido: Pedido, nota: string | null): Conteudo
         saudacao: `${nome}, que alegria!`,
         titulo: 'Chegou!',
         paragrafos: [
-          'Sua Divestir foi entregue. Marca a gente quando vestir: a gente quer ver.',
+          `Sua Divestir foi entregue. Marca o ${INSTAGRAM} quando vestir: a gente quer ver.`,
           'Se algo não chegou como você esperava, responde por onde a equipe falou com você, que a gente resolve.',
         ],
         botao: 'Ver meu pedido',
