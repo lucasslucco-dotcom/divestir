@@ -1,9 +1,25 @@
 // As escolhas da montagem e o que sai delas: a peça, a cor, o design, o lado da
 // estampa, o tamanho e o que ainda falta para ir ao carrinho.
 import type { Catalogo, Cor, Peca } from '@/lib/catalogo';
-import type { Enquadramento } from '@/lib/foto/enquadramento';
+import {
+  LARGURA_PADRAO_DA_ESTAMPA_CM,
+  definicaoDaEstampa,
+  zoomMaximoDaEstampa,
+  type Definicao,
+} from '@/lib/foto/definicao';
+import { ZOOM_MAXIMO, zoomEm, type Enquadramento } from '@/lib/foto/enquadramento';
 import { MONTAGEM_VAZIA, fotoNoDesign, type FotoDaMontagem, type Montagem } from '@/lib/montagem/tipos';
-import { ladosDaPeca, valorDoCampo, type Campo, type Design, type Lado } from '@/lib/molde/tipos';
+import { janelaDaFoto } from '@/lib/molde/desenhar';
+import {
+  LARGURA_DA_ARTE,
+  areaDoDesign,
+  ladosDaPeca,
+  valorDoCampo,
+  type CamadaFoto,
+  type Campo,
+  type Design,
+  type Lado,
+} from '@/lib/molde/tipos';
 
 export type Acao =
   | { tipo: 'restaurar'; montagem: Montagem }
@@ -16,7 +32,10 @@ export type Acao =
   | { tipo: 'campo'; chave: string; valor: string }
   | { tipo: 'tamanho'; tamanho: string }
   | { tipo: 'foto'; foto: FotoDaMontagem; campos?: Record<string, string> }
-  | { tipo: 'enquadrar'; mudanca: (atual: Enquadramento) => Enquadramento }
+  // "teto": até onde o zoom pode ir sem a estampa perder a definição mínima.
+  | { tipo: 'enquadrar'; mudanca: (atual: Enquadramento) => Enquadramento; teto: number }
+  // A peça ou o design mudou e o zoom guardado ficou acima do que a foto aguenta ali.
+  | { tipo: 'teto-do-zoom'; teto: number }
   // O ajuste da foto na prévia (zoom, "Trocar a foto"): fecha e abre, sem travar nada.
   | { tipo: 'fechar-ajuste' }
   | { tipo: 'abrir-ajuste' }
@@ -54,10 +73,20 @@ export function reduzir(m: Montagem, acao: Acao): Montagem {
           ? { ...acao.campos, ...Object.fromEntries(Object.entries(m.campos).filter(([, v]) => v)) }
           : m.campos,
       };
-    case 'enquadrar':
-      return m.foto && !m.foto.aprovada
-        ? { ...m, foto: { ...m.foto, enquadramento: acao.mudanca(m.foto.enquadramento) } }
-        : m;
+    case 'enquadrar': {
+      if (!m.foto || m.foto.aprovada) return m;
+      const atual = m.foto.enquadramento;
+      const novo = acao.mudanca(atual);
+      // O zoom para onde a foto ainda tem qualidade para a estampa. Mover continua valendo.
+      const limite = Math.max(acao.teto, atual.zoom);
+      const enquadramento = novo.zoom > limite + 1e-9 ? zoomEm(novo, limite / novo.zoom) : novo;
+      return { ...m, foto: { ...m.foto, enquadramento } };
+    }
+    case 'teto-do-zoom': {
+      if (!m.foto || m.foto.enquadramento.zoom <= acao.teto) return m;
+      const atual = m.foto.enquadramento;
+      return { ...m, foto: { ...m.foto, enquadramento: zoomEm(atual, acao.teto / atual.zoom) } };
+    }
     case 'fechar-ajuste':
       return m.foto && !m.foto.aprovada ? { ...m, foto: { ...m.foto, aprovada: true } } : m;
     case 'abrir-ajuste':
@@ -150,12 +179,38 @@ export const ID_DOS_PASSOS = {
 
 export type Falta = { texto: string; passo: keyof typeof ID_DOS_PASSOS };
 
+// A qualidade da foto para a estampa desta montagem: a definição com o enquadramento de
+// agora (quem aparece pequeno na foto, ou com muito zoom, sai com poucos pontos na peça
+// impressa) e até onde o zoom pode ir. Depende da peça, do lado e do design, porque o
+// tamanho impresso muda com eles.
+export function qualidadeDaFoto(m: Montagem, r: Resolvida | null): { definicao: Definicao | null; tetoDoZoom: number } {
+  const semMedida = { definicao: null, tetoDoZoom: ZOOM_MAXIMO };
+  if (!m.foto || !r) return semMedida;
+  const camada = r.design?.config.camadas.find((c): c is CamadaFoto => c.tipo === 'foto');
+  const quadro = camada ? janelaDaFoto(camada) : null;
+  if (!quadro) return semMedida;
+  // No design de estampa grande, a largura impressa cresce na mesma medida da prévia.
+  const areaDaPeca = r.peca.areas[r.lado]?.previa ?? null;
+  const areaDaEstampa = r.design ? areaDoDesign(areaDaPeca, r.design.config) : areaDaPeca;
+  const aumento = areaDaPeca && areaDaEstampa ? areaDaEstampa.largura / areaDaPeca.largura : 1;
+  const definicao = definicaoDaEstampa(
+    m.foto,
+    quadro.largura / LARGURA_DA_ARTE,
+    (r.peca.areas[r.lado]?.largura_cm ?? LARGURA_PADRAO_DA_ESTAMPA_CM) * aumento,
+    quadro.largura / quadro.altura,
+  );
+  if (!definicao) return semMedida;
+  return { definicao, tetoDoZoom: Math.min(ZOOM_MAXIMO, zoomMaximoDaEstampa(definicao, m.foto.enquadramento.zoom)) };
+}
+
 // O que ainda falta para a peça ir ao carrinho, na ordem dos passos.
 export function oQueFalta(m: Montagem, r: Resolvida | null): Falta[] {
   const falta: Falta[] = [];
   if (!r?.design) falta.push({ texto: 'escolher um design', passo: 'design' });
   // A foto não precisa de um "aprovar" à parte: quem aprova a peça é o botão do carrinho.
   if (!m.foto) falta.push({ texto: 'mandar a foto', passo: 'foto' });
+  // Foto sem qualidade para a estampa não vai para o carrinho (decisão do Lucas, 22/11/2026).
+  else if (qualidadeDaFoto(m, r).definicao?.nivel === 'baixa') falta.push({ texto: 'trocar a foto', passo: 'foto' });
   const campos: Campo[] = r?.design?.config.campos ?? [];
   for (const campo of campos) {
     if (valorDoCampo(campo, m.campos)) continue;

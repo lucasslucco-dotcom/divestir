@@ -44,6 +44,8 @@ export type AjusteDaDoca = {
   descricao: string;
   enquadramento: Enquadramento;
   definicao: Definicao['nivel'] | null;
+  // Até onde o zoom pode ir sem a estampa perder a definição mínima.
+  tetoDoZoom: number;
   aoTrocarFoto: () => void;
   aoContinuar: () => void;
   // "Continuar" (segue para o nome) ou "Pronto" (só fecha o ajuste).
@@ -68,7 +70,12 @@ const selo = 'shrink-0 rounded-full border border-verde px-2.5 py-1 text-[0.6875
 
 function Ajuste({ ajuste }: { ajuste: AjusteDaDoca }) {
   const { zoom } = ajuste.enquadramento;
+  // Foto sem qualidade para a estampa não é aceita (decisão do Lucas, 22/11/2026): o
+  // único caminho é mandar outra. E o zoom para onde a foto ainda tem qualidade.
   const baixa = ajuste.definicao === 'baixa';
+  const maximo = Math.min(ZOOM_MAXIMO, Math.max(ajuste.tetoDoZoom, ZOOM_MINIMO));
+  const noMaximo = zoom >= maximo - 1e-3;
+  const noTetoDaFoto = !baixa && noMaximo && maximo < ZOOM_MAXIMO - 1e-3;
   return (
     <div className="mx-auto mt-2 w-full max-w-md pb-2 lg:pb-0">
       <div className="flex items-center gap-1">
@@ -91,7 +98,7 @@ function Ajuste({ ajuste }: { ajuste: AjusteDaDoca }) {
         <button
           type="button"
           aria-label="Aumentar o zoom"
-          disabled={zoom >= ZOOM_MAXIMO - 1e-6}
+          disabled={baixa || noMaximo}
           onClick={() => ajuste.mudar((atual) => zoomEm(atual, PASSO_DO_ZOOM))}
           className={botaoDeZoom}
         >
@@ -111,23 +118,31 @@ function Ajuste({ ajuste }: { ajuste: AjusteDaDoca }) {
         {ajuste.definicao && ajuste.definicao !== 'boa' ? (
           <p className="mt-1 flex items-start gap-1.5 text-sm leading-snug font-semibold">
             <IconeAlerta className="mt-0.5 shrink-0" />
-            {baixa ? 'Essa foto não tem qualidade para a estampa.' : 'Foto no limite da qualidade da estampa.'}
+            {baixa
+              ? 'Essa foto não tem qualidade para a estampa.'
+              : noTetoDaFoto
+                ? 'Esse é o máximo de zoom que essa foto aguenta.'
+                : 'Foto no limite da qualidade da estampa.'}
           </p>
         ) : null}
       </div>
-      {/* Abaixo da qualidade da estampa, o caminho principal é mandar outra foto. */}
-      <div className="mt-2 flex items-stretch gap-2.5">
-        <button type="button" onClick={baixa ? ajuste.aoContinuar : ajuste.aoTrocarFoto} className={botaoDeContorno}>
-          {baixa ? 'Usar essa mesmo assim' : 'Trocar a foto'}
-        </button>
-        <button
-          type="button"
-          onClick={baixa ? ajuste.aoTrocarFoto : ajuste.aoContinuar}
-          className="ingresso min-w-0 flex-1 px-3! text-center"
-        >
-          {baixa ? 'Escolher outra foto' : ajuste.rotuloDeContinuar}
-        </button>
-      </div>
+      {/* Abaixo da qualidade da estampa, só dá para mandar outra foto. */}
+      {baixa ? (
+        <div className="mt-2">
+          <button type="button" onClick={ajuste.aoTrocarFoto} className="ingresso w-full px-3! text-center">
+            Escolher outra foto
+          </button>
+        </div>
+      ) : (
+        <div className="mt-2 flex items-stretch gap-2.5">
+          <button type="button" onClick={ajuste.aoTrocarFoto} className={botaoDeContorno}>
+            Trocar a foto
+          </button>
+          <button type="button" onClick={ajuste.aoContinuar} className="ingresso min-w-0 flex-1 px-3! text-center">
+            {ajuste.rotuloDeContinuar}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

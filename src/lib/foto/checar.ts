@@ -23,7 +23,8 @@ export const LADO_MINIMO = 1000;
 // Abaixo deste valor a foto é considerada tremida ou desfocada. Calibrado em
 // 08/11/2026 com 72 fotos no Chromium: as nítidas ficaram de 199 a 5.600, e as
 // bem desfocadas, abaixo de 30. Em 80 nenhuma nítida recebe aviso, e as muito
-// tremidas recebem. É só um aviso: a equipe ainda revisa cada arte.
+// tremidas recebem. Desde 22/11/2026 (decisão do Lucas: foto sem qualidade não é
+// aceita), foto tremida é barrada, não só avisada.
 export const NITIDEZ_MINIMA = 80;
 
 export function abrir(url: string): Promise<HTMLImageElement> {
@@ -140,10 +141,14 @@ export async function checarFoto(arquivo: File, url: string): Promise<Checagem> 
   }
   const nitidez = medirNitidez(imagem);
   if (nitidez < NITIDEZ_MINIMA) {
-    avisos.push({
-      titulo: 'Parece que ficou tremida',
-      mensagem: 'Se tiver outra mais nítida, ela vai ficar melhor na peça.',
-    });
+    return {
+      nivel: 'bloqueio',
+      titulo: 'Essa foto ficou tremida. Tenta outra?',
+      mensagens: ['Ela está sem foco para a estampa ficar bonita. Uma mais nítida resolve.'],
+      largura,
+      altura,
+      nitidez,
+    };
   }
 
   if (avisos.length > 0) {

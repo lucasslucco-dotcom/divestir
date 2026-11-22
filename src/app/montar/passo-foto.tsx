@@ -93,20 +93,19 @@ function ResultadoDaChecagem({ envio }: { envio: EnvioDaFoto }) {
 // O aviso da definição: foto pequena, quem aparece pequeno nela ou muito zoom dão
 // poucos pontos para a peça impressa. O tamanho e a qualidade da estampa são os da
 // Divestir: quem se adapta é a foto, então o aviso pede uma foto melhor (decisão do
-// Lucas, 09/11/2026). Quando ele aparece, o selo "Foto perfeita" sai de cena.
+// Lucas, 09/11/2026). Quando ele aparece, o selo "Foto perfeita" sai de cena. Abaixo do
+// mínimo, a foto não é aceita: não existe "usar mesmo assim" (decisão do Lucas, 22/11/2026).
 function AvisoDaDefinicao({ nivel, zoom }: { nivel: Definicao['nivel']; zoom: number }) {
   if (nivel === 'boa') return null;
   const comZoom = zoom > 1.001;
   return (
     <p className="mt-3 flex max-w-[38ch] items-start gap-2 text-[0.9375rem] leading-snug font-semibold">
       <IconeAlerta className="mt-[3px] shrink-0" />
-      {nivel === 'media'
-        ? comZoom
-          ? 'Com esse zoom, a foto fica no limite da qualidade da nossa estampa. Para aproximar assim, manda uma foto tirada mais de perto.'
-          : 'Essa foto está no limite da qualidade da nossa estampa. Se tiver uma maior ou tirada mais de perto, manda ela.'
+      {nivel === 'baixa'
+        ? 'Essa foto não tem qualidade para a nossa estampa: ia sair sem definição na peça. Manda uma maior ou tirada mais de perto.'
         : comZoom
-          ? 'Com esse zoom, a foto não tem qualidade para a nossa estampa. Para aproximar assim, manda uma foto tirada mais de perto.'
-          : 'Essa foto não tem qualidade para a nossa estampa. Manda uma maior ou tirada mais de perto.'}
+          ? 'Com esse zoom, a foto fica no limite da qualidade da nossa estampa. Para aproximar mais, só com uma foto tirada mais de perto.'
+          : 'Essa foto está no limite da qualidade da nossa estampa. Se tiver uma maior ou tirada mais de perto, manda ela.'}
     </p>
   );
 }
@@ -271,7 +270,8 @@ export function PassoFoto({
                 : null}
             </div>
           ) : null}
-          <p id={idDaDica} className="max-w-[38ch] text-[0.9375rem] leading-snug">
+          {/* Foto sem qualidade para a estampa: o convite para ajustar sai, fica só o aviso. */}
+          <p id={idDaDica} className={definicao === 'baixa' ? 'sr-only' : 'max-w-[38ch] text-[0.9375rem] leading-snug'}>
             Sua foto já está no design.{' '}
             <span className="pointer-coarse:hidden">
               Se quiser, ajuste na própria prévia: arraste a foto para mover e use os botões para dar zoom.
@@ -284,21 +284,37 @@ export function PassoFoto({
           <div aria-live="polite">
             {definicao ? <AvisoDaDefinicao nivel={definicao} zoom={foto.enquadramento.zoom} /> : null}
           </div>
-          <p className="mt-3 max-w-[38ch] text-[0.9375rem] leading-snug">
-            Confere se o recorte pegou tudo: orelhas, cabelo, rabo. Se cortou algo importante, é melhor trocar a foto.
-          </p>
+          {/* Sem qualidade para a estampa, o botão "Escolher outra foto" está colado na prévia. */}
+          {definicao === 'baixa' ? null : (
+            <p className="mt-3 max-w-[38ch] text-[0.9375rem] leading-snug">
+              Confere se o recorte pegou tudo: orelhas, cabelo, rabo. Se cortou algo importante, é melhor trocar a foto.
+            </p>
+          )}
         </div>
       ) : null}
 
       {aprovada && foto && !envio ? (
-        <div className="flex flex-wrap gap-x-6">
-          <button type="button" onClick={aoAjustar} className={linkDeTexto}>
-            Ajustar a foto
-          </button>
-          <button type="button" onClick={escolher} className={linkDeTexto}>
-            Trocar a foto
-          </button>
-        </div>
+        definicao === 'baixa' ? (
+          <div aria-live="polite">
+            <AvisoDaDefinicao nivel={definicao} zoom={foto.enquadramento.zoom} />
+            <button
+              type="button"
+              onClick={escolher}
+              className="ingresso mt-5 w-full cursor-pointer select-none sm:w-auto"
+            >
+              Escolher outra foto
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-x-6">
+            <button type="button" onClick={aoAjustar} className={linkDeTexto}>
+              Ajustar a foto
+            </button>
+            <button type="button" onClick={escolher} className={linkDeTexto}>
+              Trocar a foto
+            </button>
+          </div>
+        )
       ) : null}
 
       {foto && !temRecorte && !envio ? (

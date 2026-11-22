@@ -11,6 +11,10 @@ export const LARGURA_PADRAO_DA_ESTAMPA_CM = 30;
 
 // Pontos por polegada na peça impressa. Abaixo de 150 a estampa começa a perder
 // definição; abaixo de 100 o serrilhado aparece a olho nu.
+//
+// Abaixo do mínimo, a foto não é aceita (decisão do Lucas, 22/11/2026: "se a foto não
+// tem qualidade, simplesmente não deve ser aceita"; não existe mais "usar mesmo assim").
+// O zoom também para onde a foto ainda tem o mínimo (zoomMaximoDaEstampa).
 const DPI_BOM = 150;
 const DPI_MINIMO = 100;
 
@@ -42,4 +46,12 @@ export function definicaoDaEstampa(
   if (centimetros <= 0) return null;
   const dpi = (foto.geometria.largura * foto.escalaDaOriginal) / (centimetros / 2.54);
   return { dpi, nivel: dpi >= DPI_BOM ? 'boa' : dpi >= DPI_MINIMO ? 'media' : 'baixa' };
+}
+
+// Até onde o zoom pode ir sem a estampa cair abaixo do mínimo. A definição cai na mesma
+// medida em que o zoom sobe, então basta uma conta. Menor que 1 quer dizer que a foto
+// não tem qualidade nem no encaixe de sempre. Fica um fio abaixo da conta exata, para o
+// arredondamento nunca deixar a foto do lado errado da linha.
+export function zoomMaximoDaEstampa(definicao: Definicao, zoom: number) {
+  return ((zoom * definicao.dpi) / DPI_MINIMO) * 0.9995;
 }

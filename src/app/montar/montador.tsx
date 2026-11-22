@@ -14,7 +14,7 @@ import {
 } from 'react';
 import type { Catalogo, Cor } from '@/lib/catalogo';
 import { checarFoto } from '@/lib/foto/checar';
-import { LARGURA_PADRAO_DA_ESTAMPA_CM, definicaoDaEstampa, escalaDaOriginal } from '@/lib/foto/definicao';
+import { escalaDaOriginal } from '@/lib/foto/definicao';
 import { ENQUADRAMENTO_INICIAL, medirRecorte } from '@/lib/foto/enquadramento';
 import { abrirVaga, codigoNovo, enviarOriginal, type Vaga } from '@/lib/foto/guardar';
 import { pedirRecorte, prepararParaRecorte } from '@/lib/foto/recorte';
@@ -32,20 +32,21 @@ import {
   recortesEmUso,
 } from '@/lib/montagem/guardar';
 import { CARRINHO_VAZIO, MONTAGEM_VAZIA, fotoNoDesign, type Carrinho, type ItemDoCarrinho } from '@/lib/montagem/tipos';
-import { janelaDaFoto, textoDoCampo } from '@/lib/molde/desenhar';
+import { textoDoCampo } from '@/lib/molde/desenhar';
 import { exemploDoDesign } from '@/lib/molde/exemplos';
 import { esquecerImagem } from '@/lib/molde/recursos';
-import {
-  LARGURA_DA_ARTE,
-  areaDoDesign,
-  limparTextoDaEstampa,
-  valorDoCampo,
-  type CamadaFoto,
-  type Design,
-  type Lado,
-} from '@/lib/molde/tipos';
+import { limparTextoDaEstampa, valorDoCampo, type Design, type Lado } from '@/lib/molde/tipos';
 import { Doca, type DescricaoDaVista, type Vista } from './doca';
-import { coresDaPeca, ID_DOS_PASSOS, nomeDaPeca, oQueFalta, reduzir, resolver, type Falta } from './estado';
+import {
+  coresDaPeca,
+  ID_DOS_PASSOS,
+  nomeDaPeca,
+  oQueFalta,
+  qualidadeDaFoto,
+  reduzir,
+  resolver,
+  type Falta,
+} from './estado';
 import { PassoDesign, TODOS } from './passo-design';
 import { PassoFoto, type EnvioDaFoto, type FotoReaproveitavel } from './passo-foto';
 import { PassoResumo } from './passo-resumo';
@@ -360,10 +361,27 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
     setVista('perto');
   }
 
+  // A qualidade da foto para a estampa, com a peça, o lado, o design e o enquadramento de
+  // agora, e até onde o zoom pode ir sem ela cair abaixo do mínimo.
+  const { definicao, tetoDoZoom } = useMemo(() => qualidadeDaFoto(montagem, r), [montagem, r]);
+  // O teto vai por uma referência: a função do ajuste não pode mudar no meio de um gesto.
+  const teto = useRef(tetoDoZoom);
+  useEffect(() => {
+    teto.current = tetoDoZoom;
+  }, [tetoDoZoom]);
   const enquadrar = useCallback<MudarEnquadramento>((mudanca) => {
     setDica(null);
-    despachar({ tipo: 'enquadrar', mudanca });
+    despachar({ tipo: 'enquadrar', mudanca, teto: teto.current });
   }, []);
+  // Trocar a peça, o lado ou o design pode deixar a estampa maior: se o zoom guardado
+  // passou do que a foto aguenta ali, ele volta sozinho para o máximo. (Quando a foto
+  // não tem qualidade nem no encaixe de sempre, nada muda: ela não é aceita.)
+  const zoomDaFoto = montagem.foto?.enquadramento.zoom ?? null;
+  useEffect(() => {
+    if (zoomDaFoto !== null && tetoDoZoom >= 1 && zoomDaFoto > tetoDoZoom + 1e-6) {
+      despachar({ tipo: 'teto-do-zoom', teto: tetoDoZoom });
+    }
+  }, [zoomDaFoto, tetoDoZoom]);
   const esconderDica = useCallback(() => setDica(null), []);
 
   // A dica some sozinha depois de um tempo, se a pessoa não tocar na prévia.
@@ -582,23 +600,6 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   }
 
   const ajustando = !!montagem.foto && !montagem.foto.aprovada && !!fotoDaPrevia;
-  // A definição da estampa com este enquadramento: quem aparece pequeno na foto, ou
-  // com muito zoom, sai com poucos pontos na peça impressa.
-  const camadaDaFoto = r.design?.config.camadas.find((c): c is CamadaFoto => c.tipo === 'foto');
-  const quadroDaFoto = camadaDaFoto ? janelaDaFoto(camadaDaFoto) : null;
-  // No design de estampa grande, a largura impressa cresce na mesma medida da prévia.
-  const areaDaPeca = r.peca.areas[r.lado]?.previa ?? null;
-  const areaDaEstampa = r.design ? areaDoDesign(areaDaPeca, r.design.config) : areaDaPeca;
-  const aumentoDaEstampa = areaDaPeca && areaDaEstampa ? areaDaEstampa.largura / areaDaPeca.largura : 1;
-  const definicao =
-    montagem.foto && quadroDaFoto
-      ? definicaoDaEstampa(
-          montagem.foto,
-          quadroDaFoto.largura / LARGURA_DA_ARTE,
-          (r.peca.areas[r.lado]?.largura_cm ?? LARGURA_PADRAO_DA_ESTAMPA_CM) * aumentoDaEstampa,
-          quadroDaFoto.largura / quadroDaFoto.altura,
-        )
-      : null;
   const vistaGrande: Vista = ajustando
     ? 'perto'
     : vista && vistas.some((v) => v.vista === vista)
@@ -665,10 +666,15 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
                   descricao: idDaDica,
                   enquadramento: montagem.foto.enquadramento,
                   definicao: definicao?.nivel ?? null,
+                  tetoDoZoom,
                   aoTrocarFoto: escolherFoto,
                   aoContinuar: continuar,
                   rotuloDeContinuar: segueParaONome ? 'Continuar' : 'Pronto',
-                  dica: dica?.chave === montagem.foto.chave ? { movimento: dica.movimento } : null,
+                  // Foto que não é aceita não convida para o ajuste.
+                  dica:
+                    dica?.chave === montagem.foto.chave && definicao?.nivel !== 'baixa'
+                      ? { movimento: dica.movimento }
+                      : null,
                   aoTocar: esconderDica,
                 }
               : undefined

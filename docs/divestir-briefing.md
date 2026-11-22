@@ -64,10 +64,13 @@ Foto boa é 80% da peça bonita, então o guia aparece antes do upload, com exem
 | Resolução ideal | 2.000 px ou mais no lado menor | Selo verde "Foto perfeita" |
 | Resolução aceitável | Entre 1.000 e 2.000 px | Aviso amarelo: "Pode perder um pouco de definição" |
 | Resolução mínima | Abaixo de 1.000 px | Bloqueio: "Essa foto vai ficar pixelada. Tenta outra?" |
-| Nitidez | Detecção de desfoque | Aviso amarelo se a foto estiver tremida |
+| Nitidez | Detecção de desfoque | Bloqueio: "Essa foto ficou tremida. Tenta outra?" |
+| Definição da estampa | Pontos por polegada de quem aparece na foto, no tamanho impresso da peça e do design, contando o zoom: 150 ou mais é bom, de 100 a 150 é o limite, abaixo de 100 não serve | No limite, aviso leve. Abaixo de 100, a foto não é aceita: o único caminho é "Escolher outra foto". O zoom para onde a foto ainda tem o mínimo |
 | Recorte | Remoção de fundo automática | Cliente aprova a peça montada (foto e nome) no botão do carrinho |
 
 Os limites de resolução são ponto de partida: validar com a estamparia o tamanho real de impressão da área da foto em cada template e ajustar.
+
+**Foto sem qualidade não entra** (decisão do Lucas, 22/11/2026): não existe "usar mesmo assim". A compra tem que ser automática do começo ao fim, com o mínimo de troca de foto e de mudança no pedido depois de pago; por isso a foto que daria trabalho para a equipe é barrada antes do carrinho, pelo próprio site.
 
 **Foto de objeto** (o violão do pai, a moto, a caneca favorita) segue as mesmas regras, com uma dica extra: fundo liso e o objeto inteiro no quadro.
 
