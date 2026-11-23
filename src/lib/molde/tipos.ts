@@ -341,13 +341,25 @@ export function areaDoDesign(area: AreaNaFoto | null, config: ConfigDoMolde): Ar
 // Área de impressão de cada lado da peça (coluna area_impressao_cm de pecas).
 // Lado que não aparece aqui não recebe estampa (a jaqueta bomber só tem costas).
 // "peito" é o lugar da marca no peito, na foto da frente (do lado esquerdo de quem
-// veste). As medidas em centímetros chegam quando a estamparia confirmar.
+// veste). Os centímetros são o maior tamanho que a confecção imprime naquele lugar.
 export type AreaDeImpressao = {
   largura_cm?: number | null;
   altura_cm?: number | null;
   previa: AreaNaFoto;
 };
 export type AreasDaPeca = Partial<Record<Lado, AreaDeImpressao>> & { peito?: AreaDeImpressao };
+
+// A largura com que o design sai impresso, em centímetros: a maior que cabe na área de
+// impressão da peça (largura_cm × altura_cm), na proporção do design. Como todo design é
+// mais alto que largo, quase sempre quem manda é a altura (confecção, 23/11/2026: DTF de
+// no máximo 36 cm de largura por 46 cm de altura). Sem os centímetros da peça, não há
+// medida.
+export function larguraImpressaCm(area: AreaDeImpressao | null | undefined, config: ConfigDoMolde): number | null {
+  const largura = area?.largura_cm;
+  if (!largura || largura <= 0) return null;
+  const altura = area?.altura_cm;
+  return altura && altura > 0 ? Math.min(largura, altura * config.proporcao) : largura;
+}
 
 // Confere o que veio do banco antes de desenhar: um molde quebrado não pode
 // derrubar a tela.

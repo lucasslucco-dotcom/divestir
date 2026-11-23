@@ -13,6 +13,7 @@ import { janelaDaFoto } from '@/lib/molde/desenhar';
 import {
   LARGURA_DA_ARTE,
   areaDoDesign,
+  larguraImpressaCm,
   ladosDaPeca,
   valorDoCampo,
   type CamadaFoto,
@@ -189,14 +190,17 @@ export function qualidadeDaFoto(m: Montagem, r: Resolvida | null): { definicao: 
   const camada = r.design?.config.camadas.find((c): c is CamadaFoto => c.tipo === 'foto');
   const quadro = camada ? janelaDaFoto(camada) : null;
   if (!quadro) return semMedida;
-  // No design de estampa grande, a largura impressa cresce na mesma medida da prévia.
+  // A largura impressa é a maior que cabe na área de impressão da peça, na proporção do
+  // design. Peça sem os centímetros cadastrados usa a largura padrão, que no design de
+  // estampa grande cresce na mesma medida da prévia.
   const areaDaPeca = r.peca.areas[r.lado]?.previa ?? null;
   const areaDaEstampa = r.design ? areaDoDesign(areaDaPeca, r.design.config) : areaDaPeca;
   const aumento = areaDaPeca && areaDaEstampa ? areaDaEstampa.largura / areaDaPeca.largura : 1;
+  const impressa = r.design ? larguraImpressaCm(r.peca.areas[r.lado], r.design.config) : null;
   const definicao = definicaoDaEstampa(
     m.foto,
     quadro.largura / LARGURA_DA_ARTE,
-    (r.peca.areas[r.lado]?.largura_cm ?? LARGURA_PADRAO_DA_ESTAMPA_CM) * aumento,
+    impressa ?? LARGURA_PADRAO_DA_ESTAMPA_CM * aumento,
     quadro.largura / quadro.altura,
   );
   if (!definicao) return semMedida;

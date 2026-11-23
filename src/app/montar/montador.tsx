@@ -90,6 +90,10 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   const recorteAtual = useRef<RecorteEmUso | null>(null);
   const raiz = useRef<HTMLDivElement>(null);
   const doca = useRef<HTMLDivElement>(null);
+  // O que a pessoa tocou por último nos passos e a espera para a prévia voltar ao tamanho
+  // cheio depois de um campo de texto perder o foco (aoDesfocar).
+  const ultimoToque = useRef<Element | null>(null);
+  const voltaDaPrevia = useRef<number | undefined>(undefined);
   // O seletor de fotos do aparelho (álbum ou câmera): um só, aberto pelo passo da foto
   // e pelo "Trocar a foto" da prévia.
   const campoDaFoto = useRef<HTMLInputElement>(null);
@@ -477,6 +481,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
     const campo = evento.target;
     if (!(campo instanceof HTMLInputElement) || campo.type !== 'text') return;
     if (!window.matchMedia('(max-width: 1023px) and (pointer: coarse)').matches) return;
+    window.clearTimeout(voltaDaPrevia.current);
     setCompacta(true);
     setTimeout(() => {
       const livre = (doca.current?.getBoundingClientRect().bottom ?? 0) + 16;
@@ -485,8 +490,28 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
     }, 320);
   }
 
+  // A prévia só volta ao tamanho cheio um instante depois de o campo perder o foco. Se
+  // voltasse na hora, ela cresceria no meio do toque que tirou o foco (num tamanho, numa
+  // opção logo abaixo do campo), o que a pessoa tocou sairia de baixo do dedo e o toque
+  // se perderia. Depois de crescer, o que foi tocado sai de trás dela.
   function aoDesfocar(evento: FocusEvent<HTMLOListElement>) {
-    if (evento.target instanceof HTMLInputElement && evento.target.type === 'text') setCompacta(false);
+    if (!(evento.target instanceof HTMLInputElement) || evento.target.type !== 'text') return;
+    window.clearTimeout(voltaDaPrevia.current);
+    voltaDaPrevia.current = window.setTimeout(() => {
+      const ativo = document.activeElement;
+      // Foi de um campo de texto para outro: a prévia continua pequena.
+      if (ativo instanceof HTMLInputElement && ativo.type === 'text') return;
+      setCompacta(false);
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          const tocado = ultimoToque.current;
+          if (!tocado?.isConnected) return;
+          const livre = (doca.current?.getBoundingClientRect().bottom ?? 0) + 12;
+          const topo = tocado.getBoundingClientRect().top;
+          if (topo < livre) window.scrollBy({ top: topo - livre, behavior: suave() });
+        }),
+      );
+    }, 250);
   }
 
   if (!r) {
@@ -689,7 +714,14 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
         </p>
       </div>
 
-      <ol onFocus={aoFocar} onBlur={aoDesfocar} className="mt-1 lg:col-start-2 lg:row-start-2 lg:mt-8">
+      <ol
+        onFocus={aoFocar}
+        onBlur={aoDesfocar}
+        onPointerDownCapture={(evento) => {
+          ultimoToque.current = evento.target instanceof Element ? evento.target : null;
+        }}
+        className="mt-1 lg:col-start-2 lg:row-start-2 lg:mt-8"
+      >
         <Passo id={ID_DOS_PASSOS.peca} numero={1} titulo="A peça" resumo={pecaNome}>
           <PassoPeca
             catalogo={catalogo}

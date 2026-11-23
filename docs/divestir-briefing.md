@@ -142,7 +142,7 @@ A v1 entra com 5 modelos, 3 cores e 6 tamanhos, todos cadastrados pelo painel pa
 
 **Jaqueta bomber** (decisão do Lucas, 10/11/2026, no lugar da jaqueta college): só na cor preta, com gola, punhos e barra canelados e zíper na frente. A estampa vai só nas costas, e a frente leva a marca no peito.
 
-**Camiseta dry-fit** (decisão do Lucas, 10/11/2026): nas três cores. O tecido é poliéster: confirmar com a estamparia a técnica de estampa em cada cor.
+**Camiseta dry-fit** (decisão do Lucas, 10/11/2026): só em preto e branco, que é o que a confecção tem (23/11/2026; antes, nas três cores). O tecido é poliéster de gramatura alta, estampado em DTF como as outras peças.
 
 **Fotos de base para a prévia:** cada combinação de peça e cor precisa de uma foto de frente e uma de costas, no mesmo ângulo e luz. São 30 fotos (5 peças × 3 cores × 2 lados), geradas no Higgsfield no estilo manequim invisível, todas no mesmo canvas (1792 × 2240 px, 4:5) e no mesmo fundo cinza claro (#E9E9E7). Método: a versão preta de frente de cada peça é a matriz, e as costas e as cores branca e creme saem dela, para a silhueta não mudar quando o cliente troca de cor. Essas fotos são a base de toda prévia, então a qualidade delas define a percepção de valor do site.
 

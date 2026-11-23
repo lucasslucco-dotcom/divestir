@@ -38,12 +38,20 @@ from public.pecas p
 cross join public.cores c
 cross join (values ('frente'), ('costas')) as l (lado)
 where (
-    p.slug in ('camiseta-regular', 'camiseta-oversized', 'camiseta-dry-fit', 'moletom', 'moletom-capuz')
+    p.slug in ('camiseta-regular', 'camiseta-oversized', 'moletom', 'moletom-capuz')
     and c.slug in ('preto', 'branco', 'creme')
   )
+  -- A dry-fit só existe em preto e branco (resposta da confecção, 23/11/2026).
+  or (p.slug = 'camiseta-dry-fit' and c.slug in ('preto', 'branco'))
   -- A bomber só existe em preto: a cor que não tem foto não aparece para a peça.
   or (p.slug = 'jaqueta-bomber' and c.slug = 'preto')
 on conflict (peca_id, cor_id, lado) do update set url = excluded.url;
+
+-- Num banco que já tinha a dry-fit creme, as duas fotos dela saem: sem foto de base, a
+-- cor não aparece para a peça (decisão do Lucas, 23/11/2026).
+delete from public.peca_imagens i
+using public.pecas p, public.cores c
+where i.peca_id = p.id and i.cor_id = c.id and p.slug = 'camiseta-dry-fit' and c.slug = 'creme';
 
 -- Área de impressão de cada lado, em frações da foto de base: centro (x), topo e
 -- largura (a altura sai da proporção do molde). O cliente escolhe frente ou costas;
@@ -54,14 +62,20 @@ on conflict (peca_id, cor_id, lado) do update set url = excluded.url;
 -- "grande", nas costas, é a área dos designs de estampa grande (os de turnê): a estampa
 -- toma mais da peça, como nos mockups aprovados (pedido do Lucas, 10/11/2026). O tamanho
 -- em centímetros depende do que a estamparia consegue imprimir e prensar.
+-- Centímetros (resposta da confecção, 23/11/2026): a estampa em DTF tem no máximo 36 cm
+-- de largura por 46 cm de altura, em qualquer peça; a marca no peito, até 10 cm de
+-- largura. Na frente do moletom com capuz, entre os cordões e o bolso, cabe menos: os
+-- 23 cm são uma estimativa, até a tabela de medidas chegar. A prévia ("previa" e
+-- "grande") ainda mostra a estampa maior do que esse limite deixa: ela é refeita com a
+-- tabela de medidas de cada peça.
 update public.pecas as p set area_impressao_cm = a.area
 from (values
-  ('camiseta-regular', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.205, "largura": 0.3}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.31, "grande": {"largura": 0.4, "topo": 0.175}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.215, "largura": 0.11}}}'::jsonb),
-  ('camiseta-oversized', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.218, "largura": 0.326}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.177, "largura": 0.326, "grande": {"largura": 0.42, "topo": 0.165}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.225, "largura": 0.11}}}'::jsonb),
-  ('moletom', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.2, "largura": 0.31}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.32, "grande": {"largura": 0.4, "topo": 0.175}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.225, "largura": 0.11}}}'::jsonb),
-  ('moletom-capuz', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.305, "largura": 0.2}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.325, "largura": 0.36, "grande": {"largura": 0.42}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.655, "topo": 0.275, "largura": 0.1}}}'::jsonb),
-  ('camiseta-dry-fit', '{"frente": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.205, "largura": 0.3}}, "costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.31, "grande": {"largura": 0.4, "topo": 0.175}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.215, "largura": 0.11}}}'::jsonb),
-  ('jaqueta-bomber', '{"costas": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.5, "topo": 0.2, "largura": 0.3, "grande": {"largura": 0.38, "topo": 0.185}}}, "peito": {"largura_cm": null, "altura_cm": null, "previa": {"x": 0.645, "topo": 0.255, "largura": 0.1}}}'::jsonb)
+  ('camiseta-regular', '{"frente": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.205, "largura": 0.3}}, "costas": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.31, "grande": {"largura": 0.4, "topo": 0.175}}}, "peito": {"largura_cm": 10, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.215, "largura": 0.11}}}'::jsonb),
+  ('camiseta-oversized', '{"frente": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.218, "largura": 0.326}}, "costas": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.177, "largura": 0.326, "grande": {"largura": 0.42, "topo": 0.165}}}, "peito": {"largura_cm": 10, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.225, "largura": 0.11}}}'::jsonb),
+  ('moletom', '{"frente": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.2, "largura": 0.31}}, "costas": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.32, "grande": {"largura": 0.4, "topo": 0.175}}}, "peito": {"largura_cm": 10, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.225, "largura": 0.11}}}'::jsonb),
+  ('moletom-capuz', '{"frente": {"largura_cm": 23, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.305, "largura": 0.2}}, "costas": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.325, "largura": 0.36, "grande": {"largura": 0.42}}}, "peito": {"largura_cm": 10, "altura_cm": null, "previa": {"x": 0.655, "topo": 0.275, "largura": 0.1}}}'::jsonb),
+  ('camiseta-dry-fit', '{"frente": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.205, "largura": 0.3}}, "costas": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.31, "grande": {"largura": 0.4, "topo": 0.175}}}, "peito": {"largura_cm": 10, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.215, "largura": 0.11}}}'::jsonb),
+  ('jaqueta-bomber', '{"costas": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.2, "largura": 0.3, "grande": {"largura": 0.38, "topo": 0.185}}}, "peito": {"largura_cm": 10, "altura_cm": null, "previa": {"x": 0.645, "topo": 0.255, "largura": 0.1}}}'::jsonb)
 ) as a (slug, area)
 where p.slug = a.slug;
 
@@ -172,9 +186,11 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
--- Design Em Cartaz: pôster de cinema. A foto entra com o fundo original e escurece na base,
--- com o nome em itálico por cima (Instrument Serif); moldura, louros e créditos vêm do
--- Higgsfield; o cliente diz o ano ("desde").
+-- Design Em Cartaz: pôster de cinema. A foto entra recortada, dentro da moldura (desde
+-- 23/11/2026 o design não usa mais a foto inteira com o fundo: a confecção avisou que um
+-- retângulo cheio de tinta fica pesado e desconfortável na camiseta), com o nome em
+-- itálico por cima dela (Instrument Serif, com respiro em volta das letras); moldura,
+-- louros e créditos vêm do Higgsfield; o cliente diz o ano ("desde").
 insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
   ('em-cartaz', 'Em Cartaz', 'ativo', 4, '2026-11-10', '{
     "versao": 1,
@@ -182,9 +198,9 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "posicao": "costas",
     "camadas": [
       {"tipo": "texto", "texto": "UMA HISTÓRIA DE AMOR", "fonte": "cinema-forte", "x": 500, "base": 60, "largura": 860, "altura": 27, "espaco": 0.34},
-      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 92, "largura": 881, "altura": 1005, "fundo": true, "sombra": 0.42},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 92, "largura": 881, "altura": 1005, "janela": {"altura": 1100, "y": 662}},
       {"tipo": "arte", "arquivo": "/designs/em-cartaz/moldura.svg", "x": 500, "topo": 83, "largura": 898.9, "folga": 0},
-      {"tipo": "nome", "campo": "nome", "fonte": "destaque-italico", "x": 500, "topo": 888, "largura_maxima": 830, "altura_no_centro": 150, "arco": 1, "compressao_maxima": 0.75, "tinta": "creme-quente"},
+      {"tipo": "nome", "campo": "nome", "fonte": "destaque-italico", "x": 500, "topo": 888, "largura_maxima": 830, "altura_no_centro": 150, "arco": 1, "compressao_maxima": 0.75, "engrossa": 4, "folga": 12},
       {"tipo": "texto", "texto": "EM CARTAZ DESDE {desde}", "fonte": "cinema-forte", "x": 500, "base": 1167, "largura": 880, "altura": 29, "espaco": 0.34},
       {"tipo": "arte", "arquivo": "/designs/em-cartaz/creditos.svg", "x": 502.1, "topo": 1200.9, "largura": 982.4, "folga": 0}
     ],
