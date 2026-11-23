@@ -65,16 +65,17 @@ from (values
 ) as a (slug, area)
 where p.slug = a.slug;
 
--- Pacote de uma peça dobrada, para cotar o frete no Melhor Envio (Etapa 6). É uma
--- estimativa até a operação pesar e medir as embalagens de verdade.
+-- Pacote de uma peça dobrada, para cotar o frete no Melhor Envio (Etapa 6). O peso, a
+-- largura e o comprimento são os da confecção (23/11/2026: camisetas 26 × 35 cm e 200 g;
+-- moletons e jaqueta 35 × 45 cm e 800 g); a altura do pacote ainda é estimativa.
 update public.pecas as p set envio = e.envio
 from (values
-  ('camiseta-regular', '{"peso_kg": 0.3, "largura_cm": 25, "altura_cm": 4, "comprimento_cm": 30}'::jsonb),
-  ('camiseta-oversized', '{"peso_kg": 0.35, "largura_cm": 25, "altura_cm": 5, "comprimento_cm": 30}'::jsonb),
-  ('moletom', '{"peso_kg": 0.7, "largura_cm": 30, "altura_cm": 8, "comprimento_cm": 35}'::jsonb),
-  ('moletom-capuz', '{"peso_kg": 0.8, "largura_cm": 30, "altura_cm": 10, "comprimento_cm": 35}'::jsonb),
-  ('camiseta-dry-fit', '{"peso_kg": 0.2, "largura_cm": 25, "altura_cm": 4, "comprimento_cm": 30}'::jsonb),
-  ('jaqueta-bomber', '{"peso_kg": 0.8, "largura_cm": 35, "altura_cm": 10, "comprimento_cm": 40}'::jsonb)
+  ('camiseta-regular', '{"peso_kg": 0.2, "largura_cm": 26, "altura_cm": 4, "comprimento_cm": 35}'::jsonb),
+  ('camiseta-oversized', '{"peso_kg": 0.2, "largura_cm": 26, "altura_cm": 5, "comprimento_cm": 35}'::jsonb),
+  ('moletom', '{"peso_kg": 0.8, "largura_cm": 35, "altura_cm": 8, "comprimento_cm": 45}'::jsonb),
+  ('moletom-capuz', '{"peso_kg": 0.8, "largura_cm": 35, "altura_cm": 10, "comprimento_cm": 45}'::jsonb),
+  ('camiseta-dry-fit', '{"peso_kg": 0.2, "largura_cm": 26, "altura_cm": 4, "comprimento_cm": 35}'::jsonb),
+  ('jaqueta-bomber', '{"peso_kg": 0.8, "largura_cm": 35, "altura_cm": 10, "comprimento_cm": 45}'::jsonb)
 ) as e (slug, envio)
 where p.slug = e.slug;
 

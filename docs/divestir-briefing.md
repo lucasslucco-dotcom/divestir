@@ -149,7 +149,7 @@ A v1 entra com 5 modelos, 3 cores e 6 tamanhos, todos cadastrados pelo painel pa
 **Perguntas em aberto**
 
 - [ ] Preço de cada modelo (e se o preço varia por tamanho no GG e GGG)
-- [ ] Áreas de impressão em centímetros por peça, validadas com a estamparia
+- [x] Área de impressão (confecção, 23/11/2026): DTF, até 36 cm de largura por 46 cm de altura em qualquer peça; a marca no peito, até 10 cm de largura. Falta a tabela de medidas de cada modelo, para a prévia mostrar a estampa no tamanho certo
 - [ ] Prazo de personalização a exibir no checkout ("enviado em até X dias úteis")
 
 ## Carrinho e checkout
@@ -202,7 +202,7 @@ No status "Ajuste de foto", o cliente reenvia pelo link, o sistema refaz o recor
 - **Catálogo:** peças, cores, tamanhos, preços e fotos de base
 - **Equipe:** usuários do painel com dois papéis: administrador (tudo) e operação (pedidos e lotes)
 
-**Arquivo de impressão:** gerado no servidor assim que a arte é aprovada. PNG com fundo transparente, 300 DPI, no tamanho real da área de impressão da peça, nomeado com número do pedido, peça, cor e tamanho. Especificação final a confirmar com a estamparia.
+**Arquivo de impressão:** gerado no servidor assim que a arte é aprovada. PNG com fundo transparente, 300 DPI, no tamanho real da estampa (até 36 × 46 cm, impressão em DTF), nomeado com número do pedido, peça, cor e tamanho. A confecção recebe por lote e valida 3 arquivos de teste antes da abertura (respostas de 23/11/2026).
 
 ## Stack e banco de dados
 
