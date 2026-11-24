@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import { ENQUADRAMENTO_INICIAL, medirRecorte, type Geometria } from '@/lib/foto/enquadramento';
 import { reais } from '@/lib/loja';
+import { baixar, gerarEstampa, gerarMarcaNoPeito, MARCA_NO_PEITO_CM, tamanhoDaEstampaCm } from '@/lib/molde/impressao';
 import { NOME_DO_AVISO, nomeDoStatus, type Status } from '@/lib/painel/status';
 import type { FotosDoItem, ItemDoPedido, PedidoInteiro } from '@/lib/painel/tipos';
-import { IconeAlerta, IconeCopiar, IconePresente, IconeSim } from '../../../../montar/icones';
+import { IconeAlerta, IconeCarregando, IconeCopiar, IconePresente, IconeSim } from '../../../../montar/icones';
 import { TelaDaPrevia } from '../../../../montar/tela-da-previa';
 import { moverPedido } from '../../../acoes';
 import { botao, dataEHora, etiqueta, etiquetaCheia, link } from '../../../estilo';
@@ -66,17 +67,53 @@ function useFotos(enderecos: FotosDoItem, comFundo: boolean) {
 
 const LADO = { frente: 'na frente', costas: 'nas costas' } as const;
 
+// "30 × 46 cm": o tamanho da estampa impressa, arredondado.
+const emCm = (cm: number) => String(Math.round(cm));
+// Um pedaço de nome de arquivo: sem acento, sem espaço.
+const noNome = (texto: string) =>
+  texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+// O recorte guardado é WebP; para a confecção, vai em PNG.
+async function recorteEmPng(url: string) {
+  const imagem = new window.Image();
+  imagem.src = url;
+  await imagem.decode();
+  const tela = document.createElement('canvas');
+  tela.width = imagem.naturalWidth;
+  tela.height = imagem.naturalHeight;
+  tela.getContext('2d')?.drawImage(imagem, 0, 0);
+  const arquivo = await new Promise<Blob | null>((pronto) => tela.toBlob(pronto, 'image/png'));
+  tela.width = tela.height = 0;
+  if (!arquivo) throw new Error('recorte');
+  return arquivo;
+}
+
+type Arquivo = 'estampa' | 'marca' | 'recorte';
+
 function Peca({
   item,
   fotos,
   indice,
   total,
+  numero,
+  ano,
+  recorteDeTeste,
 }: {
   item: ItemDoPedido;
   fotos: FotosDoItem;
   indice: number;
   total: number;
+  numero: number;
+  ano: number;
+  recorteDeTeste: boolean;
 }) {
+  const [gerando, setGerando] = useState<Arquivo | null>(null);
+  const [erroDoArquivo, setErroDoArquivo] = useState<string | null>(null);
   const config = item.design.config;
   const comFundo = config.camadas.some((camada) => camada.tipo === 'foto' && 'fundo' in camada && camada.fundo);
   const { recorte, inteira } = useFotos(fotos, comFundo);
@@ -94,6 +131,43 @@ function Peca({
     : null;
   const outros = config.campos.filter((campo) => campo.chave !== 'nome' && item.campos[campo.chave]);
   const heic = /\.hei[cf]$/i.test(item.foto?.original ?? '');
+
+  // Os arquivos para a confecção: a estampa no tamanho real, a marca do peito e o recorte.
+  const estampaCm = tamanhoDaEstampaCm(item.peca.areas, item.lado, config);
+  const inicio = `divestir-pedido-${numero}${total > 1 ? `-peca-${indice + 1}` : ''}`;
+  const daPeca = [item.design.slug, item.peca.slug, item.cor.slug, item.tamanho].map(noNome).join('-');
+  async function baixarArquivo(qual: Arquivo) {
+    if (gerando || !pronta) return;
+    setGerando(qual);
+    setErroDoArquivo(null);
+    try {
+      if (qual === 'estampa') {
+        const arquivo = await gerarEstampa({
+          config,
+          corDaPeca: item.cor.slug,
+          valores: item.campos,
+          recorte: { url: pronta.url, geometria: pronta.geometria, enquadramento },
+          larguraCm: estampaCm.largura,
+          ano,
+        });
+        baixar(arquivo, `${inicio}-estampa-${daPeca}-${emCm(estampaCm.largura)}x${emCm(estampaCm.altura)}cm.png`);
+      } else if (qual === 'marca') {
+        baixar(
+          await gerarMarcaNoPeito(config, item.cor.slug),
+          `${inicio}-marca-no-peito-${noNome(item.cor.slug)}-${MARCA_NO_PEITO_CM}cm.png`,
+        );
+      } else {
+        baixar(await recorteEmPng(pronta.url), `${inicio}-recorte.png`);
+      }
+    } catch (motivo) {
+      console.error('painel: não consegui gerar o arquivo', motivo);
+      setErroDoArquivo(
+        'Não consegui gerar esse arquivo aqui. Se estiver no celular, abra o pedido no computador: a estampa no tamanho real é grande demais para o navegador do celular.',
+      );
+    } finally {
+      setGerando(null);
+    }
+  }
 
   return (
     <li className="border-t border-verde py-8 first:border-t-0 first:pt-0">
@@ -193,6 +267,54 @@ function Peca({
         </p>
       ) : null}
 
+      {pronta ? (
+        <div className="mt-6">
+          <h4 className="leading-snug font-semibold">Arquivos para a confecção</h4>
+          <p className="mt-1 max-w-[64ch] text-[0.9375rem] leading-relaxed">
+            A estampa sai em PNG de fundo transparente, a 300 pontos por polegada, com{' '}
+            <span className="font-semibold">
+              {emCm(estampaCm.largura)} × {emCm(estampaCm.altura)} cm
+            </span>
+            : já no tamanho de impressão, com a foto e o nome no lugar.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-3">
+            <button type="button" className={botao} disabled={!!gerando} onClick={() => baixarArquivo('estampa')}>
+              {gerando === 'estampa' ? (
+                <>
+                  <IconeCarregando tamanho={18} />
+                  Gerando a estampa…
+                </>
+              ) : (
+                'Baixar a estampa pronta'
+              )}
+            </button>
+            {item.marca_no_peito ? (
+              <button type="button" className={botao} disabled={!!gerando} onClick={() => baixarArquivo('marca')}>
+                {gerando === 'marca' ? 'Gerando…' : `Baixar a marca do peito (${MARCA_NO_PEITO_CM} cm)`}
+              </button>
+            ) : null}
+            <button type="button" className={botao} disabled={!!gerando} onClick={() => baixarArquivo('recorte')}>
+              {gerando === 'recorte' ? 'Gerando…' : 'Baixar só o recorte'}
+            </button>
+          </div>
+          {recorteDeTeste ? (
+            <p className="mt-3 flex max-w-[64ch] items-start gap-2 text-[0.9375rem] leading-relaxed">
+              <IconeAlerta tamanho={18} className="mt-0.5 shrink-0" />
+              <span>
+                O recorte de fundo ainda está no modo de teste: a foto sai com a marca d’água do serviço e no tamanho da
+                prévia. Serve para conferir a arte, ainda não para imprimir.
+              </span>
+            </p>
+          ) : null}
+          {erroDoArquivo ? (
+            <p role="alert" className="mt-3 flex max-w-[64ch] items-start gap-2 leading-snug font-semibold">
+              <IconeAlerta tamanho={18} className="mt-0.5 shrink-0" />
+              {erroDoArquivo}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
       {outros.length || item.presente ? (
         <dl className="mt-5 grid gap-x-8 gap-y-3 sm:grid-cols-2">
           {outros.map((campo) => (
@@ -282,10 +404,13 @@ export function PedidoDoPainel({
   pedido,
   fotos,
   admin,
+  recorteDeTeste,
 }: {
   pedido: PedidoInteiro;
   fotos: Record<number, FotosDoItem>;
   admin: boolean;
+  // O recorte de fundo ainda está no modo de teste (com marca d'água).
+  recorteDeTeste: boolean;
 }) {
   const router = useRouter();
   const [pergunta, setPergunta] = useState<Pergunta>(null);
@@ -441,6 +566,9 @@ export function PedidoDoPainel({
               fotos={fotos[item.id] ?? { original: null, recorte: null }}
               indice={indice}
               total={pedido.itens.length}
+              numero={pedido.numero}
+              ano={new Date(pedido.criado_em).getFullYear()}
+              recorteDeTeste={recorteDeTeste}
             />
           ))}
         </ul>

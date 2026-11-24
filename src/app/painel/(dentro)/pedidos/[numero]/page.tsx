@@ -47,7 +47,14 @@ async function Pedido({ params }: { params: Promise<{ numero: string }> }) {
     ]),
   );
 
-  return <PedidoDoPainel pedido={pedido} fotos={fotos} admin={eu.papel === 'admin'} />;
+  return (
+    <PedidoDoPainel
+      pedido={pedido}
+      fotos={fotos}
+      admin={eu.papel === 'admin'}
+      recorteDeTeste={process.env.PHOTOROOM_MODO !== 'producao'}
+    />
+  );
 }
 
 export default function PaginaDoPedido({ params }: { params: Promise<{ numero: string }> }) {

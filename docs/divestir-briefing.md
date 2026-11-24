@@ -202,7 +202,7 @@ No status "Ajuste de foto", o cliente reenvia pelo link, o sistema refaz o recor
 - **Catálogo:** peças, cores, tamanhos, preços e fotos de base
 - **Equipe:** usuários do painel com dois papéis: administrador (tudo) e operação (pedidos e lotes)
 
-**Arquivo de impressão:** gerado no servidor assim que a arte é aprovada. PNG com fundo transparente, 300 DPI, no tamanho real da estampa (até 36 × 46 cm, impressão em DTF), nomeado com número do pedido, peça, cor e tamanho. A confecção recebe por lote e valida 3 arquivos de teste antes da abertura (respostas de 23/11/2026).
+**Arquivo de impressão:** gerado no servidor assim que a arte é aprovada. PNG com fundo transparente, 300 DPI, no tamanho real da estampa (até 36 × 46 cm, impressão em DTF), nomeado com número do pedido, peça, cor e tamanho. A confecção recebe por lote e valida 3 arquivos de teste antes da abertura (respostas de 23/11/2026). Desde 23/11/2026 a tela do pedido no painel já baixa a estampa pronta, a marca do peito (10 cm) e o recorte: por enquanto o arquivo é gerado no navegador de quem abre o pedido (no computador), com o recorte da prévia; o arquivo definitivo, com o recorte feito da foto original e sem marca d'água, depende do plano pago do serviço de recorte.
 
 ## Stack e banco de dados
 
