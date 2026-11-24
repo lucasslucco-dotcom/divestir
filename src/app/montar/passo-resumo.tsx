@@ -96,7 +96,7 @@ export function PassoResumo({
     ['Cor', r.cor.nome],
     ['Design', r.design?.nome ?? '—'],
     ['Nome', nome ? nome.toLocaleUpperCase('pt-BR') : '—'],
-    // Os outros textos que o design pede (o ano do "Em Cartaz").
+    // Os outros textos que o design pede (o ano do "Destino").
     ...(r.design?.config.campos ?? [])
       .filter((campo) => campo.chave !== 'nome')
       .map((campo): [string, string] => [

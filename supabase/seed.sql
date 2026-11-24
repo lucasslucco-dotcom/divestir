@@ -186,35 +186,10 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
--- Design Em Cartaz: pôster de cinema. A foto entra recortada, dentro da moldura (desde
--- 23/11/2026 o design não usa mais a foto inteira com o fundo: a confecção avisou que um
--- retângulo cheio de tinta fica pesado e desconfortável na camiseta), com o nome em
--- itálico por cima dela (Instrument Serif, com respiro em volta das letras); moldura,
--- louros e créditos vêm do Higgsfield; o cliente diz o ano ("desde").
-insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
-  ('em-cartaz', 'Em Cartaz', 'ativo', 4, '2026-11-10', '{
-    "versao": 1,
-    "proporcao": 0.641,
-    "posicao": "costas",
-    "camadas": [
-      {"tipo": "texto", "texto": "UMA HISTÓRIA DE AMOR", "fonte": "cinema-forte", "x": 500, "base": 60, "largura": 860, "altura": 27, "espaco": 0.34},
-      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 92, "largura": 881, "altura": 1005, "janela": {"altura": 1100, "y": 662}},
-      {"tipo": "arte", "arquivo": "/designs/em-cartaz/moldura.svg", "x": 500, "topo": 83, "largura": 898.9, "folga": 0},
-      {"tipo": "nome", "campo": "nome", "fonte": "destaque-italico", "x": 500, "topo": 888, "largura_maxima": 830, "altura_no_centro": 150, "arco": 1, "compressao_maxima": 0.75, "engrossa": 4, "folga": 12},
-      {"tipo": "texto", "texto": "EM CARTAZ DESDE {desde}", "fonte": "cinema-forte", "x": 500, "base": 1167, "largura": 880, "altura": 29, "espaco": 0.34},
-      {"tipo": "arte", "arquivo": "/designs/em-cartaz/creditos.svg", "x": 502.1, "topo": 1200.9, "largura": 982.4, "folga": 0}
-    ],
-    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 16, "caixa": "alta"}, {"chave": "desde", "rotulo": "Desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
-    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
-    "temas": ["casal"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
-    "logo_peito": true
-  }'::jsonb)
-on conflict (slug) do update set
-  nome = excluded.nome,
-  status = excluded.status,
-  ordem = excluded.ordem,
-  config = excluded.config;
+-- O Em Cartaz (pôster de cinema, de casal) saiu da linha por decisão do Lucas
+-- (23/11/2026: "esse design Em Cartaz vamos excluir, não achei que ficou bom"). Onde ele
+-- já existir no banco, fica encerrado.
+update public.designs set status = 'encerrado' where slug = 'em-cartaz';
 
 -- Design Torcida ("Torcida Organizada"): camisa de torcida, estampa grande, para pais, avôs e amigos. A
 -- arte vem do Higgsfield (a linha de cima, as estrelas, o escudo de listras, a faixa

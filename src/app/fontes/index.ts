@@ -23,7 +23,7 @@ export const instrumentSerif = localFont({
   display: 'swap',
 });
 
-// Só nas estampas de cinema (Em Cartaz e Melhor Mãe): Bodoni Moda, de licença aberta
+// Só nas estampas de cinema (Melhor Mãe, Obra-Prima e Feita à Mão): Bodoni Moda, de licença aberta
 // (OFL). Não é fonte do site: o navegador só baixa quando um design usa (decisão a
 // confirmar com o Lucas, 10/11/2026). O peso 900 é o do nome do Melhor Mãe.
 export const bodoniModa = localFont({

@@ -121,7 +121,7 @@ export function PassoPeca({
   );
 }
 
-// Passo 4: o nome e os outros textos que o design pede (o ano do "Em Cartaz", o júri
+// Passo 4: o nome e os outros textos que o design pede (o ano do "Destino", o júri
 // do "Melhor Mãe"). Vem depois do design porque cada design tem um espaço diferente
 // para o nome: assim o limite de letras já é o do design escolhido. Tudo entra na
 // prévia enquanto a pessoa digita.

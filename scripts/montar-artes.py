@@ -198,26 +198,6 @@ def ao_vivo():
     print('  faixa: de', na_arte(corte, y=faixa['caixa'][1]), 'a', na_arte(corte, y=base_da_faixa), ' fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
 
 
-def em_cartaz():
-    print('Em Cartaz')
-    itens = ler('em-cartaz')
-    corte = (110, 110, 1140)
-    moldura = [i for i in itens if i['caixa'][2] - i['caixa'][0] > 900 and i['caixa'][3] - i['caixa'][1] > 900]
-    # As duas linhas de letra serifada ("Uma história de amor" e "Em cartaz") saem do
-    # site, por causa do ano que o cliente escolhe; a arte fica com a moldura, os
-    # louros e os créditos.
-    embaixo = [i for i in itens if i['caixa'][1] > 1470]
-    gravar('em-cartaz', 'moldura', moldura, corte, 'Moldura do pôster (a foto aparece por dentro).', folga=2)
-    gravar('em-cartaz', 'creditos', embaixo, corte, 'Louros e créditos do pôster.')
-    a, b, c, d = moldura[1]['caixa'] if moldura[1]['tipo'] == 'K' else moldura[0]['caixa']
-    print('  janela da foto (x do centro, topo, largura, altura):', na_arte(corte, (a + c) / 2, b, c - a), na_arte(corte, tamanho=d - b))
-    linha1 = [i for i in itens if i['caixa'][3] < 200]
-    linha2 = [i for i in itens if 1370 < i['caixa'][1] and i['caixa'][3] < 1470]
-    for nome, linha in (('linha de cima', linha1), ('linha "em cartaz"', linha2)):
-        print(f'  {nome}: base', na_arte(corte, y=max(i["caixa"][3] for i in linha)), 'altura da letra', na_arte(corte, tamanho=max(i['caixa'][3] - i['caixa'][1] for i in linha)))
-    print('  fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
-
-
 def torcida():
     print('Torcida Organizada')
     itens = ler('torcida')
@@ -785,7 +765,6 @@ def segundo_lugar():
 if __name__ == '__main__':
     turne_mundial()
     ao_vivo()
-    em_cartaz()
     torcida()
     bar_do()
     o_lendario()
