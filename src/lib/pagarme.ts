@@ -41,6 +41,9 @@ type TransacaoPM = {
   expires_at?: string;
   installments?: number;
   acquirer_return_code?: string;
+  acquirer_message?: string;
+  success?: boolean;
+  gateway_response?: { code?: string; errors?: { message?: string }[] };
   antifraud_response?: { status?: string };
 };
 
@@ -163,12 +166,34 @@ export function montarPedido(pedido: PedidoDaLoja, forma: FormaDePagar) {
   };
 }
 
+// Anota nos registros como ficou um pagamento com cartão: a situação e, se não passou,
+// o motivo que o Pagar.me deu (o código do banco, a mensagem e os erros do pedido). Só
+// códigos e mensagens do Pagar.me: nenhum dado de quem compra nem do cartão.
+function anotarCartao(p: PedidoPM, quando: string) {
+  const cobranca = p.charges?.[0];
+  if (cobranca?.payment_method !== 'credit_card') return;
+  const t = cobranca.last_transaction;
+  const linha = {
+    pedido: p.code,
+    cobranca: cobranca.status,
+    transacao: t?.status,
+    codigo_do_banco: t?.acquirer_return_code,
+    mensagem_do_banco: t?.acquirer_message?.slice(0, 120),
+    codigo_do_pagarme: t?.gateway_response?.code,
+    erros: t?.gateway_response?.errors?.map((e) => String(e.message).slice(0, 160)).slice(0, 5),
+    antifraude: t?.antifraud_response?.status,
+  };
+  const passou = cobranca.status === 'paid' || cobranca.status === 'overpaid';
+  (passou ? console.log : console.warn)(`pagarme: cartão ${quando}`, JSON.stringify(linha));
+}
+
 export async function criarPedido(corpo: unknown, idempotencia: string): Promise<PedidoPM> {
   const { resposta, dados } = await chamar('/orders', { method: 'POST', body: JSON.stringify(corpo), idempotencia });
   if (!resposta.ok || !ehPedido(dados)) {
     console.error(`pagarme: pedido não criado (${resposta.status})`, JSON.stringify(dados).slice(0, 600));
     throw new ErroDoPagarme('O Pagar.me não aceitou o pagamento.', resposta.status >= 500 ? 502 : 400);
   }
+  anotarCartao(dados, 'na criação');
   return dados;
 }
 
@@ -177,6 +202,7 @@ export async function buscarPedido(id: string): Promise<PedidoPM | null> {
   const { resposta, dados } = await chamar(`/orders/${encodeURIComponent(id)}`);
   if (resposta.status === 404) return null;
   if (!resposta.ok || !ehPedido(dados)) throw new ErroDoPagarme(`O Pagar.me respondeu ${resposta.status}.`, 502);
+  if (dados.charges?.[0]?.status === 'failed') anotarCartao(dados, 'na consulta');
   return dados;
 }
 
