@@ -5,15 +5,7 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from '
 import type { Catalogo } from '@/lib/catalogo';
 import type { SituacaoDoPedido } from '@/lib/checkout';
 import { codigoNovo } from '@/lib/foto/guardar';
-import {
-  DIAS_SEM_PAGAR,
-  faixaDeDias,
-  INSTAGRAM,
-  MINUTOS_DO_PIX,
-  PRAZO_DE_PERSONALIZACAO,
-  PRAZO_EM_TEXTO,
-  reais,
-} from '@/lib/loja';
+import { DIAS_SEM_PAGAR, INSTAGRAM, MINUTOS_DO_PIX, prazoComEntrega, PRAZO_EM_TEXTO, reais } from '@/lib/loja';
 import {
   chaveDaInteira,
   chavesDasFotos,
@@ -322,9 +314,7 @@ export function Pedido({
 
   const linhas = guardado ? linhasDoCarrinho(guardado.itens, catalogo, designs, situacao.teste) : [];
   const frete = situacao.freteServico;
-  const prazoTotal = frete
-    ? { min: PRAZO_DE_PERSONALIZACAO.min + frete.prazo_min, max: PRAZO_DE_PERSONALIZACAO.max + frete.prazo_max }
-    : null;
+  const prazoTotal = frete ? prazoComEntrega(frete.prazo_min, frete.prazo_max) : null;
 
   // As peças do pedido: com as prévias (quando o pedido foi feito neste aparelho)
   // ou só o texto. "grade": prévias grandes, na confirmação; "lista": ao lado do pagamento.
@@ -411,10 +401,7 @@ export function Pedido({
               <p className="mt-2 leading-relaxed">
                 A equipe confere a arte de cada peça e já começa a produção. Sua Divestir fica pronta em{' '}
                 {situacao.prazoPersonalizacao ?? PRAZO_EM_TEXTO}
-                {prazoTotal
-                  ? ` e chega em ${faixaDeDias(prazoTotal.min, prazoTotal.max)} dias úteis, contando a entrega`
-                  : ''}
-                .
+                {prazoTotal ? ` e chega em ${prazoTotal} dias úteis, contando a entrega` : ''}.
               </p>
             )}
             {situacao.rastreio && (situacao.status === 'enviado' || situacao.status === 'entregue') ? (
@@ -605,7 +592,7 @@ export function Pedido({
         {valores}
         {prazoTotal ? (
           <p className="mt-4 text-[0.9375rem] leading-snug">
-            Chega em {faixaDeDias(prazoTotal.min, prazoTotal.max)} dias úteis, contando a produção e a entrega.
+            Chega em {prazoTotal} dias úteis, contando a produção e a entrega.
           </p>
         ) : null}
       </aside>

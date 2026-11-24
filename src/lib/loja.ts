@@ -13,10 +13,20 @@ export function faixaDeDias(min: number, max: number) {
   return min === max ? String(max) : `${min} a ${max}`;
 }
 
-export const PRAZO_EM_TEXTO =
-  PRAZO_DE_PERSONALIZACAO.min === PRAZO_DE_PERSONALIZACAO.max
-    ? `até ${PRAZO_DE_PERSONALIZACAO.max} dias úteis`
-    : `${faixaDeDias(PRAZO_DE_PERSONALIZACAO.min, PRAZO_DE_PERSONALIZACAO.max)} dias úteis`;
+// O prazo de fazer a peça, em dias: "até 10" (o Lucas fechou em "até 10 dias", em
+// 23/11/2026) ou "10 a 15", se um dia voltar a ser uma faixa.
+const PRAZO_E_UM_TETO = PRAZO_DE_PERSONALIZACAO.min === PRAZO_DE_PERSONALIZACAO.max;
+export const PRAZO_EM_DIAS = PRAZO_E_UM_TETO
+  ? `até ${PRAZO_DE_PERSONALIZACAO.max}`
+  : faixaDeDias(PRAZO_DE_PERSONALIZACAO.min, PRAZO_DE_PERSONALIZACAO.max);
+export const PRAZO_EM_TEXTO = `${PRAZO_EM_DIAS} dias úteis`;
+
+// O prazo até a peça chegar, em dias: o de fazer a peça somado ao da entrega. Como a
+// peça fica pronta em "até 10", a soma também é um teto: "até 17".
+export function prazoComEntrega(entregaMin: number, entregaMax: number) {
+  if (PRAZO_E_UM_TETO) return `até ${PRAZO_DE_PERSONALIZACAO.max + entregaMax}`;
+  return faixaDeDias(PRAZO_DE_PERSONALIZACAO.min + entregaMin, PRAZO_DE_PERSONALIZACAO.max + entregaMax);
+}
 
 // Os avisos vão por e-mail; o WhatsApp entra quando o provedor estiver liberado
 // (decisão do Lucas, 08/11/2026). Ligar aqui muda a mensagem do prazo.

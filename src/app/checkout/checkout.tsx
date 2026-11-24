@@ -12,7 +12,7 @@ import {
   type PedidoDoCheckout,
 } from '@/lib/checkout';
 import { codigoNovo } from '@/lib/foto/guardar';
-import { faixaDeDias, PRAZO_DE_PERSONALIZACAO, precoDoPresente, reais, somar } from '@/lib/loja';
+import { faixaDeDias, PRAZO_EM_DIAS, prazoComEntrega, precoDoPresente, reais, somar } from '@/lib/loja';
 import {
   chaveDaInteira,
   chavesDasFotos,
@@ -571,11 +571,6 @@ export function Checkout({
     }
   }
 
-  const prazo = (o: OpcaoDeFrete) => ({
-    min: PRAZO_DE_PERSONALIZACAO.min + o.prazo.min,
-    max: PRAZO_DE_PERSONALIZACAO.max + o.prazo.max,
-  });
-
   return (
     <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-x-14">
       <form noValidate onSubmit={enviar} className="mt-6 max-w-xl">
@@ -828,7 +823,6 @@ export function Checkout({
                 <legend className="sr-only">Como o pedido vai chegar</legend>
                 <div className="space-y-3">
                   {opcoes.map((opcao) => {
-                    const total = prazo(opcao);
                     return (
                       <label key={opcao.id} className="relative block cursor-pointer">
                         <input
@@ -846,11 +840,11 @@ export function Checkout({
                               {opcao.transportadora ? ` · ${opcao.transportadora}` : ''}
                             </span>
                             <span className="mt-0.5 block text-[0.9375rem] leading-snug">
-                              Chega em {faixaDeDias(total.min, total.max)} dias úteis
+                              Chega em {prazoComEntrega(opcao.prazo.min, opcao.prazo.max)} dias úteis
                             </span>
                             <span className="mt-0.5 block text-sm leading-5">
-                              {faixaDeDias(PRAZO_DE_PERSONALIZACAO.min, PRAZO_DE_PERSONALIZACAO.max)} para fazer a peça
-                              e {faixaDeDias(opcao.prazo.min, opcao.prazo.max)} de entrega
+                              {PRAZO_EM_DIAS} para fazer a peça e {faixaDeDias(opcao.prazo.min, opcao.prazo.max)} de
+                              entrega
                             </span>
                           </span>
                           <span className="shrink-0 text-base leading-snug font-semibold tabular-nums">
