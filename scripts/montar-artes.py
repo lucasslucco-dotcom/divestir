@@ -44,6 +44,43 @@ def ler(arquivo: str):
     return itens
 
 
+def ano_novo(itens, arquivo: str, dois, seis):
+    """Troca o último algarismo do ano que faz parte da arte (o "6" de 2026 pelo "7" de 2027).
+
+    O ano não é escrito pelo site: ele vem desenhado na arte, na letra dela. Para a arte
+    aprovada não mudar em mais nada, só o último algarismo é trocado: a parte que traz o
+    ano foi refeita no Higgsfield com "2027" (a mesma arte como referência), vetorizada
+    pelo Ideogram, e daí vieram só duas formas, guardadas em artes-fonte/<arquivo>.txt:
+    o "2" que vem antes (a âncora) e o "7". O "7" entra no lugar do "6" com o tamanho e a
+    distância que ele tem do "2" na arte nova, medidos pelo "2" da arte de sempre.
+
+    "dois": o canto (x, y) da caixa do "2" que fica antes do "6", na arte de sempre.
+    "seis": o canto da caixa de cada forma do "6" (o algarismo e o miolo dele).
+    """
+    def achar(canto):
+        return next(i for i in itens if abs(i['caixa'][0] - canto[0]) < 0.6 and abs(i['caixa'][1] - canto[1]) < 0.6)
+
+    ancora_nova, *sete = ler(arquivo)
+    ancora = achar(dois)
+    fora = [achar(canto) for canto in seis]
+    k = (ancora['caixa'][3] - ancora['caixa'][1]) / (ancora_nova['caixa'][3] - ancora_nova['caixa'][1])
+    x0, y0 = ancora_nova['caixa'][0], ancora_nova['caixa'][1]
+    ax, ay = ancora['caixa'][0], ancora['caixa'][1]
+    novos = []
+    for item in sete:
+        pares = iter(re.findall(r'-?\d+\.?\d*', item['texto'][1:]))
+        valores = [float(v) for v in pares]
+        pontos = [(ax + (x - x0) * k, ay + (y - y0) * k) for x, y in zip(valores[0::2], valores[1::2])]
+        fila = iter(v for ponto in pontos for v in ponto)
+        texto = item['tipo'] + re.sub(r'-?\d+\.?\d*', lambda _: n(next(fila)), item['texto'][1:])
+        texto = re.sub(r'(\d)(-)', r'\1 \2', texto)
+        xs, ys = [x for x, _ in pontos], [y for _, y in pontos]
+        novos.append({'tipo': item['tipo'], 'texto': texto, 'caixa': (min(xs), min(ys), max(xs), max(ys)), 'pontos': pontos})
+    onde = min(itens.index(i) for i in fora)
+    resto = [i for i in itens if all(i is not f for f in fora)]
+    return resto[:onde] + novos + resto[onde:]
+
+
 def centro(item):
     a, b, c, d = item['caixa']
     return (a + c) / 2, (b + d) / 2
@@ -132,7 +169,7 @@ def na_arte(corte, x=None, y=None, tamanho=None):
 
 def turne_mundial():
     print('Turnê Mundial')
-    itens = ler('turne-mundial')
+    itens = ano_novo(ler('turne-mundial'), 'turne-mundial-2027', dois=(1014.6, 1132.3), seis=[(1062.5, 1125.7), (1080.5, 1179.9)])
     corte = (40, 70, 1280)  # x e y onde a arte do design começa no vetor, e a largura que vira 1000
     # A fita começa em 1104; o que começa acima disso são os raios da primeira arte
     # (com um círculo vazio no meio), que não entram mais.
@@ -142,7 +179,7 @@ def turne_mundial():
     # letra pequena das datas fica inteira, para ler.
     datas = [i for i in frente if 1338 <= i['caixa'][1] < 1555]
     fita = [i for i in frente if i not in datas]
-    gravar('turne-mundial', 'frente', fita, corte, 'Fita "Turnê Mundial 2026" e selo (na frente da foto).', base=True)
+    gravar('turne-mundial', 'frente', fita, corte, 'Fita "Turnê Mundial 2027" e selo (na frente da foto).', base=True)
     gravar('turne-mundial', 'datas', datas, corte, 'As datas da turnê.')
     print('  fita: topo', na_arte(corte, y=1104), ' fim da arte:', na_arte(corte, y=max(i['caixa'][3] for i in itens)))
 
@@ -173,7 +210,7 @@ RAIOS_ATE = 885
 
 def ao_vivo():
     print('Ao Vivo')
-    itens = ler('ao-vivo')
+    itens = ano_novo(ler('ao-vivo'), 'ao-vivo-2027', dois=(997.0, 1513.0), seis=[(1115.1, 1493.2), (1158.7, 1601.5)])
     corte = (55, 60, 1250)
     faixa = max(itens, key=lambda i: (i['caixa'][2] - i['caixa'][0]) * (i['tipo'] == 'W'))
     poligono = faixa['pontos']
@@ -189,7 +226,7 @@ def ao_vivo():
             pontos.append(i)
     gravar('ao-vivo', 'selo', selo, corte, 'Etiqueta "Ao Vivo".')
     gravar('ao-vivo', 'pontos', pontos, corte, 'Círculo de pontos (atrás da foto).')
-    gravar('ao-vivo', 'frente', frente, corte, 'Faixa "Turnê 2026" e a linha de lugares (na frente da foto).', base=True)
+    gravar('ao-vivo', 'frente', frente, corte, 'Faixa "Turnê 2027" e a linha de lugares (na frente da foto).', base=True)
     so_pontos = [i for i in pontos if i['tipo'] == 'C']
     x0 = min(i['caixa'][0] for i in so_pontos)
     x1 = max(i['caixa'][2] for i in so_pontos)
@@ -200,7 +237,7 @@ def ao_vivo():
 
 def torcida():
     print('Torcida Organizada')
-    itens = ler('torcida')
+    itens = ano_novo(ler('torcida'), 'torcida-2027', dois=(316.2, 1843.3), seis=[(329.7, 1845.4), (340.3, 1862.8)])
     corte = (40, 110, 1280)
     topo = [i for i in itens if i['caixa'][3] < 300]
     linha = [i for i in itens if i['caixa'][1] > 1825]
@@ -440,7 +477,7 @@ def alto_em():
 
 def grande_premio():
     print('Grande Prêmio')
-    itens = ler('grande-premio')
+    itens = ano_novo(ler('grande-premio'), 'grande-premio-2027', dois=(1255.0, 1872.5), seis=[(1287.0, 1869.0), (1299.5, 1893.0)])
     # A faixa "Pole position na piada ruim" (de 43 a 1323) toma a largura da arte, com
     # uma margem de 10 de cada lado.
     corte = (33, 40, 1294)
@@ -468,7 +505,7 @@ def grande_premio():
     gravar('grande-premio', 'circulo', circulo, corte, 'O círculo com as faixas de velocidade (atrás da foto).')
     gravar('grande-premio', 'selo', selo, corte, 'O selo "10" (na frente da foto).', base=True)
     gravar('grande-premio', 'faixa', faixa, corte, 'A faixa "Pole position na piada ruim" (na frente da foto).', base=True)
-    gravar('grande-premio', 'base', base, corte, 'A fita quadriculada e a linha "Piloto oficial do rolê · Temporada 2026".')
+    gravar('grande-premio', 'base', base, corte, 'A fita quadriculada e a linha "Piloto oficial do rolê · Temporada 2027".')
 
 
 def mestre_da_brasa():
