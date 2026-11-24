@@ -3,10 +3,20 @@
 // contas antes de criar o pedido; o navegador só mostra.
 import type { Peca } from './catalogo';
 
-// Prazo de personalização mostrado no carrinho e no checkout (decisão do Lucas,
-// 08/11/2026). É o tempo de fazer a peça, antes de ela sair para a entrega.
-export const PRAZO_DE_PERSONALIZACAO = { min: 10, max: 15 } as const;
-export const PRAZO_EM_TEXTO = `${PRAZO_DE_PERSONALIZACAO.min} a ${PRAZO_DE_PERSONALIZACAO.max} dias úteis`;
+// Prazo de personalização mostrado no carrinho e no checkout: o tempo de fazer a peça,
+// antes de ela sair para a entrega. São 10 dias úteis (decisão do Lucas, 23/11/2026;
+// antes, de 10 a 15). Com mínimo e máximo iguais, os textos dizem "até 10 dias úteis".
+export const PRAZO_DE_PERSONALIZACAO: { min: number; max: number } = { min: 10, max: 10 };
+
+// "10" quando os dois números são iguais, "10 a 15" quando não são.
+export function faixaDeDias(min: number, max: number) {
+  return min === max ? String(max) : `${min} a ${max}`;
+}
+
+export const PRAZO_EM_TEXTO =
+  PRAZO_DE_PERSONALIZACAO.min === PRAZO_DE_PERSONALIZACAO.max
+    ? `até ${PRAZO_DE_PERSONALIZACAO.max} dias úteis`
+    : `${faixaDeDias(PRAZO_DE_PERSONALIZACAO.min, PRAZO_DE_PERSONALIZACAO.max)} dias úteis`;
 
 // Os avisos vão por e-mail; o WhatsApp entra quando o provedor estiver liberado
 // (decisão do Lucas, 08/11/2026). Ligar aqui muda a mensagem do prazo.

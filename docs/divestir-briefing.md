@@ -150,7 +150,7 @@ A v1 entra com 5 modelos, 3 cores e 6 tamanhos, todos cadastrados pelo painel pa
 
 - [ ] Preço de cada modelo (e se o preço varia por tamanho no GG e GGG)
 - [x] Área de impressão (confecção, 23/11/2026): DTF, até 36 cm de largura por 46 cm de altura em qualquer peça; a marca no peito, até 10 cm de largura. Falta a tabela de medidas de cada modelo, para a prévia mostrar a estampa no tamanho certo
-- [ ] Prazo de personalização a exibir no checkout ("enviado em até X dias úteis")
+- [x] Prazo de personalização a exibir no checkout: "enviado em até 10 dias úteis" (decisão do Lucas, 23/11/2026; antes, de 10 a 15)
 
 ## Carrinho e checkout
 
@@ -172,7 +172,7 @@ O checkout é curto, sem cadastro obrigatório, e deixa o prazo de personalizaç
 
 **Mensagem de prazo (exibida no carrinho e no checkout)**
 
-> Cada Divestir é feita sob medida pra você. Seu pedido é personalizado e enviado em até X dias úteis. Você recebe todas as atualizações por e-mail e WhatsApp, do primeiro ajuste até a entrega.
+> Cada Divestir é feita sob medida pra você. Seu pedido é personalizado e enviado em até 10 dias úteis. Você recebe todas as atualizações por e-mail e WhatsApp, do primeiro ajuste até a entrega.
 
 **Depois do pagamento:** página de confirmação com a prévia da peça e o número do pedido, mais e-mail e WhatsApp de confirmação na hora.
 

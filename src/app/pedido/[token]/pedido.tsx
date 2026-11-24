@@ -5,7 +5,15 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from '
 import type { Catalogo } from '@/lib/catalogo';
 import type { SituacaoDoPedido } from '@/lib/checkout';
 import { codigoNovo } from '@/lib/foto/guardar';
-import { DIAS_SEM_PAGAR, INSTAGRAM, MINUTOS_DO_PIX, PRAZO_DE_PERSONALIZACAO, reais } from '@/lib/loja';
+import {
+  DIAS_SEM_PAGAR,
+  faixaDeDias,
+  INSTAGRAM,
+  MINUTOS_DO_PIX,
+  PRAZO_DE_PERSONALIZACAO,
+  PRAZO_EM_TEXTO,
+  reais,
+} from '@/lib/loja';
 import {
   chaveDaInteira,
   chavesDasFotos,
@@ -402,9 +410,11 @@ export function Pedido({
             ) : (
               <p className="mt-2 leading-relaxed">
                 A equipe confere a arte de cada peça e já começa a produção. Sua Divestir fica pronta em{' '}
-                {situacao.prazoPersonalizacao ??
-                  `${PRAZO_DE_PERSONALIZACAO.min} a ${PRAZO_DE_PERSONALIZACAO.max} dias úteis`}
-                {prazoTotal ? ` e chega em ${prazoTotal.min} a ${prazoTotal.max} dias úteis, contando a entrega` : ''}.
+                {situacao.prazoPersonalizacao ?? PRAZO_EM_TEXTO}
+                {prazoTotal
+                  ? ` e chega em ${faixaDeDias(prazoTotal.min, prazoTotal.max)} dias úteis, contando a entrega`
+                  : ''}
+                .
               </p>
             )}
             {situacao.rastreio && (situacao.status === 'enviado' || situacao.status === 'entregue') ? (
@@ -595,7 +605,7 @@ export function Pedido({
         {valores}
         {prazoTotal ? (
           <p className="mt-4 text-[0.9375rem] leading-snug">
-            Chega em {prazoTotal.min} a {prazoTotal.max} dias úteis, contando a produção e a entrega.
+            Chega em {faixaDeDias(prazoTotal.min, prazoTotal.max)} dias úteis, contando a produção e a entrega.
           </p>
         ) : null}
       </aside>

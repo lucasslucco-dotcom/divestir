@@ -1,5 +1,5 @@
 import 'server-only';
-import { INSTAGRAM, PRAZO_DE_PERSONALIZACAO } from './loja';
+import { INSTAGRAM, PRAZO_EM_TEXTO } from './loja';
 import { emailLigado, enviarEmail } from './resend';
 import { criarClienteAdmin } from './supabase/admin';
 
@@ -47,8 +47,7 @@ type Pedido = {
 
 function conteudoDo(aviso: Aviso, pedido: Pedido, nota: string | null): Conteudo {
   const nome = pedido.nome.trim().split(/\s+/)[0] ?? '';
-  const prazo =
-    pedido.prazo_personalizacao ?? `${PRAZO_DE_PERSONALIZACAO.min} a ${PRAZO_DE_PERSONALIZACAO.max} dias úteis`;
+  const prazo = pedido.prazo_personalizacao ?? PRAZO_EM_TEXTO;
   const frete = pedido.frete_servico;
   switch (aviso) {
     case 'pago':

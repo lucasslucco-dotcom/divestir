@@ -12,7 +12,7 @@ import {
   type PedidoDoCheckout,
 } from '@/lib/checkout';
 import { codigoNovo } from '@/lib/foto/guardar';
-import { PRAZO_DE_PERSONALIZACAO, precoDoPresente, reais, somar } from '@/lib/loja';
+import { faixaDeDias, PRAZO_DE_PERSONALIZACAO, precoDoPresente, reais, somar } from '@/lib/loja';
 import {
   chaveDaInteira,
   chavesDasFotos,
@@ -846,14 +846,11 @@ export function Checkout({
                               {opcao.transportadora ? ` · ${opcao.transportadora}` : ''}
                             </span>
                             <span className="mt-0.5 block text-[0.9375rem] leading-snug">
-                              Chega em {total.min} a {total.max} dias úteis
+                              Chega em {faixaDeDias(total.min, total.max)} dias úteis
                             </span>
                             <span className="mt-0.5 block text-sm leading-5">
-                              {PRAZO_DE_PERSONALIZACAO.min} a {PRAZO_DE_PERSONALIZACAO.max} para fazer a peça e{' '}
-                              {opcao.prazo.min === opcao.prazo.max
-                                ? opcao.prazo.max
-                                : `${opcao.prazo.min} a ${opcao.prazo.max}`}{' '}
-                              de entrega
+                              {faixaDeDias(PRAZO_DE_PERSONALIZACAO.min, PRAZO_DE_PERSONALIZACAO.max)} para fazer a peça
+                              e {faixaDeDias(opcao.prazo.min, opcao.prazo.max)} de entrega
                             </span>
                           </span>
                           <span className="shrink-0 text-base leading-snug font-semibold tabular-nums">
