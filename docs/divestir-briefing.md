@@ -131,12 +131,12 @@ A v1 entra com 5 modelos, 3 cores e 6 tamanhos, todos cadastrados pelo painel pa
 
 | Peça | Caimento | Área de impressão nas costas | Preço |
 | --- | --- | --- | --- |
-| Camiseta manga curta | Regular | a definir com a estamparia | a definir |
-| Camiseta manga curta | Oversized | a definir com a estamparia | a definir |
-| Camiseta manga curta | Dry-fit | a definir com a estamparia | a definir |
-| Moletom | Sem capuz | a definir com a estamparia | a definir |
-| Moletom | Com capuz | a definir com a estamparia | a definir |
-| Jaqueta bomber | Só na cor preta | a definir com a estamparia | a definir |
+| Camiseta manga curta | Regular | até 36 × 46 cm | R$ 119 |
+| Camiseta manga curta | Oversized | até 36 × 46 cm | R$ 119 |
+| Camiseta manga curta | Dry-fit | até 36 × 46 cm | R$ 119 |
+| Moletom | Sem capuz | até 36 × 46 cm | R$ 219 |
+| Moletom | Com capuz | até 36 × 46 cm | R$ 219 |
+| Jaqueta bomber | Só na cor preta | até 36 × 46 cm | R$ 249 |
 
 **Cores:** preto, branco, creme (a jaqueta bomber só em preto). **Tamanhos:** PP, P, M, G, GG, GGG, com tabela de medidas própria por modelo.
 
@@ -148,7 +148,7 @@ A v1 entra com 5 modelos, 3 cores e 6 tamanhos, todos cadastrados pelo painel pa
 
 **Perguntas em aberto**
 
-- [ ] Preço de cada modelo (e se o preço varia por tamanho no GG e GGG)
+- [x] Preço de cada modelo (Lucas, 24/11/2026): camisetas R$ 119, moletons R$ 219 e jaqueta bomber R$ 249, o mesmo em todos os tamanhos. Em aberto: o preço do presente
 - [x] Área de impressão (confecção, 23/11/2026): DTF, até 36 cm de largura por 46 cm de altura em qualquer peça; a marca no peito, até 10 cm de largura. Falta a tabela de medidas de cada modelo, para a prévia mostrar a estampa no tamanho certo
 - [x] Prazo de personalização a exibir no checkout: "enviado em até 10 dias úteis" (decisão do Lucas, 23/11/2026; antes, de 10 a 15)
 
