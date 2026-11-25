@@ -37,7 +37,7 @@ const paginas = [
    <dt>Enviado · Entregue</dt><dd>Já saiu da confecção.</dd></dl></div>
    ${rodape(3)}</main>`,
   `<main>${topo('3', 'A peça e os arquivos')}
-   ${recorte({ tela: '8-peca', regiao: [0, 12, 1100, 716], largura: 900, marcas: [{ caixa: { ...C['peca-linha'], width: 610 }, n: 1, lado: 'dir' }, { caixa: 'peca-estampa', n: 2, lado: 'abaixo' }, { caixa: 'peca-peito', n: 3, lado: 'abaixo' }] })}
+   ${recorte({ tela: '8-peca', regiao: [0, 12, 1100, 716], largura: 900, marcas: [{ caixa: { ...C['peca-linha'], width: 690 }, n: 1, lado: 'dir' }, { caixa: 'peca-estampa', n: 2, lado: 'abaixo' }, { caixa: 'peca-peito', n: 3, lado: 'abaixo' }] })}
    ${passos([[1, 'Confira a <b>peça, a cor, o tamanho</b> e onde vai a estampa (costas ou frente, com ou sem a marca no peito).'], [2, '<b>Baixar a estampa pronta</b>: PNG sem fundo, a 300 dpi, já no tamanho de impressão. A medida em centímetros vai no nome do arquivo. Baixe pelo computador: o arquivo é grande.'], [3, '<b>Baixar a marca do peito (10 cm)</b>: aparece quando a peça leva DIVESTIR no peito.']])}
    ${rodape(4)}</main>`,
   `<main>${topo('4', 'Para onde vai')}
