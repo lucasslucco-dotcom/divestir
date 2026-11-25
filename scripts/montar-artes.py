@@ -799,6 +799,50 @@ def segundo_lugar():
     gravar('segundo-lugar', 'linha', linha, corte, 'A linha "O 1º lugar está usando esta camiseta".')
 
 
+def vende_se():
+    print('Vende-se')
+    itens = ler('vende-se')
+    # A faixa "Vendo ou troco por um lanche" (de 104 a 1259, inclinada) toma a largura da
+    # arte, com uma margem de 10 de cada lado.
+    corte = (94, 140, 1175)
+    topo = [i for i in itens if i['caixa'][3] < 300]
+    linhas = [i for i in itens if i['caixa'][1] >= 1725]
+    faixa = [i for i in itens if i['caixa'][1] >= 1525 and i['caixa'][3] < 1725]
+    meio = [i for i in itens if i not in topo and i not in linhas and i not in faixa]
+    # O selo "R$ 1,99" é o disco de 296 de largura, embaixo e à direita da estrela (que
+    # tem uma mordida onde ele encaixa): o que cai dentro da caixa dele é dele. O selo e a
+    # faixa ficam na frente da foto; a estrela, atrás.
+    disco = next(i for i in meio if i['tipo'] == 'W' and 270 < i['caixa'][2] - i['caixa'][0] < 320)
+    a, b, c, d = disco['caixa']
+    selo = [i for i in meio if i['caixa'][0] >= a - 2 and i['caixa'][1] >= b - 2 and i['caixa'][2] <= c + 2 and i['caixa'][3] <= d + 2]
+    estrela = [i for i in meio if i not in selo]
+    gravar('vende-se', 'topo', topo, corte, 'A linha "Oportunidade única".')
+    gravar('vende-se', 'estrela', estrela, corte, 'A estrela de promoção (atrás da foto).')
+    gravar('vende-se', 'selo', selo, corte, 'O selo "R$ 1,99" (na frente da foto).', base=True)
+    gravar('vende-se', 'faixa', faixa, corte, 'A faixa "Vendo ou troco por um lanche" (na frente da foto).', base=True)
+    gravar('vende-se', 'linhas', linhas, corte, 'As linhas "Pouco uso, come muito, não aceito devolução" e "Motivo: não aguento mais".')
+    cantos = max(faixa, key=lambda i: i['caixa'][2] - i['caixa'][0])['pontos']
+    print('  faixa, cantos na arte:', [tuple(na_arte(corte, x=x, y=y)) for x, y in cantos])
+
+
+def tenho_os_prints():
+    print('Tenho os Prints')
+    itens = ler('tenho-os-prints')
+    # A faixa "Tenho os prints" (de 85 a 1278, inclinada) toma a largura da arte, com uma
+    # margem de 10 de cada lado.
+    corte = (73, 174, 1217)
+    topo = [i for i in itens if i['caixa'][3] < 300]
+    linhas = [i for i in itens if i['caixa'][1] >= 1670]
+    faixa = [i for i in itens if i['caixa'][1] >= 1360 and i['caixa'][3] < 1670]
+    pasta = [i for i in itens if i not in topo and i not in linhas and i not in faixa]
+    gravar('tenho-os-prints', 'topo', topo, corte, 'A linha "Arquivo confidencial".')
+    gravar('tenho-os-prints', 'pasta', pasta, corte, 'A pasta de arquivo, com as folhas e o clipe (atrás da foto).')
+    gravar('tenho-os-prints', 'faixa', faixa, corte, 'A faixa "Tenho os prints" (na frente da foto).', base=True)
+    gravar('tenho-os-prints', 'linhas', linhas, corte, 'As linhas "Fotos de 2012, áudios, vídeos de festa" e "Meu silêncio custa um lanche".')
+    cantos = max(faixa, key=lambda i: i['caixa'][2] - i['caixa'][0])['pontos']
+    print('  faixa, cantos na arte:', [tuple(na_arte(corte, x=x, y=y)) for x, y in cantos])
+
+
 if __name__ == '__main__':
     turne_mundial()
     ao_vivo()
@@ -829,3 +873,5 @@ if __name__ == '__main__':
     feita_a_mao()
     casa_da_vo()
     segundo_lugar()
+    vende_se()
+    tenho_os_prints()

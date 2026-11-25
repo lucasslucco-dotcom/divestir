@@ -1041,6 +1041,69 @@ on conflict (slug) do update set
   ordem = excluded.ordem,
   config = excluded.config;
 
+-- Design Vende-se: anúncio de promoção, estampa grande, para irmãos (zoação de irmão). A arte vem do Higgsfield
+-- (conceito no Seedream 5.5, arte chapada no gpt_image_2_6, vetor do Ideogram): "★ Oportunidade única ★", a estrela
+-- de promoção, o selo "R$ 1,99", a faixa inclinada "Vendo ou troco por um lanche" e as linhas "Pouco uso · Come
+-- muito · Não aceito devolução" e "Motivo: não aguento mais". O site põe o nome enorme em Anton e a foto na frente
+-- da estrela, com o selo e a faixa por cima dela. Serve a irmão e irmã sem mudar nada.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('vende-se', 'Vende-se', 'ativo', 32, '2026-11-24', '{
+    "versao": 1,
+    "proporcao": 0.62,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/vende-se/topo.svg", "x": 498.9, "topo": 16.6, "largura": 848.1, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/vende-se/estrela.svg", "x": 498.1, "topo": 465.1, "largura": 963.0, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 104, "largura_maxima": 985, "altura_no_centro": 340, "arco": 1, "compressao_maxima": 0.5, "expansao_maxima": 1.9, "engrossa": 4, "folga": 10, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 400, "largura": 1000, "altura": 994, "janela": {"largura": 1120, "altura": 1400, "y": 1075}},
+      {"tipo": "arte", "arquivo": "/designs/vende-se/selo.svg", "x": 826.0, "topo": 1032.0, "largura": 262.1, "folga": 0, "base": "/designs/vende-se/selo-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/vende-se/faixa.svg", "x": 500.2, "topo": 1302.6, "largura": 992.8, "folga": 0, "base": "/designs/vende-se/faixa-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/vende-se/linhas.svg", "x": 499.4, "topo": 1477.1, "largura": 959.6, "folga": 0}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["irmaos"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
+-- Design Tenho os Prints: arquivo confidencial, estampa grande, para irmãos (zoação de irmão). A arte vem do
+-- Higgsfield (conceito no Seedream 5.5, arte chapada no gpt_image_2_6, vetor do Ideogram): "★ Arquivo confidencial
+-- ★", a pasta de arquivo com as folhas e o clipe, a faixa inclinada "Tenho os prints" e as linhas "Fotos de 2012 ·
+-- Áudios · Vídeos de festa" e "Meu silêncio custa um lanche". O site põe o nome enorme em Anton e a foto na frente
+-- da pasta, com a faixa por cima dela. Serve a irmão e irmã sem mudar nada.
+insert into public.designs (slug, nome, status, ordem, drop_entrada, config) values
+  ('tenho-os-prints', 'Tenho os Prints', 'ativo', 33, '2026-11-24', '{
+    "versao": 1,
+    "proporcao": 0.64,
+    "posicao": "costas",
+    "tamanho": "grande",
+    "camadas": [
+      {"tipo": "arte", "arquivo": "/designs/tenho-os-prints/topo.svg", "x": 499.2, "topo": 17.5, "largura": 728.0, "folga": 0},
+      {"tipo": "arte", "arquivo": "/designs/tenho-os-prints/pasta.svg", "x": 500.4, "topo": 453.0, "largura": 900.6, "folga": 0},
+      {"tipo": "nome", "campo": "nome", "fonte": "titulo", "x": 500, "topo": 100, "largura_maxima": 985, "altura_no_centro": 335, "arco": 1, "compressao_maxima": 0.5, "expansao_maxima": 1.9, "engrossa": 4, "folga": 10, "acento_dentro": true},
+      {"tipo": "foto", "formato": "quadro", "x": 500, "topo": 395, "largura": 1000, "altura": 880, "janela": {"largura": 1090, "altura": 1362, "y": 1030}},
+      {"tipo": "arte", "arquivo": "/designs/tenho-os-prints/faixa.svg", "x": 499.8, "topo": 1148.2, "largura": 989.7, "folga": 0, "base": "/designs/tenho-os-prints/faixa-base.svg"},
+      {"tipo": "arte", "arquivo": "/designs/tenho-os-prints/linhas.svg", "x": 500.4, "topo": 1407.0, "largura": 966.3, "folga": 0}
+    ],
+    "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
+    "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
+    "temas": ["irmaos"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "logo_peito": true
+  }'::jsonb)
+on conflict (slug) do update set
+  nome = excluded.nome,
+  status = excluded.status,
+  ordem = excluded.ordem,
+  config = excluded.config;
+
 -- O Letreiro (letreiro de cinema, conceito Bia & Caio) saiu da linha por decisão do Lucas
 -- (10/11/2026). Onde ele já existir no banco, fica encerrado.
 update public.designs set status = 'encerrado' where slug = 'letreiro';
