@@ -256,7 +256,7 @@ Uma cor de marca, um papel e um acento, como uma impressão em duas tintas com u
 ### Hierarchy
 - **Display** (Anton 400, de 3.4rem no celular a 6rem, entrelinha 1.12, caixa-alta, linhas balanceadas): o título do topo. A entrelinha deixa o acento de "VOCÊ" livre da linha de cima.
 - **Headline** (Anton 400, de 2.6rem a 4.75rem, entrelinha 1, caixa-alta): o título de cada faixa, como "Como funciona".
-- **Destaque** (Instrument Serif itálica, de 1.5rem a 2.4rem, entrelinha 1.25, até 22ch): a frase logo abaixo do título. Na home, a frase é "Uma foto DIVESTIR.", com o nome da marca em Anton no meio da linha (lê-se "de vestir").
+- **Destaque** (Instrument Serif itálica, de 1.5rem a 2.4rem, entrelinha 1.25, até 22ch): a frase logo abaixo do título. Na home, a frase é "Com a sua foto. Com a sua frase." (desde 25/11/2026; antes, "Uma foto DIVESTIR.").
 - **Title** (Inter 600, 1.125rem): o título de cada passo ou item.
 - **Body** (Inter 400, 1rem, entrelinha 1.625): o texto corrido. Parágrafos quebram sem palavra sozinha na última linha.
 - **Caption** (Inter 400, 0.9375rem, até 34ch): legendas e links de apoio.
@@ -271,7 +271,7 @@ Uma cor de marca, um papel e um acento, como uma impressão em duas tintas com u
 
 ## Layout
 
-Coluna única e centralizada, celular primeiro. A margem lateral é de 16px e o texto vai até 64rem. O topo e a vitrine formam um palco verde contínuo: título, frase, ingresso e, logo abaixo, as peças, que já aparecem na primeira tela do celular. Depois vem o papel creme com "Como funciona", e o rodapé fecha em verde.
+Coluna única e centralizada, celular primeiro. A margem lateral é de 16px e o texto vai até 64rem. O topo e a vitrine formam um palco verde contínuo: título, frase, as três linhas da Divestir e, logo abaixo, as peças. As linhas (desde 25/11/2026) são uma lista numerada de até 42rem, alinhada à esquerda, com fio creme de 1px em cima, embaixo e entre os itens: o número vazado em Anton (contorno creme de 1,5px), o nome da linha em Anton (1.75rem; 2rem a partir de 640px), uma frase em Inter e, à direita (embaixo, no celular), o ingresso rosa da linha que existe ou a pílula "Em breve" (contorno creme de 1px, Inter 600, 0.875rem) da que ainda não existe. Depois vem o papel creme com "Como funciona", e o rodapé fecha em verde.
 
 A vitrine desliza com o dedo no celular: cada peça ocupa 78% da largura, com 8px entre elas, e a próxima aparece pela metade, convidando a deslizar. A partir de 640px são duas peças e meia; a partir de 1024px, quatro colunas fixas até 72rem. Com uma peça só, ela fica sozinha no centro, com até 28rem.
 
@@ -388,7 +388,7 @@ O e-mail de cada etapa do pedido é a página do pedido dentro da caixa de entra
 No papel creme, com a marca no topo: título em Anton ("Essa página saiu de cena", "Ops, travou aqui"), uma frase em Instrument Serif itálica, um ingresso (voltar a montar ou tentar de novo) e um link de texto. Nenhuma tela padrão do navegador ou em inglês.
 
 ### Imagem do link
-A imagem que aparece quando o site é compartilhado (1200 × 630): fundo Verde Garrafa, "Crie sua Divestir" em Anton creme, a frase principal em Instrument Serif itálica ("Aquela foto merece virar roupa.") e três peças da vitrine saindo pela base. É gerada pelo `scripts/gerar-imagem-do-link.mjs` a partir das fotos da vitrine e das fontes da marca.
+A imagem que aparece quando o site é compartilhado (1200 × 630): fundo Verde Garrafa, "Crie sua Divestir" em Anton creme, a frase principal em Instrument Serif itálica ("Agora dá pra vestir suas ideias.") e três peças da vitrine saindo pela base. É gerada pelo `scripts/gerar-imagem-do-link.mjs` a partir das fotos da vitrine e das fontes da marca.
 
 ### Lista numerada (signature)
 - **Style:** números vazados em Anton de 48px, com contorno verde de 1.5px, numa coluna de 28px. Ao lado vêm o título em Inter 600 e o texto em Inter 400. A lista é numerada de verdade no código, e o número desenhado é só visual.

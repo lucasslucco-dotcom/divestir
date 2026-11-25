@@ -13,8 +13,8 @@ import { createRequire } from 'node:module';
 
 const raiz = join(dirname(fileURLToPath(import.meta.url)), '..');
 const TITULO = process.env.TITULO ?? 'Crie sua Divestir';
-const LINHA = process.env.LINHA ?? 'Aquela foto merece virar roupa.';
-const PECAS = ['exemplo-vo-cida', 'exemplo-thor', 'exemplo-duda'];
+const LINHA = process.env.LINHA ?? 'Agora dá pra vestir suas ideias.';
+const PECAS = ['exemplo-vo-cida', 'exemplo-thor', 'exemplo-regina'];
 const SAIDA = process.env.SAIDA ?? join(raiz, 'src', 'app', 'opengraph-image.jpg');
 
 const dados = (caminho, tipo) => `data:${tipo};base64,${readFileSync(join(raiz, caminho)).toString('base64')}`;

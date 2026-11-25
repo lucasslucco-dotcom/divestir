@@ -249,6 +249,16 @@ equipe           (id, user_id, nome, papel [admin|operacao])
 - Webhook de pagamento validado por assinatura antes de mudar o status
 - Rotina diária que apaga fotos de pedidos entregues após o prazo definido nos termos, e fotos de montagens nunca compradas após 30 dias
 
+## Linhas de produto (decisão do Lucas, 25/11/2026)
+
+A Divestir passa a ter três linhas, e quem entra no site escolhe por qual começar. A frase da marca muda para "Agora dá pra vestir suas ideias".
+
+1. **Com a sua foto.** O montador descrito neste briefing: a foto de quem a pessoa ama dentro de um design. O lançamento dessa linha segue em paralelo.
+2. **Com a sua frase.** Designs prontos, sem foto, em que a pessoa escreve o que quiser. Cada design tem os seus campos de texto, e cada campo tem um limite de letras, que a pessoa vê enquanto digita. O caminho é o mesmo do montador, sem o passo da foto: peça, design, texto, cor, tamanho e carrinho. O que é escrito passa pela revisão de arte antes de ir para a produção; texto ofensivo ou com marca de terceiros não é produzido, e isso é dito à pessoa antes da compra.
+3. **Designs Divestir.** Estampas prontas, sem nada para personalizar, que entram e saem em edições (drops). Os designs são criados pelo Lucas. Enquanto não houver nenhum, a área aparece com "Em breve".
+
+Etapas novas, depois das que já existem: Etapa 11, a linha de frases (designs, o montador sem foto, o pedido e o painel sem foto); Etapa 12, os Designs Divestir (a vitrine dos drops e a compra sem personalização).
+
 ## Roteiro de construção no Claude Code
 
 São 10 etapas, cada uma termina com algo que dá para abrir e testar antes de seguir. O montador vem antes de pagamento e painel porque é ele que valida o produto.

@@ -149,6 +149,12 @@
     -webkit-text-stroke: 1.5px var(--color-verde);
   }
 
+  /* O mesmo número, sobre o verde (as linhas da home). */
+  .numero-vazado-creme {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--color-creme);
+  }
+
   /* Borda que se dissolve no verde: as fotos de exemplo têm o mesmo fundo
      da faixa, então a peça parece solta no palco, sem moldura. Só em cima e
      embaixo, onde a luz da foto varia; nas laterais o fundo já é igual e as

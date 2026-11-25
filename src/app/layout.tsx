@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { variaveisDeFonte } from './fontes';
 import './globals.css';
 
-const TITULO = 'Divestir | Aquela foto merece virar roupa';
+const TITULO = 'Divestir | Agora dá pra vestir suas ideias';
 const DESCRICAO =
   'Manda a foto de quem você ama e a gente transforma em roupa: camiseta, moletom ou jaqueta bomber com design exclusivo da Divestir.';
 

@@ -50,7 +50,8 @@ A foto de quem você ama vira ídolo, numa peça com cara de merch oficial (fã-
 - Nome: Divestir (divertir + vestir). Marca própria e independente, sem ligação visível com outras marcas do Lucas (decisão do Lucas, 07/11/2026).
 - Cores oficiais, paleta fechada (decisão do Lucas, 07/11/2026): verde garrafa `#0D2B17` como cor principal (o verde exato do fundo da foto de referência do Fã-Clube), creme `#FAF5EB` e rosa elétrico `#FF4FA8` como acento. Substituem o azul e o amarelo da primeira versão.
 - Fontes oficiais (decisão do Lucas, 07/11/2026): Anton nos títulos, Instrument Serif no destaque e Inter no texto.
-- Frase de topo (decisão do Lucas, 10/11/2026): "Aquela foto merece virar roupa.", com a linha "Uma foto DIVESTIR." embaixo (lê-se "de vestir"). Fora de uso: "merch", que pouca gente entende, e a ideia de "fã/ídolo" como frase da marca.
+- Frase de topo (decisão do Lucas, 25/11/2026): "Agora dá pra vestir suas ideias.", com a linha "Com a sua foto. Com a sua frase." embaixo (a linha de baixo é do Claude; o Lucas pode trocar). Antes, de 10/11/2026: "Aquela foto merece virar roupa.", com "Uma foto DIVESTIR.". Fora de uso: "merch", que pouca gente entende, e a ideia de "fã/ídolo" como frase da marca.
+- Três linhas de produto (ideia do Lucas, 25/11/2026): (1) com a sua foto, o montador de hoje; (2) com a sua frase, designs prontos em que a pessoa escreve o que quiser, com um limite de letras por design (em construção); (3) Designs Divestir, estampas prontas em edições que entram e saem, que o Lucas vai criar (a área existe, vazia, com "Em breve"). A home abre com as três, numeradas; linha que ainda não existe mostra "Em breve".
 - O logo definitivo ainda está em produção pelo Lucas; até lá, a marca é o nome escrito em Anton.
 - Voz: português do Brasil, próxima, leve e calorosa.
 

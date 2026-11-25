@@ -2,10 +2,32 @@ import Link from 'next/link';
 import { Cabecalho } from './cabecalho';
 import { Vitrine } from './vitrine';
 
+// As três linhas da Divestir (ideia do Lucas, 25/11/2026): a foto, que já existe, a
+// frase, que está sendo feita, e os designs prontos, que ele ainda vai criar. Linha sem
+// endereço aparece como "Em breve".
+const LINHAS: { titulo: string; texto: string; href: string | null; chamada?: string }[] = [
+  {
+    titulo: 'Com a sua foto',
+    texto: 'Quem você ama dentro de um design da Divestir.',
+    href: '/montar',
+    chamada: 'Criar com foto',
+  },
+  {
+    titulo: 'Com a sua frase',
+    texto: 'Você escreve o que quiser e o design faz o resto.',
+    href: null,
+  },
+  {
+    titulo: 'Designs Divestir',
+    texto: 'Estampas prontas, em edições que chegam e vão embora.',
+    href: null,
+  },
+];
+
 const PASSOS = [
   {
     titulo: 'Escolhe a peça',
-    texto: 'Camiseta regular, oversized ou dry-fit, moletom com ou sem capuz, ou jaqueta bomber.',
+    texto: 'Camiseta, moletom ou jaqueta bomber, na modelagem masculina ou feminina.',
   },
   {
     titulo: 'Manda a foto',
@@ -21,9 +43,9 @@ const PASSOS = [
   },
 ];
 
-function BotaoCriar({ sobreVerde = false }: { sobreVerde?: boolean }) {
+function BotaoCriar() {
   return (
-    <Link href="/montar" className={sobreVerde ? 'ingresso ingresso-rosa' : 'ingresso'}>
+    <Link href="/montar" className="ingresso">
       Criar minha Divestir
     </Link>
   );
@@ -40,14 +62,35 @@ export default function Home() {
         <section className="bg-verde pb-16 text-creme sm:pb-24">
           <div className="mx-auto flex max-w-5xl flex-col items-center px-4 pt-14 text-center sm:pt-24">
             <h1 className="font-titulo text-[clamp(3.4rem,12vw,6rem)] leading-[1.12] text-balance uppercase">
-              Aquela foto merece virar roupa.
+              Agora dá pra vestir suas ideias.
             </h1>
             <p className="mt-6 max-w-[22ch] font-destaque text-[clamp(1.5rem,5.6vw,2.4rem)] leading-tight text-balance italic">
-              Uma foto <span className="font-titulo tracking-[0.02em] not-italic">DIVESTIR</span>.
+              Com a sua foto. Com a sua frase.
             </p>
-            <div className="mt-10">
-              <BotaoCriar sobreVerde />
-            </div>
+            <ol className="mt-10 w-full max-w-2xl divide-y divide-creme border-y border-creme text-left">
+              {LINHAS.map((linha, i) => (
+                <li key={linha.titulo} className="flex gap-5 py-6">
+                  <span aria-hidden="true" className="numero-vazado-creme w-7 shrink-0 font-titulo text-5xl leading-none">
+                    {i + 1}
+                  </span>
+                  <div className="flex flex-1 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                    <div>
+                      <h2 className="font-titulo text-[1.75rem] leading-none uppercase sm:text-[2rem]">{linha.titulo}</h2>
+                      <p className="mt-2 leading-snug">{linha.texto}</p>
+                    </div>
+                    {linha.href ? (
+                      <Link href={linha.href} className="ingresso ingresso-rosa shrink-0 self-start sm:self-auto">
+                        {linha.chamada}
+                      </Link>
+                    ) : (
+                      <span className="shrink-0 self-start rounded-full border border-creme px-4 py-2 text-sm font-semibold sm:self-auto">
+                        Em breve
+                      </span>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
           </div>
 
           <Vitrine />
@@ -55,7 +98,7 @@ export default function Home() {
 
         <section className="mx-auto max-w-5xl px-4 py-20 sm:py-28">
           <h2 className="text-center font-titulo text-[clamp(2.6rem,9vw,4.75rem)] leading-none uppercase">
-            Como funciona
+            Como funciona com foto
           </h2>
           <ol className="mx-auto mt-12 grid max-w-3xl gap-10 sm:mt-16 sm:grid-cols-2 sm:gap-x-16 sm:gap-y-14">
             {PASSOS.map((passo, i) => (
