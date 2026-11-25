@@ -97,6 +97,7 @@ export const guardarMontagem = (montagem: Montagem) => gravar(CHAVE_DA_MONTAGEM,
 export function prepararEdicao(item: ItemDoCarrinho) {
   guardarMontagem({
     versao: 1,
+    modelagem: item.modelagem ?? null,
     peca: item.peca,
     cor: item.cor,
     design: item.design,

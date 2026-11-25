@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useId, useState, type ReactNode } from 'react';
-import type { Catalogo, Cor, Peca } from '@/lib/catalogo';
+import type { Cor, Modelagem, Peca } from '@/lib/catalogo';
 import {
   limparTextoDaEstampa,
   temSimboloForaDaEstampa,
@@ -63,61 +63,103 @@ export function Passo({
   );
 }
 
-// Passo 1: a peça.
+// Passo 1: a peça. Primeiro a modelagem (pedido do Lucas, 25/11/2026: a camiseta básica
+// feminina e a baby look são só femininas; a oversized, os moletons e a bomber servem
+// para os dois): as peças só aparecem depois da resposta, e só as que servem.
+const MODELAGENS: { slug: Modelagem; nome: string }[] = [
+  { slug: 'masculina', nome: 'Masculina' },
+  { slug: 'feminina', nome: 'Feminina' },
+];
+
 export function PassoPeca({
-  catalogo,
+  pecas,
+  modelagem,
   peca,
   cor,
+  aoEscolherModelagem,
   aoEscolher,
 }: {
-  catalogo: Catalogo;
+  pecas: Peca[];
+  modelagem: Modelagem | null;
   peca: Peca;
   cor: Cor;
+  aoEscolherModelagem: (modelagem: Modelagem) => void;
   aoEscolher: (slug: string) => void;
 }) {
   return (
-    <div
-      role="radiogroup"
-      aria-label="Peça"
-      className="vitrine -mx-4 flex snap-x snap-mandatory scroll-pl-4 gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 lg:grid lg:grid-cols-3 lg:gap-x-3 lg:gap-y-5 lg:overflow-visible"
-    >
-      {catalogo.pecas.map((opcao) => {
-        const foto = opcao.fotos[cor.slug]?.frente ?? Object.values(opcao.fotos)[0]?.frente;
-        return (
-          // relative: o botão invisível fica preso no cartão. Sem isso, o das peças
-          // fora da tela escapa da faixa e alarga a página no celular.
-          <label key={opcao.slug} className="relative w-[36%] shrink-0 cursor-pointer snap-start sm:w-[24%] lg:w-auto">
-            <input
-              type="radio"
-              name="peca"
-              value={opcao.slug}
-              checked={opcao.slug === peca.slug}
-              onChange={() => aoEscolher(opcao.slug)}
-              className="peer sr-only"
-            />
-            <span className="block overflow-hidden rounded-xl border-2 border-transparent bg-estudio transition-colors duration-200 ease-saida peer-checked:border-verde peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-verde">
-              {foto ? (
-                <Image
-                  src={foto}
-                  alt=""
-                  width={1440}
-                  height={1800}
-                  sizes="(min-width: 1024px) 128px, (min-width: 640px) 140px, 36vw"
-                  className="h-auto w-full"
+    <>
+      <fieldset className="min-w-0">
+        <legend className="text-base leading-snug font-semibold">Masculina ou feminina?</legend>
+        <div className="mt-2 flex gap-2">
+          {MODELAGENS.map((opcao) => (
+            <label key={opcao.slug} className="relative">
+              <input
+                type="radio"
+                name="modelagem"
+                value={opcao.slug}
+                checked={opcao.slug === modelagem}
+                onChange={() => aoEscolherModelagem(opcao.slug)}
+                className="peer sr-only"
+              />
+              <span className={`${opcaoDaPilula} border border-verde px-5`}>{opcao.nome}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      {pecas.length ? (
+        <div
+          role="radiogroup"
+          aria-label="Peça"
+          className="vitrine -mx-4 mt-5 flex snap-x snap-mandatory scroll-pl-4 gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 lg:grid lg:grid-cols-3 lg:gap-x-3 lg:gap-y-5 lg:overflow-visible"
+        >
+          {pecas.map((opcao) => {
+            const foto = opcao.fotos[cor.slug]?.frente ?? Object.values(opcao.fotos)[0]?.frente;
+            return (
+              // relative: o botão invisível fica preso no cartão. Sem isso, o das peças
+              // fora da tela escapa da faixa e alarga a página no celular.
+              <label
+                key={opcao.slug}
+                className="relative w-[36%] shrink-0 cursor-pointer snap-start sm:w-[24%] lg:w-auto"
+              >
+                <input
+                  type="radio"
+                  name="peca"
+                  value={opcao.slug}
+                  checked={opcao.slug === peca.slug}
+                  onChange={() => aoEscolher(opcao.slug)}
+                  className="peer sr-only"
                 />
-              ) : (
-                <span className="block aspect-[4/5]" />
-              )}
-            </span>
-            <span className="mt-2 block text-sm leading-snug font-semibold">{opcao.nome}</span>
-            <span className="block text-sm leading-snug">{opcao.caimento}</span>
-            {opcao.preco !== null ? (
-              <span className="block text-sm leading-snug tabular-nums">a partir de {preco.format(opcao.preco)}</span>
-            ) : null}
-          </label>
-        );
-      })}
-    </div>
+                <span className="block overflow-hidden rounded-xl border-2 border-transparent bg-estudio transition-colors duration-200 ease-saida peer-checked:border-verde peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-verde">
+                  {foto ? (
+                    <Image
+                      src={foto}
+                      alt=""
+                      width={1440}
+                      height={1800}
+                      sizes="(min-width: 1024px) 128px, (min-width: 640px) 140px, 36vw"
+                      className="h-auto w-full"
+                    />
+                  ) : (
+                    <span className="block aspect-[4/5]" />
+                  )}
+                </span>
+                <span className="mt-2 block text-sm leading-snug font-semibold">{opcao.nome}</span>
+                <span className="block text-sm leading-snug">{opcao.caimento}</span>
+                {opcao.preco !== null ? (
+                  <span className="block text-sm leading-snug tabular-nums">
+                    a partir de {preco.format(opcao.preco)}
+                  </span>
+                ) : null}
+              </label>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="mt-3 max-w-[38ch] text-[0.9375rem] leading-snug">
+          É só para mostrar as peças certas. Oversized, moletom e jaqueta aparecem nas duas.
+        </p>
+      )}
+    </>
   );
 }
 

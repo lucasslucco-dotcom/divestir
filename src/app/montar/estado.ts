@@ -1,6 +1,6 @@
 // As escolhas da montagem e o que sai delas: a peça, a cor, o design, o lado da
 // estampa, o tamanho e o que ainda falta para ir ao carrinho.
-import type { Catalogo, Cor, Peca } from '@/lib/catalogo';
+import type { Catalogo, Cor, Modelagem, Peca } from '@/lib/catalogo';
 import {
   LARGURA_PADRAO_DA_ESTAMPA_CM,
   definicaoDaEstampa,
@@ -24,6 +24,9 @@ import {
 
 export type Acao =
   | { tipo: 'restaurar'; montagem: Montagem }
+  // "peca": a peça que fica depois da escolha (null: a primeira da modelagem nova,
+  // porque a que estava não existe nela).
+  | { tipo: 'modelagem'; modelagem: Modelagem; peca: string | null }
   | { tipo: 'peca'; slug: string }
   | { tipo: 'cor'; slug: string }
   // "de": o design que estava na prévia (o ajuste da foto é guardado por design).
@@ -49,6 +52,8 @@ export function reduzir(m: Montagem, acao: Acao): Montagem {
   switch (acao.tipo) {
     case 'restaurar':
       return acao.montagem;
+    case 'modelagem':
+      return { ...m, modelagem: acao.modelagem, peca: acao.peca };
     case 'peca':
       return { ...m, peca: acao.slug };
     case 'cor':
@@ -104,6 +109,9 @@ export function reduzir(m: Montagem, acao: Acao): Montagem {
 }
 
 export type Resolvida = {
+  // A modelagem escolhida (null: a pessoa ainda não disse) e as peças que ela mostra.
+  modelagem: Modelagem | null;
+  pecas: Peca[];
   peca: Peca;
   cor: Cor;
   // Designs que aceitam a peça escolhida, e o escolhido entre eles.
@@ -126,10 +134,29 @@ export function coresDaPeca(catalogo: Catalogo, peca: Peca): Cor[] {
   return catalogo.cores.filter((cor) => peca.fotos[cor.slug]);
 }
 
+// As peças de uma modelagem: as dela e as que servem para os dois. Sem modelagem, só
+// as que servem para os dois.
+export function pecasDaModelagem(catalogo: Catalogo, modelagem: Modelagem | null): Peca[] {
+  return catalogo.pecas.filter((p) => p.modelagem === 'unissex' || p.modelagem === modelagem);
+}
+
+// A modelagem da montagem: a que a pessoa escolheu ou, numa montagem de antes da
+// pergunta existir, a da peça que ela já tinha escolhido (a camiseta regular é masculina).
+export function modelagemDaMontagem(catalogo: Catalogo, m: Montagem): Modelagem | null {
+  if (m.modelagem) return m.modelagem;
+  const peca = catalogo.pecas.find((p) => p.slug === m.peca);
+  return peca && peca.modelagem !== 'unissex' ? peca.modelagem : null;
+}
+
 // Junta as escolhas com o que existe: a peça ativa, uma cor em que ela existe, um
 // design que aceita a peça, um lado que a peça tem e um tamanho que ela vende.
 export function resolver(catalogo: Catalogo, designs: Design[], m: Montagem): Resolvida | null {
-  const peca = catalogo.pecas.find((p) => p.slug === m.peca) ?? catalogo.pecas[0];
+  const modelagem = modelagemDaMontagem(catalogo, m);
+  const daModelagem = pecasDaModelagem(catalogo, modelagem);
+  // Sem peça escolhida, vale a primeira da modelagem; antes da modelagem, uma que serve
+  // para os dois (a prévia não adianta a resposta de ninguém).
+  const escolhida = catalogo.pecas.find((p) => p.slug === m.peca);
+  const peca = (escolhida && daModelagem.includes(escolhida) ? escolhida : null) ?? daModelagem[0] ?? catalogo.pecas[0];
   if (!peca) return null;
   // Só as cores em que a peça existe: quem estava na creme e troca para a bomber vai
   // para a preta.
@@ -147,6 +174,10 @@ export function resolver(catalogo: Catalogo, designs: Design[], m: Montagem): Re
         ? design.config.posicao
         : (lados[0] ?? 'costas');
   return {
+    modelagem,
+    // Antes da modelagem, as peças não aparecem. (Montagem antiga, com uma peça que serve
+    // para os dois já escolhida: aparecem as que servem para os dois.)
+    pecas: modelagem || escolhida ? daModelagem : [],
     peca,
     cor,
     designs: permitidos,
@@ -210,6 +241,8 @@ export function qualidadeDaFoto(m: Montagem, r: Resolvida | null): { definicao: 
 // O que ainda falta para a peça ir ao carrinho, na ordem dos passos.
 export function oQueFalta(m: Montagem, r: Resolvida | null): Falta[] {
   const falta: Falta[] = [];
+  // Sem dizer a modelagem, a peça da prévia é só um exemplo: ninguém escolheu.
+  if (r && !r.modelagem && !m.peca) falta.push({ texto: 'escolher a peça', passo: 'peca' });
   if (!r?.design) falta.push({ texto: 'escolher um design', passo: 'design' });
   // A foto não precisa de um "aprovar" à parte: quem aprova a peça é o botão do carrinho.
   if (!m.foto) falta.push({ texto: 'mandar a foto', passo: 'foto' });

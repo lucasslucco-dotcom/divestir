@@ -1,4 +1,4 @@
--- Catálogo da Divestir: 6 peças, 3 cores, as fotos de base, a área de impressão de
+-- Catálogo da Divestir: 8 peças, 3 cores, as fotos de base, a área de impressão de
 -- cada lado e os designs.
 -- São dados, não estrutura: rodar de novo é seguro (atualiza o que já existe).
 -- As fotos ficam em public/catalogo/ com o nome peca-cor-lado.jpg.
@@ -6,17 +6,24 @@
 -- por enquanto só existe a posição na foto de base (previa); os centímetros chegam
 -- quando a estamparia confirmar.
 
-insert into public.pecas (slug, nome, caimento, ordem) values
-  ('camiseta-regular', 'Camiseta', 'Regular', 1),
-  ('camiseta-oversized', 'Camiseta', 'Oversized', 2),
-  ('camiseta-dry-fit', 'Camiseta', 'Dry-fit', 3),
-  ('moletom', 'Moletom', 'Sem capuz', 4),
-  ('moletom-capuz', 'Moletom', 'Com capuz', 5),
-  ('jaqueta-bomber', 'Jaqueta bomber', 'Só na cor preta', 6)
+-- Modelagem (pedido do Lucas, 25/11/2026): o montador pergunta se a peça é masculina ou
+-- feminina e só mostra as que servem. A camiseta básica feminina e a baby look são só
+-- femininas; a regular (a "básica" da confecção) e a dry-fit, que usa a mesma grade,
+-- são masculinas; a oversized, os moletons e a bomber servem para os dois.
+insert into public.pecas (slug, nome, caimento, ordem, modelagem) values
+  ('camiseta-regular', 'Camiseta', 'Regular', 1, 'masculina'),
+  ('camiseta-basica-feminina', 'Camiseta', 'Básica feminina', 2, 'feminina'),
+  ('camiseta-baby-look', 'Camiseta', 'Baby look', 3, 'feminina'),
+  ('camiseta-oversized', 'Camiseta', 'Oversized', 4, 'unissex'),
+  ('camiseta-dry-fit', 'Camiseta', 'Dry-fit', 5, 'masculina'),
+  ('moletom', 'Moletom', 'Sem capuz', 6, 'unissex'),
+  ('moletom-capuz', 'Moletom', 'Com capuz', 7, 'unissex'),
+  ('jaqueta-bomber', 'Jaqueta bomber', 'Só na cor preta', 8, 'unissex')
 on conflict (slug) do update set
   nome = excluded.nome,
   caimento = excluded.caimento,
-  ordem = excluded.ordem;
+  ordem = excluded.ordem,
+  modelagem = excluded.modelagem;
 
 -- A jaqueta college saiu do catálogo e deu lugar à bomber (decisão do Lucas,
 -- 10/11/2026). Num banco que já tinha a college, ela fica guardada, fora da loja, por
@@ -38,7 +45,7 @@ from public.pecas p
 cross join public.cores c
 cross join (values ('frente'), ('costas')) as l (lado)
 where (
-    p.slug in ('camiseta-regular', 'camiseta-oversized', 'moletom', 'moletom-capuz')
+    p.slug in ('camiseta-regular', 'camiseta-basica-feminina', 'camiseta-baby-look', 'camiseta-oversized', 'moletom', 'moletom-capuz')
     and c.slug in ('preto', 'branco', 'creme')
   )
   -- A dry-fit só existe em preto e branco (resposta da confecção, 23/11/2026).
@@ -75,7 +82,13 @@ from (values
   ('moletom', '{"frente": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.2, "largura": 0.31}}, "costas": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.32, "grande": {"largura": 0.4, "topo": 0.175}}}, "peito": {"largura_cm": 10, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.225, "largura": 0.11}}}'::jsonb),
   ('moletom-capuz', '{"frente": {"largura_cm": 23, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.305, "largura": 0.2}}, "costas": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.325, "largura": 0.36, "grande": {"largura": 0.42}}}, "peito": {"largura_cm": 10, "altura_cm": null, "previa": {"x": 0.655, "topo": 0.275, "largura": 0.1}}}'::jsonb),
   ('camiseta-dry-fit', '{"frente": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.205, "largura": 0.3}}, "costas": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.185, "largura": 0.31, "grande": {"largura": 0.4, "topo": 0.175}}}, "peito": {"largura_cm": 10, "altura_cm": null, "previa": {"x": 0.635, "topo": 0.215, "largura": 0.11}}}'::jsonb),
-  ('jaqueta-bomber', '{"costas": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.2, "largura": 0.3, "grande": {"largura": 0.38, "topo": 0.185}}}, "peito": {"largura_cm": 10, "altura_cm": null, "previa": {"x": 0.645, "topo": 0.255, "largura": 0.1}}}'::jsonb)
+  ('jaqueta-bomber', '{"costas": {"largura_cm": 36, "altura_cm": 46, "previa": {"x": 0.5, "topo": 0.2, "largura": 0.3, "grande": {"largura": 0.38, "topo": 0.185}}}, "peito": {"largura_cm": 10, "altura_cm": null, "previa": {"x": 0.645, "topo": 0.255, "largura": 0.1}}}'::jsonb),
+  -- As duas camisetas femininas (25/11/2026) são mais estreitas no peito: a estampa
+  -- aparece menor na foto e tem um limite menor em centímetros (32 × 38 na básica
+  -- feminina e 28 × 36 na baby look). São estimativas, até a confecção dizer o tamanho
+  -- máximo que ela estampa em cada uma.
+  ('camiseta-basica-feminina', '{"frente": {"largura_cm": 32, "altura_cm": 38, "previa": {"x": 0.5, "topo": 0.215, "largura": 0.26}}, "costas": {"largura_cm": 32, "altura_cm": 38, "previa": {"x": 0.5, "topo": 0.195, "largura": 0.27, "grande": {"largura": 0.335, "topo": 0.185}}}, "peito": {"largura_cm": 10, "altura_cm": null, "previa": {"x": 0.6, "topo": 0.225, "largura": 0.1}}}'::jsonb),
+  ('camiseta-baby-look', '{"frente": {"largura_cm": 28, "altura_cm": 36, "previa": {"x": 0.5, "topo": 0.275, "largura": 0.25}}, "costas": {"largura_cm": 28, "altura_cm": 36, "previa": {"x": 0.5, "topo": 0.225, "largura": 0.26, "grande": {"largura": 0.32, "topo": 0.215}}}, "peito": {"largura_cm": 8, "altura_cm": null, "previa": {"x": 0.6, "topo": 0.285, "largura": 0.09}}}'::jsonb)
 ) as a (slug, area)
 where p.slug = a.slug;
 
@@ -89,7 +102,9 @@ from (values
   ('moletom', '{"peso_kg": 0.8, "largura_cm": 35, "altura_cm": 8, "comprimento_cm": 45}'::jsonb),
   ('moletom-capuz', '{"peso_kg": 0.8, "largura_cm": 35, "altura_cm": 10, "comprimento_cm": 45}'::jsonb),
   ('camiseta-dry-fit', '{"peso_kg": 0.2, "largura_cm": 26, "altura_cm": 4, "comprimento_cm": 35}'::jsonb),
-  ('jaqueta-bomber', '{"peso_kg": 0.8, "largura_cm": 35, "altura_cm": 10, "comprimento_cm": 45}'::jsonb)
+  ('jaqueta-bomber', '{"peso_kg": 0.8, "largura_cm": 35, "altura_cm": 10, "comprimento_cm": 45}'::jsonb),
+  ('camiseta-basica-feminina', '{"peso_kg": 0.2, "largura_cm": 26, "altura_cm": 4, "comprimento_cm": 35}'::jsonb),
+  ('camiseta-baby-look', '{"peso_kg": 0.2, "largura_cm": 26, "altura_cm": 4, "comprimento_cm": 35}'::jsonb)
 ) as e (slug, envio)
 where p.slug = e.slug;
 
@@ -123,6 +138,14 @@ from (values
     {"nome": "Largura", "como_medir": "de um lado ao outro, na altura do peito", "valores": {"PP": 55, "P": 57, "M": 60, "G": 64, "GG": 68}},
     {"nome": "Comprimento", "como_medir": "do ombro até a barra", "valores": {"PP": 71, "P": 72, "M": 75, "G": 77, "GG": 80}},
     {"nome": "Manga", "como_medir": "do ombro até o punho", "valores": {"PP": 66, "P": 68, "M": 72, "G": 74, "GG": 76}}
+  ]}'::jsonb),
+  ('camiseta-basica-feminina', array['P', 'M', 'G', 'GG', 'XG'], '{"unidade": "cm", "linhas": [
+    {"nome": "Largura", "como_medir": "de uma cava à outra", "valores": {"P": 49, "M": 51, "G": 53, "GG": 55, "XG": 57}},
+    {"nome": "Comprimento", "como_medir": "do ombro até a barra", "valores": {"P": 70, "M": 72, "G": 74, "GG": 76, "XG": 78}}
+  ]}'::jsonb),
+  ('camiseta-baby-look', array['P', 'M', 'G', 'GG', 'XG'], '{"unidade": "cm", "linhas": [
+    {"nome": "Largura", "como_medir": "de uma cava à outra", "valores": {"P": 44, "M": 46, "G": 48, "GG": 50, "XG": 52}},
+    {"nome": "Comprimento", "como_medir": "do ombro até a barra", "valores": {"P": 63, "M": 65, "G": 67, "GG": 69, "XG": 71}}
   ]}'::jsonb)
 ) as m (slug, tamanhos, medidas)
 where p.slug = m.slug;
@@ -144,7 +167,7 @@ insert into public.designs (slug, nome, status, ordem, config) values
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
     "tintas": {"preto": "creme", "branco": "verde-escuro", "creme": "verde-escuro"},
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -183,7 +206,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -211,7 +234,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     ],
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -247,7 +270,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["pais", "avos-ele", "amigos"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -278,7 +301,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["amigos", "pais", "avos-ele"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -314,7 +337,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}, {"chave": "desde", "rotulo": "Invicto desde que ano?", "resumo": "Invicto desde", "max": 4, "caixa": "alta", "exemplo": "1995"}, {"chave": "papel", "rotulo": "Campeão mundial de…", "resumo": "Campeão de", "max": 10, "caixa": "alta", "opcoes": ["PAI", "AVÔ", "TIO", "PADRINHO", "SOGRO", "PADRASTO"]}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["pais", "avos-ele"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -347,7 +370,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}, {"chave": "titulo", "rotulo": "Rainha ou rei?", "resumo": "Na fita", "max": 14, "caixa": "alta", "opcoes": ["RAINHA DA CASA", "REI DA CASA"]}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["pets"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -376,7 +399,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["pets"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -409,7 +432,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 8, "caixa": "alta"}, {"chave": "papel", "rotulo": "O brabo ou a braba?", "resumo": "Apelido", "max": 8, "caixa": "alta", "opcoes": ["O BRABO", "A BRABA"]}, {"chave": "desde", "rotulo": "Desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["pets"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -440,7 +463,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["maes", "avos-ela"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -471,7 +494,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}, {"chave": "juri", "rotulo": "Quem é o júri?", "resumo": "Júri", "max": 9, "caixa": "alta", "opcoes": ["OS FILHOS", "A FILHA", "O FILHO", "AS FILHAS"]}, {"chave": "desde", "rotulo": "Mãe desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "1995"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["maes"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -502,7 +525,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["maes"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -533,7 +556,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["amigas"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -565,7 +588,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}, {"chave": "desde", "rotulo": "Amigas desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2012"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["amigas"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -595,7 +618,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["amigas"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -628,7 +651,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["amigos"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -660,7 +683,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 10, "caixa": "alta"}, {"chave": "desde", "rotulo": "Na grelha desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2005"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["amigos", "pais", "avos-ele", "irmaos"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -693,7 +716,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 20, "caixa": "alta"}, {"chave": "desde", "rotulo": "Juntos desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["casal"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -724,7 +747,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 20, "caixa": "alta"}, {"chave": "desde", "rotulo": "Juntos desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["casal"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -755,7 +778,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 20, "caixa": "alta"}, {"chave": "desde", "rotulo": "Juntos desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["casal"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -784,7 +807,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 20, "caixa": "alta"}, {"chave": "desde", "rotulo": "Juntos desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["casal"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -815,7 +838,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 14, "caixa": "alta"}, {"chave": "desde", "rotulo": "Nasceu em que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["filhos"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -847,7 +870,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 14, "caixa": "alta"}, {"chave": "titulo", "rotulo": "Quem é coruja?", "resumo": "Na fita", "max": 12, "caixa": "alta", "opcoes": ["MÃE CORUJA", "PAI CORUJA", "VÓ CORUJA", "VÔ CORUJA", "TIA CORUJA", "TIO CORUJA", "DINDA CORUJA", "DINDO CORUJA"]}, {"chave": "desde", "rotulo": "Nasceu em que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["filhos"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -879,7 +902,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 14, "caixa": "alta"}, {"chave": "desde", "rotulo": "Nasceu em que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["filhos"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -909,7 +932,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 14, "caixa": "alta"}, {"chave": "desde", "rotulo": "Nasceu em que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "2019"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["filhos"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -941,7 +964,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}, {"chave": "desde", "rotulo": "Desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "1998"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["avos-ela"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -972,7 +995,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["avos-ela"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -1003,7 +1026,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["avos-ela"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -1033,7 +1056,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}, {"chave": "desde", "rotulo": "Desde que ano?", "resumo": "Desde", "max": 4, "caixa": "alta", "exemplo": "1998"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["avos-ela"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -1066,7 +1089,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}, {"chave": "titulo", "rotulo": "O que vai na fita?", "resumo": "Na fita", "max": 24, "caixa": "alta", "opcoes": ["FILHO PREFERIDO DA MÃE", "FILHA PREFERIDA DA MÃE", "FILHO PREFERIDO DO PAI", "FILHA PREFERIDA DO PAI"]}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["irmaos"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -1098,7 +1121,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["irmaos"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set
@@ -1129,7 +1152,7 @@ insert into public.designs (slug, nome, status, ordem, drop_entrada, config) val
     "campos": [{"chave": "nome", "rotulo": "Nome", "max": 12, "caixa": "alta"}],
     "tintas": {"preto": "creme-quente", "branco": "verde-escuro", "creme": "verde-escuro"},
     "temas": ["irmaos"],
-    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "moletom", "moletom-capuz", "jaqueta-bomber"],
+    "pecas_permitidas": ["camiseta-regular", "camiseta-oversized", "camiseta-dry-fit", "camiseta-basica-feminina", "camiseta-baby-look", "moletom", "moletom-capuz", "jaqueta-bomber"],
     "logo_peito": true
   }'::jsonb)
 on conflict (slug) do update set

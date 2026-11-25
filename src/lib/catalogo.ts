@@ -20,10 +20,14 @@ export type TabelaDeMedidas = {
 // Pacote de uma peça dobrada, para cotar o frete (coluna envio de pecas).
 export type PacoteDeEnvio = { peso_kg: number; largura_cm: number; altura_cm: number; comprimento_cm: number };
 
+// Para quem a peça é cortada (coluna modelagem de pecas): a unissex aparece nas duas.
+export type Modelagem = 'masculina' | 'feminina';
+
 export type Peca = {
   slug: string;
   nome: string;
   caimento: string;
+  modelagem: Modelagem | 'unissex';
   preco: number | null;
   tamanhos: string[];
   medidas: TabelaDeMedidas | null;
@@ -72,7 +76,7 @@ export async function carregarCatalogo(): Promise<Catalogo> {
   const [pecas, cores, imagens] = await Promise.all([
     supabase
       .from('pecas')
-      .select('id, slug, nome, caimento, preco, tamanhos, medidas, envio, area_impressao_cm')
+      .select('id, slug, nome, caimento, modelagem, preco, tamanhos, medidas, envio, area_impressao_cm')
       .eq('ativo', true)
       .order('ordem'),
     supabase.from('cores').select('id, slug, nome, hex').eq('ativo', true).order('ordem'),
@@ -98,6 +102,7 @@ export async function carregarCatalogo(): Promise<Catalogo> {
         slug: peca.slug,
         nome: peca.nome,
         caimento: peca.caimento,
+        modelagem: peca.modelagem === 'masculina' || peca.modelagem === 'feminina' ? peca.modelagem : 'unissex',
         preco: peca.preco === null ? null : Number(peca.preco),
         tamanhos: Array.isArray(peca.tamanhos) ? peca.tamanhos : [],
         medidas: lerMedidas(peca.medidas),

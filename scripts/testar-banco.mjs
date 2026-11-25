@@ -252,6 +252,8 @@ await confere(
   1,
 );
 
+// O tamanho é EG: um dos tamanhos da grade da confecção, que a regra antiga do pedido
+// (só PP ao GGG) recusava.
 const PEDIDO_DE_TESTE = `jsonb_build_object(
   'chave_do_checkout', '11111111-1111-4111-8111-111111111111',
   'nome', 'Cliente Checkout', 'email', 'checkout@exemplo.com', 'whatsapp', '34999999999', 'cpf', '12345678909',
@@ -261,7 +263,7 @@ const PEDIDO_DE_TESTE = `jsonb_build_object(
     'peca_id', (select id from public.pecas where slug = 'camiseta-regular'),
     'cor_id', (select id from public.cores where slug = 'preto'),
     'design_id', (select id from public.designs where slug = 'fa-clube'),
-    'tamanho', 'M', 'lado', 'costas', 'campos', '{"nome": "THOR"}'::jsonb, 'preco', 100,
+    'tamanho', 'EG', 'lado', 'costas', 'campos', '{"nome": "THOR"}'::jsonb, 'preco', 100,
     'foto_id', '22222222-2222-4222-8222-222222222222')))`;
 const ID_DO_PEDIDO = "(select id from public.pedidos where chave_do_checkout = '11111111-1111-4111-8111-111111111111')";
 // A foto da peça do pedido de teste, que vence em 30 dias até o pedido ser pago.

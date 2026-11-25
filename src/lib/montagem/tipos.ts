@@ -34,6 +34,9 @@ export type FotoDaMontagem = {
 
 export type Montagem = {
   versao: 1;
+  // A modelagem escolhida no passo da peça (null: a pessoa ainda não disse). As peças
+  // que aparecem são as dessa modelagem e as unissex.
+  modelagem: 'masculina' | 'feminina' | null;
   peca: string | null;
   cor: string | null;
   design: string | null;
@@ -53,6 +56,7 @@ export type Montagem = {
 
 export const MONTAGEM_VAZIA: Montagem = {
   versao: 1,
+  modelagem: null,
   peca: null,
   cor: null,
   design: null,
@@ -73,6 +77,9 @@ export type Presente = { mensagem: string };
 export type ItemDoCarrinho = {
   id: string;
   criadoEm: string;
+  // A modelagem em que a peça foi escolhida (para "Editar" abrir nas mesmas peças).
+  // Peças guardadas antes de a pergunta existir não têm.
+  modelagem?: 'masculina' | 'feminina';
   peca: string;
   cor: string;
   design: string;
@@ -211,6 +218,7 @@ export function lerMontagem(valor: unknown): Montagem | null {
   if (m.versao !== 1) return null;
   return {
     versao: 1,
+    modelagem: m.modelagem === 'masculina' || m.modelagem === 'feminina' ? m.modelagem : null,
     peca: texto(m.peca),
     cor: texto(m.cor),
     design: texto(m.design),
@@ -243,6 +251,7 @@ function lerItens(valor: unknown): ItemDoCarrinho[] {
     itens.push({
       id,
       criadoEm,
+      ...(i.modelagem === 'masculina' || i.modelagem === 'feminina' ? { modelagem: i.modelagem } : {}),
       peca,
       cor,
       design,

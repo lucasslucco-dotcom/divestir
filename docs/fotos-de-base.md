@@ -48,3 +48,16 @@ A jaqueta bomber entrou no lugar da jaqueta college, só na cor preta, e a camis
 O creme da dry-fit saiu mais amarelo que o das outras peças e foi acertado depois do `preparar-fotos.py` (um pouco mais de azul só no tecido), para bater com a camiseta regular creme.
 
 Como as fotos chegaram ao projeto: o ambiente de trabalho do Claude não alcança o endereço das imagens do Higgsfield, então cada foto foi aberta no navegador do aplicativo, fotografada em quatro partes e emendada (1600 × 2000), antes do `preparar-fotos.py` reduzir para 1440 × 1800. As emendas foram conferidas e não aparecem.
+
+## Camiseta básica feminina e camiseta baby look, geradas em 25/11/2026
+
+As duas peças femininas entraram a pedido do Lucas (25/11/2026), nas três cores. A matriz da baby look usou a foto da camiseta regular como referência de enquadramento e luz, e a da básica feminina seguiu o mesmo caminho. As costas pretas e as frentes branca e creme saíram da matriz; as costas branca e creme, das costas pretas.
+
+| Peça | Preto, frente (matriz) | Preto, costas | Branco, frente | Branco, costas | Creme, frente | Creme, costas |
+| --- | --- | --- | --- | --- | --- | --- |
+| Camiseta baby look | `74f3ac63-4684-4def-afde-2d2f6ad19f90` | `f14c0be5-9233-4faf-962e-75fa05885ab8` | `045f7cd6-c825-4527-b5be-b62cf42e0ca4` | `e03be750-d8fa-4f2c-aaa8-bb42b41bb294` | `9bd4bfbc-13d5-4ff2-9a36-aed1d0aaf8b4` | `3e94bd48-266e-49d4-b157-41881831a7b5` |
+| Camiseta básica feminina | `b42ff999-8b17-4002-8e75-f6e8138ec3a5` | `5b4a17ec-90d5-4977-9a6b-3658a3b054b1` | `bda79f67-bbe4-486c-a93e-ac05f4555b2c` | `68090d53-c597-4c07-8808-7e39562cb6cb` | `024d0c88-7f2a-40da-bf92-2fc9d2a6bf14` | `ad4de404-2dbc-40fe-9672-c98e7463494c` |
+
+O creme saiu um pouco mais claro em três das quatro fotos e foi acertado depois do `preparar-fotos.py` (só no tecido), para bater com o creme da camiseta regular.
+
+Como as fotos chegaram ao projeto desta vez: pelo computador do próprio Higgsfield (`sandbox_exec`), que baixa cada resultado, reduz para 1440 × 1800 em JPEG e devolve a imagem inteira, sem emenda.

@@ -41,6 +41,7 @@ import {
   coresDaPeca,
   ID_DOS_PASSOS,
   nomeDaPeca,
+  pecasDaModelagem,
   oQueFalta,
   qualidadeDaFoto,
   reduzir,
@@ -419,6 +420,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
     if (!r || !r.design || !r.tamanho || !montagem.foto) return null;
     if (oQueFalta(montagem, r).length) return null;
     return {
+      ...(r.modelagem ? { modelagem: r.modelagem } : {}),
       peca: r.peca.slug,
       cor: r.cor.slug,
       design: r.design.slug,
@@ -525,6 +527,8 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
   const valores = montagem.campos;
   const nome = limparTextoDaEstampa(valores.nome ?? '');
   const pecaNome = nomeDaPeca(r.peca, catalogo.pecas);
+  // Antes da modelagem, a peça da prévia é só um exemplo: ninguém escolheu ainda.
+  const pecaEscolhida = !!r.modelagem || !!montagem.peca;
 
   // Antes de a pessoa mandar a foto, os designs aparecem com uma foto de exemplo do
   // tema escolhido em "Para quem é?" (e com um nome de exemplo, se ela ainda não
@@ -722,11 +726,27 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
         }}
         className="mt-1 lg:col-start-2 lg:row-start-2 lg:mt-8"
       >
-        <Passo id={ID_DOS_PASSOS.peca} numero={1} titulo="A peça" resumo={pecaNome}>
+        <Passo
+          id={ID_DOS_PASSOS.peca}
+          numero={1}
+          titulo="A peça"
+          resumo={pecaEscolhida ? pecaNome : null}
+        >
           <PassoPeca
-            catalogo={catalogo}
+            pecas={r.pecas}
+            modelagem={r.modelagem}
             peca={r.peca}
             cor={r.cor}
+            aoEscolherModelagem={(modelagem) =>
+              // A peça escolhida fica, se existir na modelagem nova; senão entra a primeira dela.
+              despachar({
+                tipo: 'modelagem',
+                modelagem,
+                peca: pecasDaModelagem(catalogo, modelagem).some((p) => p.slug === montagem.peca)
+                  ? montagem.peca
+                  : null,
+              })
+            }
             aoEscolher={(slug) => despachar({ tipo: 'peca', slug })}
           />
         </Passo>
@@ -825,7 +845,7 @@ export function Montador({ catalogo, designs }: { catalogo: Catalogo; designs: D
         <Passo id={ID_DOS_PASSOS.carrinho} numero={7} titulo="Sua Divestir">
           <PassoResumo
             r={r}
-            nomeDaPeca={pecaNome}
+            nomeDaPeca={pecaEscolhida ? pecaNome : '—'}
             nome={nome}
             valores={valores}
             foto={fotoDaPrevia}

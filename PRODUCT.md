@@ -37,7 +37,7 @@ A foto de quem você ama vira ídolo, numa peça com cara de merch oficial (fã-
 
 ## Capabilities and Constraints
 
-- Peças da v1: camiseta regular, camiseta oversized, camiseta dry-fit, moletom sem capuz, moletom com capuz e jaqueta bomber (decisão do Lucas, 10/11/2026: a bomber no lugar da college, e a dry-fit a mais). Cores de peça: preto, branco e creme; a bomber só em preto. Tamanhos: PP ao GGG.
+- Peças da v1: camiseta regular, camiseta oversized, camiseta dry-fit, moletom sem capuz, moletom com capuz e jaqueta bomber (decisão do Lucas, 10/11/2026: a bomber no lugar da college, e a dry-fit a mais). Desde 25/11/2026 (pedido do Lucas), também a camiseta básica feminina e a camiseta baby look, e o montador pergunta se a peça é masculina ou feminina antes de mostrar as peças: a regular e a dry-fit são masculinas, a básica feminina e a baby look são femininas, e a oversized, os moletons e a bomber aparecem nas duas. Cores de peça: preto, branco e creme; a bomber só em preto e a dry-fit em preto e branco. Tamanhos: os que a confecção faz em cada modelo.
 - Designs são templates configuráveis (área da foto, campo do nome, tinta por cor de peça), nunca imagens fixas. A arte fixa de cada design sai dos modelos de vetor do Higgsfield e o resto é montado no navegador (decisão do Lucas, 08/11/2026).
 - O cliente escolhe se a estampa vai na frente ou nas costas; a jaqueta bomber só aceita costas, por causa do zíper (decisão do Lucas, 10/11/2026). Com a estampa nas costas, a frente leva DIVESTIR pequeno no peito, no lugar do logo até ele ficar pronto (decisão do Lucas, 08/11/2026). Linha inicial: Fã-Clube, Turnê, Futebol Clube, Capa de Revista, Procura-se e Maison.
 - Fora da v1: programa de indicação, conta do cliente com histórico e app nativo.

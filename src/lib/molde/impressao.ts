@@ -36,9 +36,11 @@ export function tamanhoDaEstampaCm(areas: AreasDaPeca | null, lado: Lado, config
   );
   const fracao = naFoto && maiorNaFoto ? Math.min(1, naFoto / maiorNaFoto) : 1;
   // O que cabe naquele lado da peça, se ele tiver um limite próprio (a frente do moletom
-  // com capuz, entre os cordões e o bolso).
+  // com capuz, entre os cordões e o bolso; a baby look, que é uma peça pequena): na
+  // largura e, pela proporção do design, na altura.
   const doLado = areas?.[lado]?.largura_cm ?? ESTAMPA_MAXIMA_CM.largura;
-  const largura = Math.min(maxima * fracao, doLado);
+  const naAltura = (areas?.[lado]?.altura_cm ?? ESTAMPA_MAXIMA_CM.altura) * proporcao;
+  const largura = Math.min(maxima * fracao, doLado, naAltura);
   return { largura, altura: largura / proporcao };
 }
 
