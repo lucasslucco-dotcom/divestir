@@ -138,7 +138,7 @@ A v1 entra com 5 modelos, 3 cores e 6 tamanhos, todos cadastrados pelo painel pa
 | Moletom | Com capuz | até 36 × 46 cm | R$ 219 |
 | Jaqueta bomber | Só na cor preta | até 36 × 46 cm | R$ 249 |
 
-**Cores:** preto, branco, creme (a jaqueta bomber só em preto e a dry-fit em preto e branco). **Tamanhos:** os que a confecção faz em cada modelo, com tabela de medidas própria (25/11/2026): camiseta regular e dry-fit do PP ao EG, camiseta oversized, camiseta básica feminina e camiseta baby look do P ao XG e moletons do PP ao GG; a bomber ainda espera a grade da confecção. **Modelagem (25/11/2026):** o primeiro passo pergunta se a peça é masculina ou feminina e mostra só as peças que servem: a regular e a dry-fit são masculinas, a básica feminina e a baby look são femininas, e a oversized, os moletons e a bomber aparecem nas duas.
+**Cores:** preto, branco, creme (a jaqueta bomber só em preto e a dry-fit em preto e branco). **Tamanhos:** os que a confecção faz em cada modelo, com tabela de medidas própria (25/11/2026): camiseta regular e dry-fit do PP ao EG, camiseta oversized, camiseta básica feminina e camiseta baby look do P ao XG e moletons do PP ao GG; a bomber ainda espera a grade da confecção. **Modelagem (25/11/2026):** o primeiro passo pergunta se a peça é masculina ou feminina e mostra só as peças que servem: a regular é masculina, a básica feminina e a baby look são femininas, e a oversized, a dry-fit, os moletons e a bomber aparecem nas duas.
 
 **Jaqueta bomber** (decisão do Lucas, 10/11/2026, no lugar da jaqueta college): só na cor preta, com gola, punhos e barra canelados e zíper na frente. A estampa vai só nas costas, e a frente leva a marca no peito.
 

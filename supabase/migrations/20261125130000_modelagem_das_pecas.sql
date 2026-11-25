@@ -1,6 +1,6 @@
 -- Modelagem de cada peça (pedido do Lucas, 25/11/2026): a camiseta básica feminina e a
--- baby look são só femininas, a camiseta regular e a dry-fit são masculinas, e a
--- oversized, os moletons e a bomber servem para os dois. O montador pergunta a
+-- baby look são só femininas, a camiseta regular é masculina, e a oversized, a
+-- dry-fit, os moletons e a bomber servem para os dois. O montador pergunta a
 -- modelagem antes de mostrar as peças e só mostra as que servem.
 
 alter table public.pecas

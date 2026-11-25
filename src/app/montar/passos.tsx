@@ -156,7 +156,7 @@ export function PassoPeca({
         </div>
       ) : (
         <p className="mt-3 max-w-[38ch] text-[0.9375rem] leading-snug">
-          É só para mostrar as peças certas. Oversized, moletom e jaqueta aparecem nas duas.
+          É só para mostrar as peças certas. Oversized, dry-fit, moletom e jaqueta aparecem nas duas.
         </p>
       )}
     </>

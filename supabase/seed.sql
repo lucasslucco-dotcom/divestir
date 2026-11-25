@@ -8,14 +8,14 @@
 
 -- Modelagem (pedido do Lucas, 25/11/2026): o montador pergunta se a peça é masculina ou
 -- feminina e só mostra as que servem. A camiseta básica feminina e a baby look são só
--- femininas; a regular (a "básica" da confecção) e a dry-fit, que usa a mesma grade,
--- são masculinas; a oversized, os moletons e a bomber servem para os dois.
+-- femininas; a regular (a "básica" da confecção) é masculina; a oversized, a dry-fit
+-- (Lucas, 25/11/2026: "dry fit aparece nas duas"), os moletons e a bomber servem para os dois.
 insert into public.pecas (slug, nome, caimento, ordem, modelagem) values
   ('camiseta-regular', 'Camiseta', 'Regular', 1, 'masculina'),
   ('camiseta-basica-feminina', 'Camiseta', 'Básica feminina', 2, 'feminina'),
   ('camiseta-baby-look', 'Camiseta', 'Baby look', 3, 'feminina'),
   ('camiseta-oversized', 'Camiseta', 'Oversized', 4, 'unissex'),
-  ('camiseta-dry-fit', 'Camiseta', 'Dry-fit', 5, 'masculina'),
+  ('camiseta-dry-fit', 'Camiseta', 'Dry-fit', 5, 'unissex'),
   ('moletom', 'Moletom', 'Sem capuz', 6, 'unissex'),
   ('moletom-capuz', 'Moletom', 'Com capuz', 7, 'unissex'),
   ('jaqueta-bomber', 'Jaqueta bomber', 'Só na cor preta', 8, 'unissex')
