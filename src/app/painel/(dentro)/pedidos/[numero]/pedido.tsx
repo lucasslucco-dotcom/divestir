@@ -549,8 +549,8 @@ export function PedidoDoPainel({
           ) : null}
         </div>
         <p className="mt-5 max-w-[62ch] text-[0.8125rem] leading-snug">
-          Cada mudança de etapa avisa o cliente por e-mail, sozinha. O arquivo de impressão entra numa próxima etapa do
-          site.
+          Cada mudança de etapa avisa o cliente por e-mail, sozinha. Os arquivos para a confecção ficam logo abaixo, em
+          cada peça.
         </p>
       </section>
 
