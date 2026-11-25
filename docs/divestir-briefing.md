@@ -138,7 +138,7 @@ A v1 entra com 5 modelos, 3 cores e 6 tamanhos, todos cadastrados pelo painel pa
 | Moletom | Com capuz | até 36 × 46 cm | R$ 219 |
 | Jaqueta bomber | Só na cor preta | até 36 × 46 cm | R$ 249 |
 
-**Cores:** preto, branco, creme (a jaqueta bomber só em preto). **Tamanhos:** PP, P, M, G, GG, GGG, com tabela de medidas própria por modelo.
+**Cores:** preto, branco, creme (a jaqueta bomber só em preto). **Tamanhos:** os que a confecção faz em cada modelo, com tabela de medidas própria (25/11/2026): camiseta regular do PP ao EG, camiseta oversized do P ao XG e moletons do PP ao GG; a dry-fit e a bomber ainda esperam a grade da confecção.
 
 **Jaqueta bomber** (decisão do Lucas, 10/11/2026, no lugar da jaqueta college): só na cor preta, com gola, punhos e barra canelados e zíper na frente. A estampa vai só nas costas, e a frente leva a marca no peito.
 

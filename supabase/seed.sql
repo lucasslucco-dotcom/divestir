@@ -93,6 +93,36 @@ from (values
 ) as e (slug, envio)
 where p.slug = e.slug;
 
+-- Tamanhos e tabela de medidas de cada modelo, como a confecção mandou (25/11/2026).
+-- Os tamanhos de cada peça são os que ela faz, com os nomes dela (EG na camiseta básica,
+-- XG na oversized), para o pedido chegar com o tamanho que existe. As medidas do moletom
+-- valem para o com capuz e o sem capuz (Lucas, 25/11/2026). Na oversized, o comprimento
+-- do GG e do XG veio como 90 e 92 (os outros sobem de 2 em 2: 74, 76, 78), então ficam
+-- de fora até a confecção confirmar. Faltam a dry-fit e a bomber: essas duas ficam com
+-- os tamanhos de antes e sem tabela.
+update public.pecas as p set tamanhos = m.tamanhos, medidas = m.medidas
+from (values
+  ('camiseta-regular', array['PP', 'P', 'M', 'G', 'GG', 'EG'], '{"unidade": "cm", "linhas": [
+    {"nome": "Largura", "como_medir": "de uma cava à outra", "valores": {"PP": 48, "P": 53, "M": 55, "G": 58, "GG": 62, "EG": 67}},
+    {"nome": "Comprimento", "como_medir": "do ombro até a barra", "valores": {"PP": 68, "P": 70, "M": 72, "G": 74, "GG": 77, "EG": 80}}
+  ]}'::jsonb),
+  ('camiseta-oversized', array['P', 'M', 'G', 'GG', 'XG'], '{"unidade": "cm", "linhas": [
+    {"nome": "Largura", "como_medir": "de uma cava à outra", "valores": {"P": 55, "M": 57, "G": 59, "GG": 61, "XG": 63}},
+    {"nome": "Comprimento", "como_medir": "do ombro até a barra", "valores": {"P": 74, "M": 76, "G": 78}}
+  ]}'::jsonb),
+  ('moletom', array['PP', 'P', 'M', 'G', 'GG'], '{"unidade": "cm", "linhas": [
+    {"nome": "Largura", "como_medir": "de um lado ao outro, na altura do peito", "valores": {"PP": 55, "P": 57, "M": 60, "G": 64, "GG": 68}},
+    {"nome": "Comprimento", "como_medir": "do ombro até a barra", "valores": {"PP": 71, "P": 72, "M": 75, "G": 77, "GG": 80}},
+    {"nome": "Manga", "como_medir": "do ombro até o punho", "valores": {"PP": 66, "P": 68, "M": 72, "G": 74, "GG": 76}}
+  ]}'::jsonb),
+  ('moletom-capuz', array['PP', 'P', 'M', 'G', 'GG'], '{"unidade": "cm", "linhas": [
+    {"nome": "Largura", "como_medir": "de um lado ao outro, na altura do peito", "valores": {"PP": 55, "P": 57, "M": 60, "G": 64, "GG": 68}},
+    {"nome": "Comprimento", "como_medir": "do ombro até a barra", "valores": {"PP": 71, "P": 72, "M": 75, "G": 77, "GG": 80}},
+    {"nome": "Manga", "como_medir": "do ombro até o punho", "valores": {"PP": 66, "P": 68, "M": 72, "G": 74, "GG": 76}}
+  ]}'::jsonb)
+) as m (slug, tamanhos, medidas)
+where p.slug = m.slug;
+
 -- Design Fã-Clube: "Membro Oficial / NOME / Fã-Clube". As medidas estão em
 -- unidades da arte (1000 de largura) e as camadas são pintadas nesta ordem.
 -- A letra "Fã-Clube" foi gerada no Recraft V4.1 (Higgsfield) e limpa para uma tinta só.
